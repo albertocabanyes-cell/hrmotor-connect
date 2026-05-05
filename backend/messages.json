@@ -1,0 +1,532 @@
+[
+  {
+    "id": 1777907766148,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "Buenas que tal ?",
+    "time": "17:16",
+    "date": "2026-05-04T15:16:06.204Z"
+  },
+  {
+    "id": 1777907804876,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "Bien, todo correcto",
+    "time": "17:16",
+    "date": "2026-05-04T15:16:44.876Z"
+  },
+  {
+    "id": 1777907833449,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "Parece que si se quedan las conversaciones guardadas",
+    "time": "17:17",
+    "date": "2026-05-04T15:17:13.450Z"
+  },
+  {
+    "id": 1777907849824,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "Al cambiar de usuario es posible que se me cierre",
+    "time": "17:17",
+    "date": "2026-05-04T15:17:29.825Z"
+  },
+  {
+    "id": 1777907866173,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "siempre es al enviar un mensaje , veremos desde la otra cuenta",
+    "time": "17:17",
+    "date": "2026-05-04T15:17:46.174Z"
+  },
+  {
+    "id": 1777907880148,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "Correcto, se cierra si .",
+    "time": "17:18",
+    "date": "2026-05-04T15:18:00.149Z"
+  },
+  {
+    "id": 1777908529587,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "A ver ahora",
+    "time": "17:28",
+    "date": "2026-05-04T15:28:49.588Z"
+  },
+  {
+    "id": 1777908541703,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "me tira de la conversación.",
+    "time": "17:29",
+    "date": "2026-05-04T15:29:01.703Z"
+  },
+  {
+    "id": 1777908917567,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "a ver ahora",
+    "time": "17:35",
+    "date": "2026-05-04T15:35:17.567Z"
+  },
+  {
+    "id": 1777908926027,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "me sigue tirando",
+    "time": "17:35",
+    "date": "2026-05-04T15:35:26.027Z"
+  },
+  {
+    "id": 1777909046193,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "prueba 2.3",
+    "time": "17:37",
+    "date": "2026-05-04T15:37:26.193Z"
+  },
+  {
+    "id": 1777909132784,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "3.2",
+    "time": "17:38",
+    "date": "2026-05-04T15:38:52.784Z"
+  },
+  {
+    "id": 1777909155072,
+    "conversationId": "alberto__javier",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "javier",
+    "text": "Prueba",
+    "time": "17:39",
+    "date": "2026-05-04T15:39:15.073Z"
+  },
+  {
+    "id": 1777909484716,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "ultima prueba",
+    "time": "17:44",
+    "date": "2026-05-04T15:44:44.772Z"
+  },
+  {
+    "id": 1777909513328,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "prueba usuario 2",
+    "time": "17:45",
+    "date": "2026-05-04T15:45:13.329Z"
+  },
+  {
+    "id": 1777917748014,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "Buenas",
+    "time": "20:02",
+    "date": "2026-05-04T18:02:28.015Z"
+  },
+  {
+    "id": 1777917754873,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "Hola",
+    "time": "20:02",
+    "date": "2026-05-04T18:02:34.874Z"
+  },
+  {
+    "id": 1777917778972,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "hola",
+    "time": "20:02",
+    "date": "2026-05-04T18:02:58.973Z"
+  },
+  {
+    "id": 1777917796111,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "se me actualiza",
+    "time": "20:03",
+    "date": "2026-05-04T18:03:16.112Z"
+  },
+  {
+    "id": 1777917805222,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "a mi no",
+    "time": "20:03",
+    "date": "2026-05-04T18:03:25.223Z"
+  },
+  {
+    "id": 1777917813804,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "a mi me va bien",
+    "time": "20:03",
+    "date": "2026-05-04T18:03:33.805Z"
+  },
+  {
+    "id": 1777917827043,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "hola ?",
+    "time": "20:03",
+    "date": "2026-05-04T18:03:47.044Z"
+  },
+  {
+    "id": 1777918370213,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "Buenas",
+    "time": "20:12",
+    "date": "2026-05-04T18:12:50.214Z"
+  },
+  {
+    "id": 1777918380360,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "Todo bien ?",
+    "time": "20:13",
+    "date": "2026-05-04T18:13:00.361Z"
+  },
+  {
+    "id": 1777918402604,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "prueba",
+    "time": "20:13",
+    "date": "2026-05-04T18:13:22.605Z"
+  },
+  {
+    "id": 1777918428256,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "se me sigue actualizando y perdiendo la conversacion, tengo que volver a seleccionar",
+    "time": "20:13",
+    "date": "2026-05-04T18:13:48.256Z"
+  },
+  {
+    "id": 1777918693499,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "prueba 1",
+    "time": "20:18",
+    "date": "2026-05-04T18:18:13.500Z"
+  },
+  {
+    "id": 1777918708072,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "ahora parce que se actualizado el error.",
+    "time": "20:18",
+    "date": "2026-05-04T18:18:28.072Z"
+  },
+  {
+    "id": 1777918728159,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "si",
+    "time": "20:18",
+    "date": "2026-05-04T18:18:48.160Z"
+  },
+  {
+    "id": 1777918729345,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "te",
+    "time": "20:18",
+    "date": "2026-05-04T18:18:49.346Z"
+  },
+  {
+    "id": 1777918733085,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "escribo varios mensajes",
+    "time": "20:18",
+    "date": "2026-05-04T18:18:53.085Z"
+  },
+  {
+    "id": 1777919128886,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "prueba",
+    "time": "20:25",
+    "date": "2026-05-04T18:25:28.888Z"
+  },
+  {
+    "id": 1777965657705,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "HOLAAAAA",
+    "time": "09:20",
+    "date": "2026-05-05T07:20:57.763Z"
+  },
+  {
+    "id": 1777965676217,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "hola",
+    "time": "09:21",
+    "date": "2026-05-05T07:21:16.218Z"
+  },
+  {
+    "id": 1777965686172,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "hola",
+    "time": "09:21",
+    "date": "2026-05-05T07:21:26.173Z"
+  },
+  {
+    "id": 1777965840007,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "carlos",
+    "text": "buenas",
+    "time": "09:24",
+    "date": "2026-05-05T07:24:00.008Z"
+  },
+  {
+    "id": 1777965850737,
+    "conversationId": "alberto__javier",
+    "from": "alberto",
+    "fromName": "Alberto Cabanyes",
+    "to": "javier",
+    "text": "prueba 2-0",
+    "time": "09:24",
+    "date": "2026-05-05T07:24:10.738Z"
+  },
+  {
+    "id": 1777967588842,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "FUNCIONA LA MOMENTO",
+    "time": "09:53",
+    "date": "2026-05-05T07:53:08.898Z"
+  },
+  {
+    "id": 1777967599966,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "t234",
+    "time": "09:53",
+    "date": "2026-05-05T07:53:19.966Z"
+  },
+  {
+    "id": 1777967601052,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "234",
+    "time": "09:53",
+    "date": "2026-05-05T07:53:21.053Z"
+  },
+  {
+    "id": 1777967601729,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "234",
+    "time": "09:53",
+    "date": "2026-05-05T07:53:21.730Z"
+  },
+  {
+    "id": 1777968442261,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos Torres",
+    "to": "alberto",
+    "text": "Hola",
+    "time": "10:07",
+    "date": "2026-05-05T08:07:22.262Z"
+  },
+  {
+    "id": 1777969347218,
+    "conversationId": "alberto__javier",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "javier",
+    "text": "hola",
+    "time": "10:22",
+    "date": "2026-05-05T08:22:27.274Z"
+  },
+  {
+    "id": 1777969442114,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "alberto",
+    "text": "hola",
+    "time": "10:24",
+    "date": "2026-05-05T08:24:02.115Z"
+  },
+  {
+    "id": 1777969446949,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "alberto",
+    "text": "hola",
+    "time": "10:24",
+    "date": "2026-05-05T08:24:06.949Z"
+  },
+  {
+    "id": 1777970268929,
+    "conversationId": "alberto__carlos",
+    "from": "carlos",
+    "fromName": "Carlos IT Torres",
+    "to": "alberto",
+    "text": "hola",
+    "time": "10:37",
+    "date": "2026-05-05T08:37:48.930Z"
+  },
+  {
+    "id": 1777970283413,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "buenas",
+    "time": "10:38",
+    "date": "2026-05-05T08:38:03.414Z"
+  },
+  {
+    "id": 1777982652985,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "HOLA",
+    "time": "14:04",
+    "date": "2026-05-05T12:04:13.037Z"
+  },
+  {
+    "id": 1777982656509,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "COMO ESTAS",
+    "time": "14:04",
+    "date": "2026-05-05T12:04:16.510Z"
+  },
+  {
+    "id": 1777982666144,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "ahora por lo que veo se unen las conversaciones.",
+    "time": "14:04",
+    "date": "2026-05-05T12:04:26.144Z"
+  },
+  {
+    "id": 1777982701519,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "😡",
+    "time": "14:05",
+    "date": "2026-05-05T12:05:01.520Z"
+  },
+  {
+    "id": 1777982760099,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "correcta prueba.",
+    "time": "14:06",
+    "date": "2026-05-05T12:06:00.099Z"
+  },
+  {
+    "id": 1777983714303,
+    "conversationId": "alberto__carlos",
+    "from": "alberto",
+    "fromName": "Alberto IT Cabanyes",
+    "to": "carlos",
+    "text": "Ahora añadir el modal \"Ver perfil de contacto\" al HTML:Añadir modal ver perfil de contacto antes del script de socket.ioAñadir modal ver perfil de contacto antes del script de socket.ioAhora añadir el modal al listener de cierre por click fuera y actualizar _buildUserDiv con los dos botones de acción:Añadir viewProfileModal al listener de cierre por click fueraAñadir viewProfileModal al listener de cierre por click fueraAhora actualizar _buildUserDiv para que el ítem NO abra el chat al clicar y tenga los dos botones:Reescribir _buildUserDiv con dos botones de acción y sin click directo al chatReescribir _buildUserDiv con dos botones de acción y sin click directo al chatAhora añadir las funciones openViewProfile, closeViewProfile, openChatFromProfile y actualizar openProfile para bloquear campos a usuarios no admin:Actualizar openProfile para bloquear campos a no-admins y añadir funciones de ver perfilActualizar openProfile para bloquear campos a no-admins y añadir funciones de ver perfilFinalmente, en saveProfile asegurarnos de que los campos bloqueados no sobreescriben datos existentes para usuarios no admin:",
+    "time": "14:21",
+    "date": "2026-05-05T12:21:54.304Z"
+  }
+]
