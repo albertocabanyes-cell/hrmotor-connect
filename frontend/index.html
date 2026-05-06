@@ -249,26 +249,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;background:#f7f8fc;min-height:0;position:relative}
 .messages::-webkit-scrollbar{width:4px}
 .messages::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px}
-/* Watermark HRMOTOR connect difuminado en el fondo */
-.messages::before{
-  content:"HR\00a0MOTOR\A connect";
-  white-space:pre;
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:42px;
-  font-weight:900;
-  line-height:1.15;
-  text-align:center;
-  color:#10182f;
-  opacity:.04;
-  pointer-events:none;
-  letter-spacing:-1px;
-  z-index:0;
-  user-select:none;
-}
+.messages::before{content:"HR\00a0MOTOR\A connect";white-space:pre;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:900;line-height:1.15;text-align:center;color:#10182f;opacity:.04;pointer-events:none;letter-spacing:-1px;z-index:0;user-select:none;}
 .msg-empty{margin:auto;text-align:center;color:#ccc;font-size:14px;position:relative;z-index:1}
 
 /* Scroll to bottom button */
@@ -288,7 +269,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 @keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
 
 /* Message groups */
-.mg{display:flex;flex-direction:column;margin-bottom:8px}
+.mg{display:flex;flex-direction:column;margin-bottom:8px;position:relative;z-index:1}
 .mg.mine{align-items:flex-end}.mg.theirs{align-items:flex-start}
 .mg-row{display:flex;align-items:flex-end;gap:8px}
 .mg.mine .mg-row{flex-direction:row-reverse}
@@ -311,16 +292,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .mg-ticks{display:flex;align-items:center}
 .mg-ticks svg{width:14px;height:14px;display:block;stroke:rgba(26,58,107,.45)}
 .mg-ticks.read svg{stroke:#22c55e}
-/* Agrupar también los grupos en z-index */
-.mg{display:flex;flex-direction:column;margin-bottom:8px;position:relative;z-index:1}
 
-/* Composer */.composer-wrap{padding:10px 16px 12px;border-top:1px solid #f0f0f0;background:white;flex-shrink:0}
+/* Composer */
+.composer-wrap{padding:10px 16px 12px;border-top:1px solid #f0f0f0;background:white;flex-shrink:0}
 .composer-inner{display:flex;align-items:center;gap:8px;background:#f4f5f7;border-radius:28px;padding:5px 5px 5px 14px;border:1.5px solid transparent;transition:border-color .2s}
 .composer-inner:focus-within{border-color:#e30613;background:white}
 .composer-inner input{flex:1;border:none;background:transparent;font-size:14px;outline:none;color:#111;padding:4px 0;font-family:inherit}
 .composer-inner input::placeholder{color:#bbb}
 .composer-inner input:disabled{cursor:not-allowed;opacity:.5}
-/* Emoji button */
 .emoji-btn{background:none;border:none;cursor:pointer;font-size:18px;padding:4px 6px;border-radius:50%;transition:background .15s;flex-shrink:0;line-height:1}
 .emoji-btn:hover{background:rgba(0,0,0,.06)}
 .emoji-picker{position:absolute;bottom:70px;right:20px;background:white;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.15);padding:12px;z-index:50;display:none;width:280px}
@@ -347,7 +326,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .chat-info-status{display:flex;align-items:center;gap:5px;font-size:12px;color:#888;margin-bottom:4px}
 .ci-sdot{width:8px;height:8px;border-radius:50%;background:#888;flex-shrink:0}
 .ci-sdot.available{background:#22c55e}.ci-sdot.busy{background:#f59e0b}
-/* Email link */
 .ci-email-link{font-size:12px;color:#e30613;text-decoration:none;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:2px;transition:opacity .15s}
 .ci-email-link:hover{opacity:.75}
 .chat-info-divider{width:100%;height:1px;background:#f0f0f0;margin:14px 0}
@@ -450,7 +428,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
       <div class="chat-col" id="chatCol" style="display:none">
         <div class="topbar" id="topbar"></div>
         <div class="messages" id="messages">
-          <!-- Scroll to bottom button -->
           <button class="scroll-btn" id="scrollBtn" onclick="scrollToBottom(true)">
             <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
             <span class="scroll-badge" id="scrollBadge"></span>
@@ -458,7 +435,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         </div>
         <div class="typing-wrap"><div class="typing-indicator" id="typingIndicator"><div class="typing-dots"><span></span><span></span><span></span></div><span id="typingText"></span></div></div>
         <div class="composer-wrap" style="position:relative">
-          <!-- Emoji picker -->
           <div class="emoji-picker" id="emojiPicker">
             <div class="emoji-cats" id="emojiCats"></div>
             <div class="emoji-grid" id="emojiGrid"></div>
@@ -513,7 +489,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
     </div>
     <div class="modal-body">
       <div class="modal-section-title">Información personal</div>
-      <!-- Aviso para usuarios no admin -->
       <div id="profileReadonlyNotice" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:9px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:#b45309;display:flex;align-items:center;gap:7px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Solo puedes modificar tu foto de perfil. Contacta con un administrador para cambiar el resto.
@@ -640,7 +615,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
   </div>
 </div>
 
-<script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
+<!-- ✅ CORREGIDO: Socket.IO desde ruta relativa -->
+<script src="/socket.io/socket.io.js"></script>
 <script>
 /* ═══════════════════════════════════════
    ESTADO GLOBAL
@@ -655,7 +631,6 @@ let typingTimer = null, isTyping = false;
 let newMsgCount = 0;
 let emojiOpen = false;
 
-/* Lista maestra de departamentos — editable desde aquí */
 const DEPARTMENTS = [
   { id:"it",            label:"IT",              emoji:"💻", color:"#6366f1" },
   { id:"ventas",        label:"Ventas",           emoji:"📈", color:"#22c55e" },
@@ -669,13 +644,12 @@ const DEPARTMENTS = [
   { id:"direccion",     label:"Dirección",        emoji:"🏢", color:"#e30613" },
   { id:"otros",         label:"Otros",            emoji:"📋", color:"#6b7280" },
 ];
-/* Para obtener metadatos de un dept por label o id */
+
 function getDeptMeta(labelOrId){
   if(!labelOrId) return DEPARTMENTS[DEPARTMENTS.length-1];
   const q=(labelOrId||"").toLowerCase().trim();
   return DEPARTMENTS.find(d=>d.id===q||d.label.toLowerCase()===q)||{id:"otros",label:labelOrId,emoji:"📋",color:"#6b7280"};
 }
-/* Rellena todos los <select> de departamento */
 function populateDeptSelects(){
   ["pDepartamento","nuDepartamento","euDepartamento"].forEach(id=>{
     const sel=document.getElementById(id); if(!sel) return;
@@ -691,7 +665,6 @@ const SC = { available:"#22c55e", busy:"#f59e0b", unavailable:"#6b7280" };
 const SD = { available:"sdot-available", busy:"sdot-busy", unavailable:"sdot-unavailable" };
 const ST = { available:"available", busy:"busy", unavailable:"" };
 
-/* Emojis por categoría */
 const EMOJIS = {
   "😊":["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕"],
   "👍":["👍","👎","👊","✊","🤛","🤜","🤞","✌️","🤟","🤘","👌","🤌","🤏","👈","👉","👆","👇","☝️","👋","🤚","🖐","✋","🖖","💪","🦾","🖕","🤙","🤝","👏","🙌","🤲","🙏","✍️","💅","🦵","🦶","👂","🦻","👃","👀","👁","🫀","🫁","🧠","🦷","🦴","👅","👄"],
@@ -716,7 +689,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const admins=getAdmins(); if(!admins.includes("alberto")){ admins.push("alberto"); saveAdmins(admins); }
   buildEmojiPicker();
   populateDeptSelects();
-  try{ socket=io("http://127.0.0.1:3000",{autoConnect:false}); bindSocketEvents(); }catch(e){ console.warn("Socket.io no disponible"); }
+  // ✅ CORREGIDO: Socket.IO sin URL hardcodeada (usa la misma URL del servidor)
+  try{ socket=io({autoConnect:false}); bindSocketEvents(); }catch(e){ console.warn("Socket.io no disponible"); }
   try{ const s=localStorage.getItem("hrmotor_user"); if(s){ me=JSON.parse(s); mostrarApp(); } }catch(e){ localStorage.removeItem("hrmotor_user"); }
   document.getElementById("passInput").addEventListener("keydown",e=>{ if(e.key==="Enter") hacerLogin(); });
   document.addEventListener("click",e=>{
@@ -726,7 +700,6 @@ window.addEventListener("DOMContentLoaded", () => {
   ["profileModal","adminModal","editUserModal","viewProfileModal"].forEach(id=>{
     document.getElementById(id).addEventListener("click",e=>{ if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove("open"); });
   });
-  // Scroll listener para el botón "ir al fondo"
   document.getElementById("messages").addEventListener("scroll", onMessagesScroll);
 });
 
@@ -748,6 +721,7 @@ function hacerLogin(){
   btn.disabled = true;
   btn.textContent = "Entrando...";
 
+  // ✅ CORREGIDO: ruta relativa en lugar de http://127.0.0.1:3000/login
   fetch("/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -815,7 +789,6 @@ function updateBadge(){
   const total=Object.values(unread).filter(v=>v>0).length;
   const el=document.getElementById("totalBadge");
   el.textContent=total>0?total:""; el.style.display=total>0?"inline-block":"none";
-  // Actualizar título de la pestaña del navegador
   document.title=total>0?`(${total}) HRmotor Connect`:"HRmotor Connect";
 }
 function addToOpenChats(username){
@@ -829,50 +802,34 @@ function getUserAvatar(username){ try{ return JSON.parse(localStorage.getItem("h
    CARGAR USUARIOS
 ═══════════════════════════════════════ */
 function cargarUsuarios(){
-  fetch("http://127.0.0.1:3000/users")
+  // ✅ CORREGIDO: ruta relativa en lugar de http://127.0.0.1:3000/users
+  fetch("/users")
     .then(r=>r.json())
     .then(data=>{ users=data.filter(u=>u.username!==me.username); renderAllUsers(); })
     .catch(()=>console.warn("No se pudo cargar usuarios"));
 }
-function buildUserItemHTML(u,count,uSt){
-  const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
-  const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
-  const adminMark=isAdmin(u.username)?` <span style="font-size:9px;background:#e30613;color:white;padding:1px 4px;border-radius:3px;vertical-align:middle">A</span>`:"";
-  return `<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
-    <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}${adminMark}</div><div class="usub">${SL[uSt]||"No disponible"}</div></div>
-    ${count>0?`<span class="ubadge">${count}</span>`:""}`;
-}
+
 function renderAllUsers(query){
   const list=document.getElementById("allUsersList");
   const q=(query!==undefined?query:(document.getElementById("searchInput").value||"")).toLowerCase().trim();
-
-  // Enriquecer cada usuario con su dept del perfil localStorage
   const enriched=users.map(u=>{
     const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
     return {...u, _dept: saved.dpto||u.dept||"Otros" };
   });
-
-  // Filtrar por búsqueda
   const filtered=q?enriched.filter(u=>
     (u.name||u.username).toLowerCase().includes(q)||
     (u._dept||"").toLowerCase().includes(q)
   ):enriched;
-
-  // Agrupar por departamento
   const groups={};
   filtered.forEach(u=>{
     const deptLabel=u._dept||"Otros";
     if(!groups[deptLabel]) groups[deptLabel]=[];
     groups[deptLabel].push(u);
   });
-
-  // Ordenar usuarios dentro de cada grupo: disponibles → ocupados → no disponibles
   const statusOrder={available:0,busy:1,unavailable:2};
   Object.keys(groups).forEach(dept=>{
     groups[dept].sort((a,b)=>(statusOrder[peerStatus[a.username]]??2)-(statusOrder[peerStatus[b.username]]??2));
   });
-
-  // Ordenar grupos: por orden de DEPARTMENTS, "Otros" siempre al final
   const deptOrder=DEPARTMENTS.map(d=>d.label);
   const sortedDepts=Object.keys(groups).sort((a,b)=>{
     const ia=deptOrder.indexOf(a), ib=deptOrder.indexOf(b);
@@ -880,38 +837,25 @@ function renderAllUsers(query){
     if(ia===-1) return 1; if(ib===-1) return -1;
     return ia-ib;
   });
-
-  // Si hay búsqueda activa, mostrar lista plana sin grupos
   if(q){
     list.innerHTML="";
-    if(filtered.length===0){
-      list.innerHTML=`<p class="no-results">Sin resultados para "${q}"</p>`;
-      return;
-    }
+    if(filtered.length===0){ list.innerHTML=`<p class="no-results">Sin resultados para "${q}"</p>`; return; }
     filtered.forEach(u=>{ const div=_buildUserDiv(u); list.appendChild(div); });
     return;
   }
-
-  // Guardar estado colapsado de grupos antes de limpiar
   const collapseState={};
   list.querySelectorAll(".dept-group[data-dept]").forEach(g=>{
     collapseState[g.dataset.dept]=g.querySelector(".dept-users")?.classList.contains("collapsed");
   });
-
   list.innerHTML="";
-
   sortedDepts.forEach(deptLabel=>{
     const usersInDept=groups[deptLabel];
     const meta=getDeptMeta(deptLabel);
-    const isCollapsed=collapseState[deptLabel]||false; // mantener estado previo
+    const isCollapsed=collapseState[deptLabel]||false;
     const unreadInDept=usersInDept.reduce((sum,u)=>sum+(unread[u.username]||0),0);
-
     const group=document.createElement("div");
     group.className="dept-group"; group.dataset.dept=deptLabel;
-
-    // Calcular altura para la animación
     const estHeight=usersInDept.length*48;
-
     group.innerHTML=`
       <div class="dept-header" onclick="toggleDeptGroup(this)">
         <div class="dept-icon" style="background:${meta.color}22;color:${meta.color}">${meta.emoji}</div>
@@ -921,24 +865,20 @@ function renderAllUsers(query){
         <svg class="dept-chevron${isCollapsed?" collapsed":""}" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
       </div>
       <div class="dept-users${isCollapsed?" collapsed":""}" style="max-height:${isCollapsed?0:estHeight+20}px"></div>`;
-
     const usersContainer=group.querySelector(".dept-users");
     usersInDept.forEach(u=>{ usersContainer.appendChild(_buildUserDiv(u)); });
     list.appendChild(group);
   });
 }
 
-/* Construye el div de un usuario con botones de acción */
 function _buildUserDiv(u){
   const div=document.createElement("div");
   div.dataset.u=u.username;
   const count=unread[u.username]||0, active=current===u.username, uSt=peerStatus[u.username]||"unavailable";
   div.className="ui"+(active?" active":"");
-
   const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
   const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
   const adminMark=isAdmin(u.username)?` <span style="font-size:9px;background:#e30613;color:white;padding:1px 4px;border-radius:3px;vertical-align:middle">A</span>`:"";
-
   div.innerHTML=`
     <div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
     <div class="uinfo">
@@ -954,43 +894,23 @@ function _buildUserDiv(u){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       </button>
     </div>`;
-
-  // Botón chat → abrir conversación
-  div.querySelector(".ui-action-btn.chat").addEventListener("click", e => {
-    e.stopPropagation();
-    selectUser(u);
-    switchTab("chats");
-  });
-  // Botón perfil → abrir modal ver perfil
-  div.querySelector(".ui-action-btn.view").addEventListener("click", e => {
-    e.stopPropagation();
-    openViewProfile(u);
-  });
-
+  div.querySelector(".ui-action-btn.chat").addEventListener("click", e => { e.stopPropagation(); selectUser(u); switchTab("chats"); });
+  div.querySelector(".ui-action-btn.view").addEventListener("click", e => { e.stopPropagation(); openViewProfile(u); });
   return div;
 }
 
-/* Toggle colapsar/expandir grupo */
 function toggleDeptGroup(header){
   const usersEl=header.nextElementSibling;
   const chevron=header.querySelector(".dept-chevron");
   const isCollapsed=usersEl.classList.contains("collapsed");
-  if(isCollapsed){
-    usersEl.style.maxHeight=usersEl.scrollHeight+20+"px";
-    usersEl.classList.remove("collapsed");
-    chevron.classList.remove("collapsed");
-  } else {
-    usersEl.style.maxHeight="0px";
-    usersEl.classList.add("collapsed");
-    chevron.classList.add("collapsed");
-  }
+  if(isCollapsed){ usersEl.style.maxHeight=usersEl.scrollHeight+20+"px"; usersEl.classList.remove("collapsed"); chevron.classList.remove("collapsed"); }
+  else { usersEl.style.maxHeight="0px"; usersEl.classList.add("collapsed"); chevron.classList.add("collapsed"); }
 }
+
 function renderChatsList(query){
   const list=document.getElementById("chatsList"), noMsg=document.getElementById("noChats");
   const q=(query!==undefined?query:(document.getElementById("searchInput").value||"")).toLowerCase().trim();
-  // Ordenar chats: los que tienen mensajes no leídos primero, luego por último mensaje
-  const chatUsers=users.filter(u=>openChats.has(u.username))
-    .sort((a,b)=>((unread[b.username]||0)-(unread[a.username]||0)));
+  const chatUsers=users.filter(u=>openChats.has(u.username)).sort((a,b)=>((unread[b.username]||0)-(unread[a.username]||0)));
   const filtered=q?chatUsers.filter(u=>(u.name||u.username).toLowerCase().includes(q)):chatUsers;
   list.innerHTML="";
   filtered.forEach(u=>{
@@ -1015,37 +935,21 @@ function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsLis
 /* ═══════════════════════════════════════
    SCROLL
 ═══════════════════════════════════════ */
-function isAtBottom(){
-  const box=document.getElementById("messages");
-  return box.scrollHeight-box.scrollTop-box.clientHeight<60;
-}
-function scrollToBottom(force=false){
-  const box=document.getElementById("messages");
-  box.scrollTop=box.scrollHeight;
-  newMsgCount=0;
-  document.getElementById("scrollBtn").style.display="none";
-  document.getElementById("scrollBadge").style.display="none";
-}
-function onMessagesScroll(){
-  if(isAtBottom()){ newMsgCount=0; document.getElementById("scrollBtn").style.display="none"; document.getElementById("scrollBadge").style.display="none"; }
-}
+function isAtBottom(){ const box=document.getElementById("messages"); return box.scrollHeight-box.scrollTop-box.clientHeight<60; }
+function scrollToBottom(force=false){ const box=document.getElementById("messages"); box.scrollTop=box.scrollHeight; newMsgCount=0; document.getElementById("scrollBtn").style.display="none"; document.getElementById("scrollBadge").style.display="none"; }
+function onMessagesScroll(){ if(isAtBottom()){ newMsgCount=0; document.getElementById("scrollBtn").style.display="none"; document.getElementById("scrollBadge").style.display="none"; } }
 
 /* ═══════════════════════════════════════
    TYPING INDICATOR
 ═══════════════════════════════════════ */
-function handleComposerKey(e){
-  if(e.key==="Enter"){ send(); return; }
-}
+function handleComposerKey(e){ if(e.key==="Enter"){ send(); return; } }
 function handleTyping(){
   if(!current||!socket||!socket.connected) return;
   if(!isTyping){ isTyping=true; socket.emit("typing",{from:me.username,to:current,typing:true}); }
   clearTimeout(typingTimer);
   typingTimer=setTimeout(()=>{ isTyping=false; socket.emit("typing",{from:me.username,to:current,typing:false}); },2000);
 }
-function showTyping(fromName){
-  const el=document.getElementById("typingIndicator"), txt=document.getElementById("typingText");
-  txt.textContent=`${fromName} está escribiendo...`; el.classList.add("show");
-}
+function showTyping(fromName){ const el=document.getElementById("typingIndicator"), txt=document.getElementById("typingText"); txt.textContent=`${fromName} está escribiendo...`; el.classList.add("show"); }
 function hideTyping(){ document.getElementById("typingIndicator").classList.remove("show"); }
 
 /* ═══════════════════════════════════════
@@ -1054,32 +958,19 @@ function hideTyping(){ document.getElementById("typingIndicator").classList.remo
 function buildEmojiPicker(){
   const cats=document.getElementById("emojiCats");
   EMOJI_CAT_KEYS.forEach((cat,i)=>{
-    const btn=document.createElement("button");
-    btn.className="emoji-cat"+(i===0?" active":"");
-    btn.textContent=cat; btn.dataset.cat=cat;
-    btn.onclick=(e)=>{ e.stopPropagation(); switchEmojiCat(cat); };
-    cats.appendChild(btn);
+    const btn=document.createElement("button"); btn.className="emoji-cat"+(i===0?" active":""); btn.textContent=cat; btn.dataset.cat=cat;
+    btn.onclick=(e)=>{ e.stopPropagation(); switchEmojiCat(cat); }; cats.appendChild(btn);
   });
   switchEmojiCat(EMOJI_CAT_KEYS[0]);
 }
 function switchEmojiCat(cat){
   document.querySelectorAll(".emoji-cat").forEach(b=>b.classList.toggle("active",b.dataset.cat===cat));
   const grid=document.getElementById("emojiGrid"); grid.innerHTML="";
-  EMOJIS[cat].forEach(em=>{
-    const btn=document.createElement("button"); btn.textContent=em;
-    btn.onclick=(e)=>{ e.stopPropagation(); insertEmoji(em); };
-    grid.appendChild(btn);
-  });
+  EMOJIS[cat].forEach(em=>{ const btn=document.createElement("button"); btn.textContent=em; btn.onclick=(e)=>{ e.stopPropagation(); insertEmoji(em); }; grid.appendChild(btn); });
 }
 function toggleEmoji(e){ e.stopPropagation(); emojiOpen=!emojiOpen; document.getElementById("emojiPicker").classList.toggle("open",emojiOpen); }
 function closeEmoji(){ emojiOpen=false; document.getElementById("emojiPicker").classList.remove("open"); }
-function insertEmoji(em){
-  const input=document.getElementById("messageInput");
-  const start=input.selectionStart, end=input.selectionEnd;
-  input.value=input.value.slice(0,start)+em+input.value.slice(end);
-  input.selectionStart=input.selectionEnd=start+em.length;
-  input.focus();
-}
+function insertEmoji(em){ const input=document.getElementById("messageInput"); const start=input.selectionStart, end=input.selectionEnd; input.value=input.value.slice(0,start)+em+input.value.slice(end); input.selectionStart=input.selectionEnd=start+em.length; input.focus(); }
 
 /* ═══════════════════════════════════════
    SELECCIONAR USUARIO
@@ -1094,13 +985,11 @@ function selectUser(u){
   const dept=cp.dpto||u.dept||"–", delegacion=cp.delegacion||u.delegacion||"–";
   const telefono=cp.telefono||u.phone||"–", email=cp.email||u.email||"";
 
-  // Topbar
   document.getElementById("topbar").innerHTML=`
     <div class="tb-av">${photo?`<img src="${photo}" alt="${ini}">`:""}<span style="${photo?"display:none":""}">${ini}</span><span class="tb-dot ${dotCls}"></span></div>
     <div class="tb-info"><div class="tb-name">${escHtml(displayName)}</div>
     <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div></div>`;
 
-  // Panel info
   const ciAv=document.getElementById("ciAv"); ciAv.style.overflow="hidden"; ciAv.style.padding="0";
   ciAv.innerHTML=photo?`<img src="${photo}" alt="${ini}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:20px;font-weight:700">${ini}</span>`;
   document.getElementById("ciName").textContent=displayName;
@@ -1109,7 +998,6 @@ function selectUser(u){
   document.getElementById("ciDept").textContent=dept;
   document.getElementById("ciDelegacion").textContent=delegacion;
   document.getElementById("ciTelefono").textContent=telefono;
-  // Email con link
   const emailLink=document.getElementById("ciEmailLink"), emailTxt=document.getElementById("ciEmailTxt");
   if(email){ emailLink.href="mailto:"+email; emailTxt.textContent=email; emailLink.style.display="flex"; }
   else{ emailLink.style.display="none"; }
@@ -1124,12 +1012,12 @@ function selectUser(u){
   document.getElementById("scrollBtn").style.display="none";
 
   const box=document.getElementById("messages");
-  // Limpiar mensajes pero mantener el scroll-btn
   const scrollBtn=document.getElementById("scrollBtn");
   box.innerHTML=""; box.appendChild(scrollBtn);
   box.innerHTML+=`<p class="msg-empty" id="msgEmpty">Cargando…</p>`;
 
-  fetch(`http://127.0.0.1:3000/messages/${me.username}/${u.username}`)
+  // ✅ CORREGIDO: ruta relativa en lugar de http://127.0.0.1:3000/messages/...
+  fetch(`/messages/${me.username}/${u.username}`)
     .then(r=>r.json())
     .then(data=>{
       document.getElementById("msgEmpty")?.remove();
@@ -1149,7 +1037,6 @@ function send(){
   if(!text) return;
   const msg={from:me.username,fromName:me.name||me.username,to:current,text,time:horaActual()};
   addToOpenChats(current); lastMsg[current]=text;
-  // Parar indicador de typing propio
   clearTimeout(typingTimer); isTyping=false;
   if(socket&&socket.connected){ socket.emit("private_message",msg); socket.emit("typing",{from:me.username,to:current,typing:false}); }
   else addMessage(msg);
@@ -1164,19 +1051,15 @@ function addMessage(msg, noScroll=false){
   box.querySelector(".msg-empty")?.remove();
   const isMe=msg.from===me.username, side=isMe?"mine":"theirs", time=msg.time||"";
   const wasAtBottom=isAtBottom();
-
-  // Buscar último grupo del mismo remitente
   const lastGrp=box.querySelector(".mg:last-child"), sameGrp=lastGrp&&lastGrp.dataset.from===msg.from;
   if(sameGrp){
-    const prev=lastGrp.querySelector(".bub.last");
-    if(prev){prev.classList.remove("last");prev.classList.add("mid");}
+    const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
     const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
     const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text;
     lastGrp.querySelector(".mg-bubbles").appendChild(bub);
   } else {
     const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
     const row=document.createElement("div"); row.className="mg-row";
-    // Avatar con foto si existe
     const av=document.createElement("div"); av.className="mg-av";
     const msgPhoto=getUserAvatar(msg.from);
     if(msgPhoto){ const img=document.createElement("img"); img.src=msgPhoto; img.alt=initials(msg.fromName||msg.from); av.appendChild(img); }
@@ -1187,23 +1070,20 @@ function addMessage(msg, noScroll=false){
     const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text; col.appendChild(bub);
     row.appendChild(col); grp.appendChild(row);
     const foot=document.createElement("div"); foot.className="mg-foot";
-    foot.innerHTML=`<span class="mg-time">${time}</span>${isMe?`<span class="mg-ticks"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>`:""}`;    grp.appendChild(foot); box.appendChild(grp);
+    foot.innerHTML=`<span class="mg-time">${time}</span>${isMe?`<span class="mg-ticks"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>`:""}`;
+    grp.appendChild(foot); box.appendChild(grp);
   }
-
   if(!noScroll){
     if(wasAtBottom){ scrollToBottom(); }
     else {
-      // Mostrar botón de "nuevo mensaje"
       newMsgCount++;
       const btn=document.getElementById("scrollBtn"), badge=document.getElementById("scrollBadge");
       btn.style.display="flex"; badge.style.display="block"; badge.textContent=newMsgCount;
-      // Sonido suave de notificación (solo si el mensaje no es mío)
       if(!isMe) playNotifSound();
     }
   }
 }
 
-/* Sonido de notificación suave */
 function playNotifSound(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1231,12 +1111,7 @@ function bindSocketEvents(){
       if(Notification?.permission==="granted") new Notification(`Nuevo mensaje de ${msg.fromName||msg.from}`,{body:msg.text,icon:""});
     }
   });
-  socket.on("typing",({from,typing})=>{
-    if(from===current){
-      if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); }
-      else hideTyping();
-    }
-  });
+  socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
 }
@@ -1258,8 +1133,6 @@ function openProfile(){
   populateDeptSelects();
   const saved=JSON.parse(localStorage.getItem(profileKey())||"{}"), name=me.name||me.username||"", parts=name.split(" ");
   const admin=isAdmin(me.username);
-
-  // Rellenar campos
   document.getElementById("pNombre").value=saved.nombre||parts[0]||"";
   document.getElementById("pApellidos").value=saved.apellidos||parts.slice(1).join(" ")||"";
   document.getElementById("pTelefono").value=saved.telefono||"";
@@ -1267,8 +1140,6 @@ function openProfile(){
   document.getElementById("pDelegacion").value=saved.delegacion||"";
   document.getElementById("pEmail").value=saved.email||me.email||"";
   document.getElementById("pUsername").value=me.username||"";
-
-  // Bloquear / desbloquear según rol
   const readonlyFields=["pNombre","pApellidos","pTelefono","pDelegacion","pEmail"];
   readonlyFields.forEach(id=>{
     const el=document.getElementById(id);
@@ -1278,14 +1149,8 @@ function openProfile(){
   const deptSel=document.getElementById("pDepartamento");
   if(!admin){ deptSel.setAttribute("disabled",""); deptSel.style.background="#f5f5f5"; deptSel.style.color="#999"; }
   else{ deptSel.removeAttribute("disabled"); deptSel.style.background=""; deptSel.style.color=""; }
-
-  // Aviso y botón guardar
   document.getElementById("profileReadonlyNotice").style.display=admin?"none":"flex";
-  const saveBtn=document.getElementById("profileSaveBtn");
-  // Usuarios normales solo pueden guardar (foto) — el botón permanece visible pero
-  // saveProfile() respetará los campos bloqueados
-  saveBtn.style.display="flex";
-
+  document.getElementById("profileSaveBtn").style.display="flex";
   const av=document.getElementById("profileAvatar");
   av.innerHTML=saved.avatarUrl?`<img src="${saved.avatarUrl}" alt="foto">`:`<span>${initials(name)}</span>`;
   document.getElementById("modalNameDisplay").textContent=name;
@@ -1295,7 +1160,6 @@ function openProfile(){
 }
 function closeProfile(){ document.getElementById("profileModal").classList.remove("open"); }
 
-/* Ver perfil de un compañero */
 let viewingUser = null;
 function openViewProfile(u){
   viewingUser=u;
@@ -1306,36 +1170,25 @@ function openViewProfile(u){
   const uSt=peerStatus[u.username]||"unavailable";
   const label=SL[uSt]||"No disponible", dotCls=ST[uSt]||"";
   const ini=initials(displayName);
-
-  // Avatar
   const vpAv=document.getElementById("vpAv");
   vpAv.innerHTML=photo?`<img src="${photo}" alt="${ini}">`:`<span>${ini}</span>`;
-
   document.getElementById("vpName").textContent=displayName;
   document.getElementById("vpDept").textContent=dept||"HRmotor";
   const dot=document.getElementById("vpDot"); dot.className="vp-sdot"+(dotCls?" "+dotCls:"");
   document.getElementById("vpStatus").textContent=label;
-
-  // Campos info
   const set=(id,val)=>{ const el=document.getElementById(id); el.className=val?"vp-val":"vp-val empty"; el.textContent=val||"Sin datos"; };
   set("vpDeptVal", dept);
   set("vpDelegacion", cp.delegacion||u.delegacion||"");
   set("vpTelefono", cp.telefono||u.phone||"");
-
   const emailVal=cp.email||u.email||"";
   const emailEl=document.getElementById("vpEmail");
   if(emailVal){ emailEl.innerHTML=`<a class="vp-email-link" href="mailto:${emailVal}">${escHtml(emailVal)}</a>`; emailEl.className="vp-val"; }
   else{ emailEl.textContent="Sin datos"; emailEl.className="vp-val empty"; }
-
   document.getElementById("viewProfileModal").classList.add("open");
 }
 function closeViewProfile(){ document.getElementById("viewProfileModal").classList.remove("open"); viewingUser=null; }
-function openChatFromProfile(){
-  if(!viewingUser) return;
-  closeViewProfile();
-  selectUser(viewingUser);
-  switchTab("chats");
-}
+function openChatFromProfile(){ if(!viewingUser) return; closeViewProfile(); selectUser(viewingUser); switchTab("chats"); }
+
 function handleAvatarChange(e){
   const file=e.target.files[0]; if(!file) return;
   if(file.size>2*1024*1024){alert("La imagen no puede superar 2 MB.");return;}
@@ -1351,34 +1204,20 @@ function applySidebarAvatar(url){
 function saveProfile(){
   const admin=isAdmin(me.username);
   const existing=JSON.parse(localStorage.getItem(profileKey())||"{}");
-
-  // Usuarios no admin: solo se guarda la foto, el resto se mantiene del existente
   let data;
   if(admin){
     const nombre=document.getElementById("pNombre").value.trim();
     const apellidos=document.getElementById("pApellidos").value.trim();
-    data={
-      nombre, apellidos,
-      telefono:  document.getElementById("pTelefono").value.trim(),
-      dpto:      document.getElementById("pDepartamento").value,
-      delegacion:document.getElementById("pDelegacion").value.trim(),
-      email:     document.getElementById("pEmail").value.trim(),
-    };
-    // Actualizar nombre mostrado
+    data={ nombre, apellidos, telefono:document.getElementById("pTelefono").value.trim(), dpto:document.getElementById("pDepartamento").value, delegacion:document.getElementById("pDelegacion").value.trim(), email:document.getElementById("pEmail").value.trim() };
     const fullName=[nombre,apellidos].filter(Boolean).join(" ")||me.username;
     me.name=fullName;
     document.getElementById("meLabel").childNodes[0].textContent=fullName;
     document.getElementById("meInitials").textContent=initials(fullName);
     document.getElementById("modalNameDisplay").textContent=fullName;
     document.getElementById("modalDeptDisplay").textContent=data.dpto||"HRmotor";
-  } else {
-    // Mantener todos los datos previos, solo actualizar avatar
-    data={...existing};
-  }
-
+  } else { data={...existing}; }
   if(avatarDataUrl) data.avatarUrl=avatarDataUrl;
   localStorage.setItem(profileKey(),JSON.stringify(data));
-
   const ok=document.getElementById("saveOk"); ok.style.display="block"; setTimeout(()=>ok.style.display="none",3000);
   renderUsers();
 }
@@ -1418,9 +1257,7 @@ function renderAdminTable(query=""){
   const allUsers=getAllKnownUsers().filter(u=>!q||(u.name||u.username).toLowerCase().includes(q)||u.username.toLowerCase().includes(q));
   const admins=getAdmins();
   const inactives=JSON.parse(localStorage.getItem("hrmotor_inactive_users")||"[]");
-
   if(!allUsers.length){wrap.innerHTML=`<p style="color:#aaa;font-size:13px;padding:16px 0">No hay usuarios.</p>`;return;}
-
   let html=`<table class="admin-table"><thead><tr><th>Usuario</th><th>Departamento</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
   allUsers.forEach(u=>{
     const isAdm=admins.includes(u.username), isInactive=inactives.includes(u.username);
@@ -1456,8 +1293,7 @@ function toggleUserActive(username,active){
 }
 
 function openEditUser(username){
-  populateDeptSelects();
-  editingUsername=username;
+  populateDeptSelects(); editingUsername=username;
   const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+username)||"{}");
   const u=getAllKnownUsers().find(u=>u.username===username)||{};
   document.getElementById("euNombre").value=saved.nombre||(u.name||"").split(" ")[0]||"";
