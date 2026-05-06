@@ -734,16 +734,41 @@ window.addEventListener("DOMContentLoaded", () => {
    LOGIN / LOGOUT
 ═══════════════════════════════════════ */
 function hacerLogin(){
-  const username=document.getElementById("userInput").value.trim().toLowerCase();
-  const password=document.getElementById("passInput").value.trim();
-  const err=document.getElementById("loginError"), btn=document.getElementById("loginBtn");
-  if(!username||!password){ showErr(err,"Rellena todos los campos."); return; }
-  clearErr(err); btn.disabled=true; btn.textContent="Entrando...";
-  fetch("http://127.0.0.1:3000/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})})
-    .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
-    .then(user=>{ me=user; localStorage.setItem("hrmotor_user",JSON.stringify(me)); mostrarApp(); })
-    .catch(()=>{ showErr(err,"Usuario o contraseña incorrectos."); btn.disabled=false; btn.textContent="Entrar"; });
+  const username = document.getElementById("userInput").value.trim().toLowerCase();
+  const password = document.getElementById("passInput").value.trim();
+  const err = document.getElementById("loginError");
+  const btn = document.getElementById("loginBtn");
+
+  if(!username || !password){
+    showErr(err, "Rellena todos los campos.");
+    return;
+  }
+
+  clearErr(err);
+  btn.disabled = true;
+  btn.textContent = "Entrando...";
+
+  fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  })
+    .then(r => {
+      if(!r.ok) throw new Error();
+      return r.json();
+    })
+    .then(user => {
+      me = user;
+      localStorage.setItem("hrmotor_user", JSON.stringify(me));
+      mostrarApp();
+    })
+    .catch(() => {
+      showErr(err, "Usuario o contraseña incorrectos.");
+      btn.disabled = false;
+      btn.textContent = "Entrar";
+    });
 }
+
 function showErr(el,txt){ el.textContent=txt; el.style.display="block"; }
 function clearErr(el){ el.style.display="none"; }
 
