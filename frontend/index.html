@@ -1235,7 +1235,13 @@ function bindSocketEvents(){
   socket.on("group_updated",group=>{
     const idx=groups.findIndex(g=>g.id===group.id);
     if(idx>=0) groups[idx]=group; else groups.push(group);
-    if(currentGroup&&currentGroup.id===group.id){ currentGroup=group; selectGroup(group); }
+    if(currentGroup&&currentGroup.id===group.id){
+      currentGroup=group;
+      // Refresh topbar member count without resetting the chat
+      const membersNames=group.members.map(m=>{ const u=users.find(u=>u.username===m); return u?u.name||u.username:m; }).join(", ");
+      const tb=document.querySelector("#topbar .tb-status-txt");
+      if(tb) tb.textContent=`${group.members.length} miembros · ${membersNames}`;
+    }
     if(activeTab==="groups") renderGroupsList();
   });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
@@ -1612,8 +1618,8 @@ function createGroup(){
   const name=document.getElementById("groupName").value.trim();
   const errEl=document.getElementById("createGroupErr");
   if(!name){ errEl.textContent="El nombre del grupo es obligatorio."; errEl.style.display="block"; return; }
-  const selected=[...document.querySelectorAll("#memberToggleList .member-toggle-item.selected")].map(el=>el.dataset.u);
-  if(!selected.length){ errEl.textContent="Selecciona al menos un miembro."; errEl.style.display="block"; return; }
+  const selected=[...new Set([me.username, ...[...document.querySelectorAll("#memberToggleList .member-toggle-item.selected")].map(el=>el.dataset.u)])];
+  if(selected.length<2){ errEl.textContent="Selecciona al menos un miembro además de ti."; errEl.style.display="block"; return; }
   errEl.style.display="none";
   fetch("/groups",{
     method:"POST",
