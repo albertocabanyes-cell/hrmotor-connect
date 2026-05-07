@@ -134,7 +134,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .vp-chat-btn:hover{background:#c00;transform:translateY(-1px);box-shadow:0 4px 12px rgba(227,6,19,.25)}
 .dept-header{display:flex;align-items:center;gap:7px;padding:7px 10px 5px;cursor:pointer;user-select:none;border-radius:8px;transition:background .13s}
 .dept-header:hover{background:rgba(255,255,255,.04)}
-.dept-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.dept-icon{display:none}
 .dept-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;flex:1}
 .dept-count{font-size:10px;color:rgba(255,255,255,.25);font-weight:600;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:999px}
 .dept-chevron{width:12px;height:12px;opacity:.3;transition:transform .2s;flex-shrink:0}
@@ -356,8 +356,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .group-color-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .group-color-pick button{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .15s}
 .group-color-pick button.selected{border-color:#333;transform:scale(1.15)}
-.grp-manage-btn{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.75);padding:5px 11px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;font-family:inherit}
-.grp-manage-btn:hover{background:rgba(255,255,255,.18);color:white}
+.grp-manage-btn{background:#fff0f0;border:1px solid rgba(227,6,19,.25);color:#e30613;padding:6px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;font-family:inherit;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.grp-manage-btn:hover{background:#e30613;color:white}
 </style>
 </head>
 <body>
@@ -955,7 +955,6 @@ function renderAllUsers(query){
     const estHeight=usersInDept.length*48;
     group.innerHTML=`
       <div class="dept-header" onclick="toggleDeptGroup(this)">
-        <div class="dept-icon" style="background:${meta.color}22;color:${meta.color}">${meta.emoji}</div>
         <span class="dept-title">${escHtml(deptLabel)}</span>
         <span class="dept-count">${usersInDept.length}</span>
         ${unreadInDept>0?`<span class="ubadge" style="font-size:10px;padding:1px 5px;margin-right:2px">${unreadInDept}</span>`:""}
@@ -1505,7 +1504,7 @@ function selectGroup(g){
   groupUnread[g.id]=0; updateBadge();
   renderGroupsList();
   const membersNames=g.members.map(m=>{ const u=users.find(u=>u.username===m); return u?u.name||u.username:m; }).join(", ");
-  const manageBtn=isAdmin(me.username)?`<button class="grp-manage-btn" onclick="openManageGroup()">Gestionar miembros</button>`:"";
+  const manageBtn=isAdmin(me.username)?`<button class="grp-manage-btn" onclick="openManageGroup()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Miembros</button>`:"";
   document.getElementById("topbar").innerHTML=`
     <div class="tb-av" style="background:${g.color||"#e30613"};color:white;font-weight:800;font-size:14px;overflow:visible;border-radius:10px">${escHtml(g.name.slice(0,2).toUpperCase())}</div>
     <div class="tb-info">
