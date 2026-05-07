@@ -237,8 +237,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 .vp-chat-btn:hover{background:#c00;transform:translateY(-1px);box-shadow:0 4px 12px rgba(227,6,19,.25)}
 .dept-header{display:flex;align-items:center;gap:7px;padding:7px 10px 5px;cursor:pointer;user-select:none;border-radius:8px;transition:background .13s}
 .dept-header:hover{background:rgba(255,255,255,.04)}
-.dept-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
-.dept-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;flex:1}
+.dept-icon{display:none}
+.dept-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.12em;flex:1}
 .dept-count{font-size:10px;color:rgba(255,255,255,.25);font-weight:600;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:999px}
 .dept-chevron{width:12px;height:12px;opacity:.3;transition:transform .2s;flex-shrink:0}
 .dept-chevron.collapsed{transform:rotate(-90deg)}
@@ -978,7 +978,7 @@ function renderAllUsers(query){
     const estHeight=usersInDept.length*48;
     group.innerHTML=`
       <div class="dept-header" onclick="toggleDeptGroup(this)">
-       <div class="dept-icon" style="background:${meta.color}"></div>
+       
         <span class="dept-title">${escHtml(deptLabel)}</span>
         <span class="dept-count">${usersInDept.length}</span>
         ${unreadInDept>0?`<span class="ubadge" style="font-size:10px;padding:1px 5px;margin-right:2px">${unreadInDept}</span>`:""}
