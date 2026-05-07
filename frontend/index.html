@@ -985,7 +985,7 @@ function renderAllUsers(query){
     const estHeight=usersInDept.length*48;
     group.innerHTML=`
       <div class="dept-header" onclick="toggleDeptGroup(this)">
-        <div class="dept-icon" style="background:${meta.color}22;color:${meta.color}">${meta.emoji}</div>
+       <div class="dept-icon" style="background:${meta.color}"></div>
         <span class="dept-title">${escHtml(deptLabel)}</span>
         <span class="dept-count">${usersInDept.length}</span>
         ${unreadInDept>0?`<span class="ubadge" style="font-size:10px;padding:1px 5px;margin-right:2px">${unreadInDept}</span>`:""}
