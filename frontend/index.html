@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HRmotor Connect</title>
 <style>
+  :root{
+  --red:#e30613;--red-dark:#c00;--red-glow:rgba(227,6,19,.25);
+  --navy:#0f1829;--navy-2:#172035;
+  --shadow-md:0 4px 16px rgba(0,0,0,.12);
+  --shadow-lg:0 24px 64px rgba(0,0,0,.28);
+  --transition:all .2s ease;
+}
+@keyframes slideInMsg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.mg{animation:slideInMsg .18s ease}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;display:flex;overflow:hidden}
 
