@@ -486,10 +486,11 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
         </div>
       </div>
 
-      <div class="tabs">
-        <div class="tab active" data-tab="all" onclick="switchTab('all')">Empresa</div>
-        <div class="tab" data-tab="chats" onclick="switchTab('chats')">Chats<span class="tab-badge" id="totalBadge"></span></div>
-      </div>
+    <div class="tabs">
+  <div class="tab active" data-tab="all" onclick="switchTab('all')">Empresa</div>
+  <div class="tab" data-tab="chats" onclick="switchTab('chats')">Chats<span class="tab-badge" id="totalBadge"></span></div>
+  <div class="tab" data-tab="groups" onclick="switchTab('groups')">Grupos<span class="tab-badge" id="groupsBadge"></span></div>
+</div>
       <div class="search-wrap">
         <div class="search-inner">
           <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -502,6 +503,17 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
         <div id="allUsersList"></div>
       </div>
       <div class="tab-panel" id="panel-chats">
+        <div class="tab-panel" id="panel-groups">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 8px 3px">
+    <span class="sec-label" style="padding:0">Mis grupos</span>
+    <button class="create-group-btn" id="createGroupBtn" style="display:none" onclick="openCreateGroup()" title="Crear grupo">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo grupo
+    </button>
+  </div>
+  <div id="groupsList"></div>
+  <p class="no-results" id="noGroups" style="display:none">Sin grupos aún</p>
+</div>
         <div class="sec-label">Conversaciones activas</div>
         <div id="chatsList"></div>
         <p class="no-results" id="noChats" style="display:none">Sin conversaciones activas</p>
@@ -722,7 +734,135 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 </div>
 
 <!-- ✅ CORREGIDO: Socket.IO desde ruta relativa -->
-<script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js">/* ═══════════════════════════════════════
+   GRUPOS
+═══════════════════════════════════════ */
+let groups=[], currentGroup=null, selectedGroupMembers=new Set();
+
+async function loadGroups(){
+  if(!me) return;
+  try{
+    const r=await fetch(`/groups?user=${me.username}`);
+    groups=await r.json();
+    renderGroupsList();
+  }catch(e){ console.warn("No se pudieron cargar grupos"); }
+}
+
+function renderGroupsList(query){
+  const list=document.getElementById("groupsList");
+  const noG=document.getElementById("noGroups");
+  if(!list) return;
+  const q=(query||"").toLowerCase();
+  const filtered=q?groups.filter(g=>g.name.toLowerCase().includes(q)):groups;
+  list.innerHTML="";
+  filtered.forEach(g=>{
+    const count=unread[g.id]||0;
+    const div=document.createElement("div");
+    div.className="ui"+(currentGroup?.id===g.id?" active":"");
+    div.innerHTML=`
+      <div class="uav" style="background:${g.color};font-size:12px;font-weight:800;color:white;flex-shrink:0">
+        ${g.name.slice(0,2).toUpperCase()}
+        <span class="udot" style="background:#3b82f6"></span>
+      </div>
+      <div class="uinfo">
+        <div class="uname">${escHtml(g.name)}</div>
+        <div class="usub">${g.members.length} miembros</div>
+      </div>
+      ${count>0?`<span class="ubadge">${count}</span>`:""}`;
+    div.addEventListener("click",()=>{ unread[g.id]=0; updateBadge(); selectGroup(g); });
+    list.appendChild(div);
+  });
+  if(noG) noG.style.display=filtered.length===0?"block":"none";
+}
+
+function selectGroup(g){
+  current=null; currentGroup=g; closeEmoji();
+  document.getElementById("topbar").innerHTML=`
+    <div class="tb-av" style="background:${g.color};font-size:14px;font-weight:800;color:white">${g.name.slice(0,2).toUpperCase()}</div>
+    <div class="tb-info">
+      <div class="tb-name">${escHtml(g.name)}</div>
+      <div class="tb-status"><span class="tb-status-txt">${g.members.length} miembros · ${g.members.join(", ")}</span></div>
+    </div>`;
+  const ciAv=document.getElementById("ciAv");
+  ciAv.style.background=g.color; ciAv.style.overflow="hidden"; ciAv.style.padding="0";
+  ciAv.innerHTML=`<span style="font-size:20px;font-weight:800;color:white">${g.name.slice(0,2).toUpperCase()}</span>`;
+  document.getElementById("ciName").textContent=g.name;
+  document.getElementById("ciDot").className="ci-sdot";
+  document.getElementById("ciDot").style.background=g.color;
+  document.getElementById("ciStatus").textContent=g.members.length+" miembros";
+  document.getElementById("ciEmailLink").style.display="none";
+  document.getElementById("ciDept").textContent=g.members.join(", ");
+  document.getElementById("ciDelegacion").textContent="–";
+  document.getElementById("ciTelefono").textContent="–";
+  document.getElementById("emptyState").style.display="none";
+  document.getElementById("chatCol").style.display="flex";
+  document.getElementById("chatInfo").style.display="flex";
+  document.getElementById("messageInput").disabled=false;
+  document.getElementById("sendBtn").disabled=false;
+  document.getElementById("messageInput").focus();
+  hideTyping(); newMsgCount=0;
+  document.getElementById("scrollBtn").style.display="none";
+  renderGroupsList();
+  const box=document.getElementById("messages");
+  const scrollBtn=document.getElementById("scrollBtn");
+  box.innerHTML=""; box.appendChild(scrollBtn);
+  box.innerHTML+=`<p class="msg-empty" id="msgEmpty">Cargando…</p>`;
+  fetch(`/group-messages/${g.id}`)
+    .then(r=>r.json())
+    .then(data=>{
+      document.getElementById("msgEmpty")?.remove();
+      if(!data.length){ box.innerHTML+='<p class="msg-empty">¡Sé el primero en escribir!</p>'; return; }
+      data.forEach(m=>addMessage(m,true));
+      scrollToBottom(true);
+    })
+    .catch(()=>{ document.getElementById("msgEmpty")?.remove(); });
+}
+
+function openCreateGroup(){
+  selectedGroupMembers=new Set();
+  document.getElementById("groupName").value="";
+  document.getElementById("groupOk").style.display="none";
+  document.getElementById("groupErr").style.display="none";
+  const list=document.getElementById("groupMembersList");
+  list.innerHTML="";
+  users.forEach(u=>{
+    const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
+    const displayName=(saved.nombre||saved.apellidos)?[saved.nombre,saved.apellidos].filter(Boolean).join(" "):(u.name||u.username);
+    const ini=initials(displayName), photo=saved.avatarUrl||null;
+    const item=document.createElement("div"); item.className="group-member-item";
+    item.innerHTML=`<label>
+      <input type="checkbox" value="${u.username}" onchange="toggleGroupMember('${u.username}',this.checked)">
+      <div class="uav" style="width:30px;height:30px;flex-shrink:0">${photo?`<img src="${photo}" alt="${ini}">`:ini}</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#111">${escHtml(displayName)}</div>
+        <div style="font-size:11px;color:#aaa">@${u.username}</div>
+      </div>
+    </label>`;
+    list.appendChild(item);
+  });
+  document.getElementById("createGroupModal").classList.add("open");
+}
+function closeCreateGroup(){ document.getElementById("createGroupModal").classList.remove("open"); }
+function toggleGroupMember(username,checked){ if(checked) selectedGroupMembers.add(username); else selectedGroupMembers.delete(username); }
+
+async function createGroup(){
+  const name=document.getElementById("groupName").value.trim();
+  const okEl=document.getElementById("groupOk"), errEl=document.getElementById("groupErr");
+  okEl.style.display="none"; errEl.style.display="none";
+  if(!name){ errEl.textContent="El nombre es obligatorio."; errEl.style.display="block"; return; }
+  if(selectedGroupMembers.size===0){ errEl.textContent="Selecciona al menos un miembro."; errEl.style.display="block"; return; }
+  const members=[me.username,...selectedGroupMembers];
+  const colors=["#6366f1","#22c55e","#f59e0b","#0ea5e9","#8b5cf6","#e30613","#ec4899","#f97316"];
+  const color=colors[Math.floor(Math.random()*colors.length)];
+  try{
+    const r=await fetch("/groups",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,members,createdBy:me.username,color})});
+    const group=await r.json();
+    groups.push(group);
+    renderGroupsList();
+    okEl.textContent=`✓ Grupo "${name}" creado`; okEl.style.display="block";
+    setTimeout(()=>{ okEl.style.display="none"; closeCreateGroup(); },1500);
+  }catch(err){ errEl.textContent="Error al crear el grupo."; errEl.style.display="block"; }
+}</script>/* 
 <script>
 /* ═══════════════════════════════════════
    ESTADO GLOBAL
@@ -865,7 +1005,8 @@ function mostrarApp(){
   try{ const s=JSON.parse(localStorage.getItem("hrmotor_chats_"+me.username)||"[]"); s.forEach(u=>openChats.add(u)); }catch(e){}
   cargarUsuarios();
   restoreProfileData();
-  requestNotificationPermission();
+  requestNotificationPermission();loadGroups();
+if(isAdmin(me.username)) document.getElementById("createGroupBtn").style.display="flex";
 }
   function requestNotificationPermission(){
   if(!('Notification' in window)||Notification.permission!=='default') return;
@@ -905,11 +1046,16 @@ function switchTab(t){
   document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("active",el.dataset.tab===t));
   document.querySelectorAll(".tab-panel").forEach(el=>el.classList.toggle("active",el.id==="panel-"+t));
   if(t==="chats") renderChatsList();
+  if(t==="groups") renderGroupsList();
 }
 function updateBadge(){
-  const total=Object.values(unread).filter(v=>v>0).length;
+  const privateTotal=Object.entries(unread).filter(([k,v])=>!k.startsWith("grp_")&&v>0).length;
   const el=document.getElementById("totalBadge");
-  el.textContent=total>0?total:""; el.style.display=total>0?"inline-block":"none";
+  el.textContent=privateTotal>0?privateTotal:""; el.style.display=privateTotal>0?"inline-block":"none";
+  const groupTotal=Object.entries(unread).filter(([k,v])=>k.startsWith("grp_")&&v>0).length;
+  const gel=document.getElementById("groupsBadge");
+  gel.textContent=groupTotal>0?groupTotal:""; gel.style.display=groupTotal>0?"inline-block":"none";
+  const total=privateTotal+groupTotal;
   document.title=total>0?`(${total}) HRmotor Connect`:"HRmotor Connect";
 }
 function addToOpenChats(username){
@@ -1050,7 +1196,7 @@ function renderChatsList(query){
   });
   if(noMsg) noMsg.style.display=filtered.length===0?"block":"none";
 }
-function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); }
+function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); if(activeTab==="groups") renderGroupsList(q); }
 function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsList(); updateBadge(); }
 
 /* ═══════════════════════════════════════
@@ -1153,17 +1299,24 @@ function selectUser(u){
    ENVIAR
 ═══════════════════════════════════════ */
 function send(){
-  if(!current) return;
-  const input=document.getElementById("messageInput"), text=input.value.trim();
+  if(!current&&!currentGroup) return;
+  const input=document.getElementById("messageInput");
+  const text=input.value.trim();
   if(!text) return;
-  const msg={from:me.username,fromName:me.name||me.username,to:current,text,time:horaActual()};
-  addToOpenChats(current); lastMsg[current]=text;
-  clearTimeout(typingTimer); isTyping=false;
-  if(socket&&socket.connected){ socket.emit("private_message",msg); socket.emit("typing",{from:me.username,to:current,typing:false}); }
-  else addMessage(msg);
-  renderUsers(); input.value=""; input.focus(); closeEmoji();
+  if(currentGroup){
+    const msg={groupId:currentGroup.id,from:me.username,fromName:me.name||me.username,text,time:horaActual()};
+    if(socket&&socket.connected) socket.emit("group_message",msg);
+    else addMessage(msg);
+  } else {
+    const msg={from:me.username,fromName:me.name||me.username,to:current,text,time:horaActual()};
+    addToOpenChats(current); lastMsg[current]=text;
+    clearTimeout(typingTimer); isTyping=false;
+    if(socket&&socket.connected){ socket.emit("private_message",msg); socket.emit("typing",{from:me.username,to:current,typing:false}); }
+    else addMessage(msg);
+    renderUsers();
+  }
+  input.value=""; input.focus(); closeEmoji();
 }
-
 /* ═══════════════════════════════════════
    AÑADIR MENSAJE
 ═══════════════════════════════════════ */
@@ -1235,6 +1388,20 @@ function bindSocketEvents(){
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
+  socket.on("group_message",msg=>{
+  if(!me) return;
+  const isCurrentGroup=currentGroup&&currentGroup.id===msg.groupId;
+  if(isCurrentGroup){ addMessage(msg); }
+  else if(msg.from!==me.username){
+    unread[msg.groupId]=(unread[msg.groupId]||0)+1;
+    renderGroupsList(); updateBadge();
+    if(Notification?.permission==="granted"){
+      const g=groups.find(g=>g.id===msg.groupId);
+      new Notification(`${msg.fromName||msg.from} en ${g?.name||"Grupo"}`,{body:msg.text||"📎 Archivo"});
+    }
+    playNotifSound();
+  }
+});
 }
 function updateTopbarStatus(status){
   const label=SL[status]||"No disponible", dotCls=ST[status]||"";
