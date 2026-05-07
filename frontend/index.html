@@ -1227,6 +1227,15 @@ function bindSocketEvents(){
       if(Notification?.permission==="granted"){ const g=groups.find(g=>g.id===msg.groupId); new Notification(`${msg.fromName||msg.from} en ${g?.name||"grupo"}`,{body:msg.text,icon:""}); }
     }
   });
+  socket.on("group_created",group=>{
+    if(!groups.find(g=>g.id===group.id)){ groups.push(group); if(activeTab==="groups") renderGroupsList(); updateBadge(); }
+  });
+  socket.on("group_updated",group=>{
+    const idx=groups.findIndex(g=>g.id===group.id);
+    if(idx>=0) groups[idx]=group; else groups.push(group);
+    if(currentGroup&&currentGroup.id===group.id){ currentGroup=group; selectGroup(group); }
+    if(activeTab==="groups") renderGroupsList();
+  });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });

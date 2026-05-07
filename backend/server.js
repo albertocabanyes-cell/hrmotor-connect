@@ -90,6 +90,7 @@ app.post("/groups", (req, res) => {
   const groups = loadGroups();
   const group = { id: `grp_${Date.now()}`, name, members, createdBy, color: color || "#e30613", createdAt: new Date().toISOString() };
   groups.push(group); saveGroups(groups);
+  members.forEach(m => io.to(m).emit("group_created", group));
   res.json(group);
 });
 
@@ -103,8 +104,10 @@ app.put("/groups/:id/members", (req, res) => {
   const groups = loadGroups();
   const idx = groups.findIndex(g => g.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Grupo no encontrado" });
+  const oldMembers = groups[idx].members;
   groups[idx].members = members;
   saveGroups(groups);
+  [...new Set([...oldMembers, ...members])].forEach(m => io.to(m).emit("group_updated", groups[idx]));
   res.json(groups[idx]);
 });
 
