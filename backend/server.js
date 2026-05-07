@@ -98,6 +98,16 @@ app.get("/group-messages/:groupId", (req, res) => {
   res.json(loadMessages().filter(m => m.groupId === req.params.groupId));
 });
 
+app.delete("/groups/:id", (req, res) => {
+  const groups = loadGroups();
+  const idx = groups.findIndex(g => g.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Grupo no encontrado" });
+  const [removed] = groups.splice(idx, 1);
+  saveGroups(groups);
+  removed.members.forEach(m => io.to(m).emit("group_deleted", { id: removed.id }));
+  res.json({ ok: true });
+});
+
 app.put("/groups/:id/members", (req, res) => {
   const { members } = req.body;
   if (!members || !Array.isArray(members)) return res.status(400).json({ error: "Faltan miembros" });

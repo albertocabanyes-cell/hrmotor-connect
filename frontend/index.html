@@ -696,6 +696,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
       <div style="display:flex;gap:10px;margin-top:16px">
         <button class="modal-btn primary" onclick="saveGroupMembers()">Guardar cambios</button>
         <button class="modal-btn secondary" onclick="closeManageGroup()">Cancelar</button>
+        <button class="modal-btn" style="margin-left:auto;background:#fff0f0;color:#e30613;border:1px solid rgba(227,6,19,.25);font-weight:700" onclick="deleteGroup()">Eliminar grupo</button>
       </div>
       <p class="modal-save-ok" id="manageGroupOk" style="text-align:left;margin-top:8px;display:none"></p>
     </div>
@@ -1227,6 +1228,7 @@ function bindSocketEvents(){
       if(Notification?.permission==="granted"){ const g=groups.find(g=>g.id===msg.groupId); new Notification(`${msg.fromName||msg.from} en ${g?.name||"grupo"}`,{body:msg.text,icon:""}); }
     }
   });
+  socket.on("group_deleted",({id})=>{ _removeGroupLocally(id); });
   socket.on("group_created",group=>{
     if(!groups.find(g=>g.id===group.id)){ groups.push(group); if(activeTab==="groups") renderGroupsList(); updateBadge(); }
   });
@@ -1643,6 +1645,26 @@ function openManageGroup(){
   document.getElementById("manageGroupModal").classList.add("open");
 }
 function closeManageGroup(){ document.getElementById("manageGroupModal").classList.remove("open"); managingGroup=null; }
+
+function deleteGroup(){
+  if(!managingGroup||!isAdmin(me.username)) return;
+  if(!confirm(`¿Eliminar el grupo "${managingGroup.name}"? Esta acción no se puede deshacer.`)) return;
+  fetch(`/groups/${managingGroup.id}`,{method:"DELETE"})
+    .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
+    .then(()=>{ _removeGroupLocally(managingGroup.id); closeManageGroup(); })
+    .catch(()=>alert("Error al eliminar el grupo."));
+}
+
+function _removeGroupLocally(groupId){
+  groups=groups.filter(g=>g.id!==groupId);
+  if(currentGroup&&currentGroup.id===groupId){
+    currentGroup=null;
+    document.getElementById("chatCol").style.display="none";
+    document.getElementById("emptyState").style.display="flex";
+  }
+  if(activeTab==="groups") renderGroupsList();
+  updateBadge();
+}
 
 function saveGroupMembers(){
   if(!managingGroup) return;
