@@ -36,9 +36,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 /* Me block */
 .me-block{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
 .me-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.me-avatar{width:38px;height:38px;border-radius:50%;background:#e30613;color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden}
+.me-avatar{width:38px;height:38px;border-radius:50%;background:#e30613;color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
 .me-avatar img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:50%}
-.me-ring{position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;border:2.5px solid #10182f;background:#22c55e;transition:background .25s;z-index:2}
+.me-ring{position:absolute;bottom:-3px;right:-3px;width:13px;height:13px;border-radius:50%;border:2.5px solid #10182f;background:#22c55e;transition:background .25s;z-index:2;box-shadow:0 0 0 1px rgba(34,197,94,.35)}
 .me-info{flex:1;min-width:0}
 .me-name{font-size:13px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .me-status-txt{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
@@ -50,9 +50,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .status-trigger:hover{background:rgba(255,255,255,.10)}
 .status-trigger .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .status-trigger .slabel{font-size:12px;font-weight:600;color:rgba(255,255,255,.75);flex:1}
-.status-trigger .schevron{width:14px;height:14px;opacity:.4;transition:transform .2s;flex-shrink:0}
+.status-trigger .schevron{width:14px;height:14px;opacity:.85;transition:transform .2s;flex-shrink:0;color:white}
 .status-trigger.open .schevron{transform:rotate(180deg)}
-.sdot-available{background:#22c55e}.sdot-busy{background:#f59e0b}.sdot-unavailable{background:#6b7280}
+.sdot-available{background:#22c55e}.sdot-busy{background:#f59e0b}.sdot-unavailable{background:#6b7280}.sdot-descanso{background:#06b6d4}
 .status-menu{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#1e2d50;border:1px solid rgba(255,255,255,.10);border-radius:10px;overflow:hidden;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
 .status-menu.open{display:block}
 .status-opt{display:flex;align-items:center;gap:9px;padding:10px 12px;cursor:pointer;transition:background .13s}
@@ -104,14 +104,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .dept-group{margin-bottom:2px}
 
 /* Botones de acción en ítem de usuario (pestaña Empresa) */
-.ui-actions{display:flex;gap:4px;flex-shrink:0;opacity:0;transition:opacity .15s}
-.ui:hover .ui-actions{opacity:1}
-.ui.active .ui-actions{opacity:1}
+.ui-actions{display:flex;gap:4px;flex-shrink:0}
 .ui-action-btn{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.ui-action-btn.chat{background:rgba(227,6,19,.15);color:#e30613}
+.ui-action-btn.chat{background:rgba(255,255,255,.1);color:white}
 .ui-action-btn.chat:hover{background:#e30613;color:white}
-.ui-action-btn.view{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-.ui-action-btn.view:hover{background:rgba(255,255,255,.18);color:white}
+.ui-action-btn.view{background:rgba(255,255,255,.1);color:white}
+.ui-action-btn.view:hover{background:rgba(255,255,255,.22);color:white}
 .ui-action-btn svg{width:14px;height:14px;flex-shrink:0}
 
 /* Modal ver perfil de contacto */
@@ -277,7 +275,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .mg-av{width:30px;height:30px;border-radius:50%;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-bottom:2px;overflow:hidden;position:relative}
 .mg-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:50%}
 .mg.mine .mg-av{background:#e30613}.mg.theirs .mg-av{background:#6b7280}
-.mg-bubbles{display:flex;flex-direction:column;gap:2px;max-width:68%}
+.mg-bubbles{display:flex;flex-direction:column;gap:2px;max-width:82%}
 .mg.mine .mg-bubbles{align-items:flex-end}.mg.theirs .mg-bubbles{align-items:flex-start}
 .mg-sender{font-size:11px;font-weight:700;color:#999;margin-bottom:3px;padding:0 2px}
 .bub{padding:9px 14px;font-size:14px;line-height:1.55;word-break:break-word;position:relative;z-index:1}
@@ -402,6 +400,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <div class="status-menu" id="statusMenu">
             <div class="status-opt" onclick="setMyStatus('available')"><span class="sdot sdot-available"></span><div><div class="oname">Disponible</div><div class="odesc">Listo para chatear</div></div></div>
             <div class="status-opt" onclick="setMyStatus('busy')"><span class="sdot sdot-busy"></span><div><div class="oname">Ocupado</div><div class="odesc">En reunión o concentrado</div></div></div>
+            <div class="status-opt" onclick="setMyStatus('descanso')"><span class="sdot sdot-descanso"></span><div><div class="oname">Descanso</div><div class="odesc">Fuera un momento</div></div></div>
             <div class="status-opt" onclick="setMyStatus('unavailable')"><span class="sdot sdot-unavailable"></span><div><div class="oname">No disponible</div><div class="odesc">No molestar</div></div></div>
           </div>
         </div>
@@ -753,10 +752,10 @@ function populateDeptSelects(){
   });
 }
 
-const SL = { available:"Disponible", busy:"Ocupado", unavailable:"No disponible" };
-const SC = { available:"#22c55e", busy:"#f59e0b", unavailable:"#6b7280" };
-const SD = { available:"sdot-available", busy:"sdot-busy", unavailable:"sdot-unavailable" };
-const ST = { available:"available", busy:"busy", unavailable:"" };
+const SL = { available:"Disponible", busy:"Ocupado", descanso:"Descanso", unavailable:"No disponible" };
+const SC = { available:"#22c55e", busy:"#f59e0b", descanso:"#06b6d4", unavailable:"#6b7280" };
+const SD = { available:"sdot-available", busy:"sdot-busy", descanso:"sdot-descanso", unavailable:"sdot-unavailable" };
+const ST = { available:"available", busy:"busy", descanso:"", unavailable:"" };
 
 const EMOJIS = {
   "😊":["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕"],
@@ -861,12 +860,15 @@ function logout(){ localStorage.removeItem("hrmotor_user"); if(socket) socket.di
 ═══════════════════════════════════════ */
 function toggleStatusMenu(){ const open=document.getElementById("statusMenu").classList.toggle("open"); document.getElementById("statusTrigger").classList.toggle("open",open); }
 function closeStatusMenu(){ document.getElementById("statusMenu").classList.remove("open"); document.getElementById("statusTrigger").classList.remove("open"); }
+const S_SHADOW={ available:"rgba(34,197,94,.4)", busy:"rgba(245,158,11,.4)", descanso:"rgba(6,182,212,.4)", unavailable:"rgba(107,114,128,.3)" };
 function setMyStatus(s){
   myStatus=s; closeStatusMenu();
   document.getElementById("trigDot").className="sdot "+SD[s];
   document.getElementById("trigLabel").textContent=SL[s];
   document.getElementById("meStatusTxt").textContent=SL[s];
-  document.getElementById("meRing").style.background=SC[s];
+  const ring=document.getElementById("meRing");
+  ring.style.background=SC[s];
+  ring.style.boxShadow=`0 0 0 1px ${S_SHADOW[s]||"transparent"}`;
   if(socket&&socket.connected) socket.emit("set_status",{username:me.username,status:s});
 }
 
