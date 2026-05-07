@@ -38,41 +38,10 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
    LOGO
 ═══════════════════════════════ */
 
-.login-logo{
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  gap:3px;
-  margin-bottom:14px;
-  user-select:none;
-}
-
-.logo-hr{
-  font-size:42px;
-  font-weight:900;
-  color:#e30613;
-  letter-spacing:-3px;
-  line-height:1;
-  font-style:italic;
-}
-
-.logo-motor{
-  font-size:42px;
-  font-weight:900;
-  color:#081225;
-  letter-spacing:-3px;
-  line-height:1;
-  font-style:italic;
-}
-
-.logo-connect{
-  font-size:11px;
-  font-weight:800;
-  color:#7b8496;
-  letter-spacing:.35em;
-  margin-left:8px;
-  margin-bottom:6px;
-}
+.logo{padding:20px 18px 17px;display:flex;align-items:baseline;gap:2px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.logo .hr{font-size:24px;font-weight:900;color:#e30613;letter-spacing:-0.5px;font-style:italic}
+.logo .motor{font-size:24px;font-weight:900;color:white;letter-spacing:-0.5px;font-style:italic}
+.logo .conn{font-size:11px;font-weight:600;color:rgba(255,255,255,.3);margin-left:5px;letter-spacing:1.2px;align-self:center;text-transform:uppercase}
 
 /* ═══════════════════════════════
    LOGIN TEXT
@@ -488,7 +457,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="logo">   <img src="/assets/logo-hrmotor-connect.png" alt="HRMOTOR Connect"> </div>
+     <div class="logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
       <div class="me-block">
         <div class="me-row">
           <div class="me-avatar" id="meAvatar">
