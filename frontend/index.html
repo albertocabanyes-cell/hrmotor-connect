@@ -5,137 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HRmotor Connect</title>
 <style>
-  :root{
-  --red:#e30613;--red-dark:#c00;--red-glow:rgba(227,6,19,.25);
-  --navy:#0f1829;--navy-2:#172035;
-  --shadow-md:0 4px 16px rgba(0,0,0,.12);
-  --shadow-lg:0 24px 64px rgba(0,0,0,.28);
-  --transition:all .2s ease;
-}
-@keyframes slideInMsg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.mg{animation:slideInMsg .18s ease}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;display:flex;overflow:hidden}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;display:flex;overflow:hidden}
 
 /* ══ LOGIN ══════════════════════════════ */
-.login-screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#080e1e 0%,#0f1829 55%,#130820 100%);position:relative;overflow:hidden}
-.login-screen::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.03) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
-.login-box{background:rgba(255,255,255,.97);padding:44px 40px;border-radius:20px;width:380px;box-shadow:0 32px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08);backdrop-filter:blur(12px);position:relative;z-index:1}
+.login-screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1526 0%,#1a2744 100%)}
+.login-box{background:white;padding:40px 36px;border-radius:16px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.25)}
 .login-logo{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
-.login-logo .hr{font-size:28px;font-weight:900;color:#e30613;letter-spacing:-1px}
-.login-logo .motor{font-size:28px;font-weight:900;color:#0f1829;letter-spacing:-1px}
-.login-logo .conn{font-size:13px;font-weight:600;color:#bbb;margin-left:3px;letter-spacing:.8px;text-transform:uppercase;align-self:center}
-.login-sub{font-size:13px;color:#aaa;margin-bottom:32px;font-weight:500}
-.login-box input{width:100%;padding:13px 16px;margin-bottom:12px;border:1.5px solid #eaeaea;border-radius:11px;font-size:14px;outline:none;transition:var(--transition);background:#fafafa;font-family:inherit;font-weight:500;color:#111}
-.login-box input:focus{border-color:#e30613;background:white;box-shadow:0 0 0 3px rgba(227,6,19,.08)}
-.login-error{color:#e30613;font-size:13px;margin-bottom:12px;display:none;padding:10px 14px;background:#fff0f0;border-radius:9px;font-weight:500;border:1px solid rgba(227,6,19,.15)}
-.btn-primary{background:#e30613;color:white;border:none;padding:14px;border-radius:11px;cursor:pointer;font-size:14px;font-weight:700;width:100%;transition:var(--transition);letter-spacing:.3px;font-family:inherit}
-.btn-primary:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 6px 20px var(--red-glow)}
-.btn-primary:active{transform:translateY(0)}
-
-/* ═══════════════════════════════
-   LOGO
-═══════════════════════════════ */
-
-.logo{padding:20px 18px 17px!important;display:flex!important;align-items:baseline;gap:2px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
-.logo .hr{font-size:24px!important;font-weight:900!important;color:#e30613!important;letter-spacing:-0.5px;font-style:italic}
-.logo .motor{font-size:24px!important;font-weight:900!important;color:white!important;letter-spacing:-0.5px;font-style:italic}
-.logo .conn{font-size:11px!important;font-weight:600!important;color:rgba(255,255,255,.3)!important;margin-left:5px;letter-spacing:1.2px;align-self:center;text-transform:uppercase}
-  .dept-icon{display:none!important}
-.dept-title{font-size:10px!important;font-weight:700!important;color:rgba(255,255,255,.28)!important;text-transform:uppercase;letter-spacing:.12em}
-/* ═══════════════════════════════
-   LOGIN TEXT
-═══════════════════════════════ */
-
-.login-sub{
-  font-size:13px;
-  color:#94a3b8;
-  margin-bottom:30px;
-  text-align:center;
-  font-weight:500;
-}
-
-/* ═══════════════════════════════
-   INPUTS
-═══════════════════════════════ */
-
-.login-box input{
-  width:100%;
-  padding:14px 16px;
-  margin-bottom:14px;
-  border:1.5px solid #e2e8f0;
-  border-radius:12px;
-  font-size:14px;
-  outline:none;
-  transition:all .2s;
-  background:#f8fafc;
-  font-family:inherit;
-  color:#0f172a;
-}
-
-.login-box input:focus{
-  border-color:#e30613;
-  background:white;
-  box-shadow:0 0 0 4px rgba(227,6,19,.08);
-}
-
-/* ═══════════════════════════════
-   ERROR
-═══════════════════════════════ */
-
-.login-error{
-  color:#e30613;
-  font-size:13px;
-  margin-bottom:12px;
-  display:none;
-  padding:10px 12px;
-  background:#fff1f2;
-  border-radius:10px;
-  border:1px solid rgba(227,6,19,.12);
-}
-
-/* ═══════════════════════════════
-   BUTTON
-═══════════════════════════════ */
-
-.btn-primary{
-  background:linear-gradient(135deg,#e30613 0%,#c4000d 100%);
-  color:white;
-  border:none;
-  padding:14px;
-  border-radius:12px;
-  cursor:pointer;
-  font-size:14px;
-  font-weight:700;
-  width:100%;
-  transition:all .2s;
-  letter-spacing:.3px;
-  font-family:inherit;
-  margin-top:4px;
-  box-shadow:0 6px 18px rgba(227,6,19,.22);
-}
-
-.btn-primary:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 24px rgba(227,6,19,.35);
-  background:linear-gradient(135deg,#ff1a28 0%,#c4000d 100%);
-}
+.login-logo .hr{font-size:26px;font-weight:900;color:#e30613;letter-spacing:-1px}
+.login-logo .motor{font-size:26px;font-weight:900;color:#10182f;letter-spacing:-1px}
+.login-logo .conn{font-size:13px;font-weight:500;color:#999;margin-left:2px;letter-spacing:.5px}
+.login-sub{font-size:13px;color:#aaa;margin-bottom:28px}
+.login-box input{width:100%;padding:12px 16px;margin-bottom:12px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:14px;outline:none;transition:border-color .2s;background:#fafafa;font-family:inherit}
+.login-box input:focus{border-color:#e30613;background:white}
+.login-error{color:#e30613;font-size:13px;margin-bottom:10px;display:none;padding:8px 12px;background:#fff0f0;border-radius:8px}
+.btn-primary{background:#e30613;color:white;border:none;padding:13px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;width:100%;transition:all .2s;letter-spacing:.3px;font-family:inherit}
+.btn-primary:hover{background:#c00;transform:translateY(-1px);box-shadow:0 4px 12px rgba(227,6,19,.3)}
 
 /* ══ APP ════════════════════════════════ */
 .app{display:none;width:100%;height:100vh}
 .layout{display:flex;height:100vh}
 
 /* ══ SIDEBAR ════════════════════════════ */
-.sidebar{
-  width:300px;
-  background:linear-gradient(180deg,#0b1220 0%, #121c31 100%);
-  border-right:1px solid rgba(255,255,255,.04);
-  display:flex;
-  flex-direction:column;
-  flex-shrink:0;
-  box-shadow:4px 0 20px rgba(0,0,0,.12);
-}
+.sidebar{width:290px;background:#10182f;display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:15px 18px 13px;display:flex;align-items:baseline;gap:2px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.logo .hr{font-size:19px;font-weight:900;color:#e30613;letter-spacing:-0.5px}
+.logo .motor{font-size:19px;font-weight:900;color:white;letter-spacing:-0.5px}
+.logo .conn{font-size:11px;font-weight:500;color:rgba(255,255,255,.35);margin-left:3px;letter-spacing:.6px;align-self:center}
 
 /* Me block */
 .me-block{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
@@ -238,8 +134,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 .vp-chat-btn:hover{background:#c00;transform:translateY(-1px);box-shadow:0 4px 12px rgba(227,6,19,.25)}
 .dept-header{display:flex;align-items:center;gap:7px;padding:7px 10px 5px;cursor:pointer;user-select:none;border-radius:8px;transition:background .13s}
 .dept-header:hover{background:rgba(255,255,255,.04)}
-.dept-icon{display:none}
-.dept-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.12em;flex:1}
+.dept-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.dept-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;flex:1}
 .dept-count{font-size:10px;color:rgba(255,255,255,.25);font-weight:600;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:999px}
 .dept-chevron{width:12px;height:12px;opacity:.3;transition:transform .2s;flex-shrink:0}
 .dept-chevron.collapsed{transform:rotate(-90deg)}
@@ -436,6 +332,32 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 .ci-row{width:100%;display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
 .ci-row-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#bbb;font-weight:700}
 .ci-row-val{font-size:13px;color:#333;font-weight:500;word-break:break-word}
+
+/* ══ GRUPOS ════════════════════════════ */
+.gi{padding:8px 10px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .13s;margin-bottom:1px}
+.gi:hover{background:rgba(255,255,255,.07)}
+.gi.active{background:rgba(227,6,19,.18)}
+.gav{width:36px;height:36px;border-radius:10px;color:white;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gi-info{flex:1;min-width:0}
+.gi-name{font-size:13px;color:rgba(255,255,255,.82);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gi.active .gi-name{color:white;font-weight:700}
+.gi-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.create-group-btn{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;background:rgba(227,6,19,.08);border:1px dashed rgba(227,6,19,.3);border-radius:10px;color:rgba(227,6,19,.75);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:8px;font-family:inherit}
+.create-group-btn:hover{background:rgba(227,6,19,.16);border-color:rgba(227,6,19,.55);color:#e30613}
+.member-toggle-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding:2px 0}
+.member-toggle-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1.5px solid #e8e8e8;cursor:pointer;transition:all .15s;user-select:none}
+.member-toggle-item:hover{border-color:#ccc;background:#fafafa}
+.member-toggle-item.selected{border-color:#e30613;background:#fff0f0}
+.mti-av{width:32px;height:32px;border-radius:50%;background:#e30613;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.mti-av img{width:100%;height:100%;object-fit:cover}
+.mti-name{flex:1;font-size:13px;font-weight:600;color:#222}
+.mti-check{width:20px;height:20px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:11px;font-weight:700;color:transparent}
+.member-toggle-item.selected .mti-check{background:#e30613;border-color:#e30613;color:white}
+.group-color-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.group-color-pick button{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .15s}
+.group-color-pick button.selected{border-color:#333;transform:scale(1.15)}
+.grp-manage-btn{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.75);padding:5px 11px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;font-family:inherit}
+.grp-manage-btn:hover{background:rgba(255,255,255,.18);color:white}
 </style>
 </head>
 <body>
@@ -443,10 +365,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 <!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-   <div class="login-logo">
-  <span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span>
-</div>
-    <div class="login-sub">Corporate Hub</div>
+    <div class="login-logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
+    <div class="login-sub">Comunicación interna de equipo</div>
     <p class="login-error" id="loginError"></p>
     <input id="userInput" placeholder="Usuario" autocomplete="username">
     <input id="passInput" type="password" placeholder="Contraseña" autocomplete="current-password">
@@ -460,7 +380,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-     <div class="logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
+      <div class="logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
       <div class="me-block">
         <div class="me-row">
           <div class="me-avatar" id="meAvatar">
@@ -486,11 +406,11 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
         </div>
       </div>
 
-    <div class="tabs">
-  <div class="tab active" data-tab="all" onclick="switchTab('all')">Empresa</div>
-  <div class="tab" data-tab="chats" onclick="switchTab('chats')">Chats<span class="tab-badge" id="totalBadge"></span></div>
-  <div class="tab" data-tab="groups" onclick="switchTab('groups')">Grupos<span class="tab-badge" id="groupsBadge"></span></div>
-</div>
+      <div class="tabs">
+        <div class="tab active" data-tab="all" onclick="switchTab('all')">Empresa</div>
+        <div class="tab" data-tab="chats" onclick="switchTab('chats')">Chats<span class="tab-badge" id="totalBadge"></span></div>
+        <div class="tab" data-tab="groups" onclick="switchTab('groups')">Grupos<span class="tab-badge" id="groupsBadge"></span></div>
+      </div>
       <div class="search-wrap">
         <div class="search-inner">
           <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -503,20 +423,17 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
         <div id="allUsersList"></div>
       </div>
       <div class="tab-panel" id="panel-chats">
-        <div class="tab-panel" id="panel-groups">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 8px 3px">
-    <span class="sec-label" style="padding:0">Mis grupos</span>
-    <button class="create-group-btn" id="createGroupBtn" style="display:none" onclick="openCreateGroup()" title="Crear grupo">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nuevo grupo
-    </button>
-  </div>
-  <div id="groupsList"></div>
-  <p class="no-results" id="noGroups" style="display:none">Sin grupos aún</p>
-</div>
         <div class="sec-label">Conversaciones activas</div>
         <div id="chatsList"></div>
         <p class="no-results" id="noChats" style="display:none">Sin conversaciones activas</p>
+      </div>
+      <div class="tab-panel" id="panel-groups">
+        <button class="create-group-btn" id="createGroupBtn" onclick="openCreateGroup()" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Crear nuevo grupo
+        </button>
+        <div id="groupsList"></div>
+        <p class="no-results" id="noGroups" style="display:none">Sin grupos disponibles</p>
       </div>
 
       <div class="sb-footer">
@@ -733,136 +650,60 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#f0f2f5;height:100vh;d
   </div>
 </div>
 
+<!-- MODAL CREAR GRUPO -->
+<div class="modal-overlay" id="createGroupModal">
+  <div class="modal" style="width:460px">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeCreateGroup()">✕</button>
+      <div style="font-size:16px;font-weight:700;color:white;margin-top:6px">Nuevo grupo</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4)">Crea un grupo de chat para tu equipo</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Nombre del grupo</label>
+        <input type="text" id="groupName" placeholder="Ej: Equipo IT" maxlength="40">
+      </div>
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Color del grupo</label>
+        <div class="group-color-pick" id="groupColorPick"></div>
+      </div>
+      <div class="form-field" style="margin-bottom:4px">
+        <label>Miembros (puedes añadirte tú también)</label>
+        <div class="member-toggle-list" id="memberToggleList"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="modal-btn primary" onclick="createGroup()">Crear grupo</button>
+        <button class="modal-btn secondary" onclick="closeCreateGroup()">Cancelar</button>
+      </div>
+      <p class="modal-save-err" id="createGroupErr" style="text-align:left;margin-top:8px;display:none"></p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GESTIONAR GRUPO -->
+<div class="modal-overlay" id="manageGroupModal">
+  <div class="modal" style="width:460px">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeManageGroup()">✕</button>
+      <div style="font-size:16px;font-weight:700;color:white;margin-top:6px" id="manageGroupTitle">Gestionar grupo</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4)">Añade o elimina miembros del grupo</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:4px">
+        <label>Miembros del grupo</label>
+        <div class="member-toggle-list" id="manageToggleList"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="modal-btn primary" onclick="saveGroupMembers()">Guardar cambios</button>
+        <button class="modal-btn secondary" onclick="closeManageGroup()">Cancelar</button>
+      </div>
+      <p class="modal-save-ok" id="manageGroupOk" style="text-align:left;margin-top:8px;display:none"></p>
+    </div>
+  </div>
+</div>
+
 <!-- ✅ CORREGIDO: Socket.IO desde ruta relativa -->
-<script src="/socket.io/socket.io.js">/* ═══════════════════════════════════════
-   GRUPOS
-═══════════════════════════════════════ */
-let groups=[], currentGroup=null, selectedGroupMembers=new Set();
-
-async function loadGroups(){
-  if(!me) return;
-  try{
-    const r=await fetch(`/groups?user=${me.username}`);
-    groups=await r.json();
-    renderGroupsList();
-  }catch(e){ console.warn("No se pudieron cargar grupos"); }
-}
-
-function renderGroupsList(query){
-  const list=document.getElementById("groupsList");
-  const noG=document.getElementById("noGroups");
-  if(!list) return;
-  const q=(query||"").toLowerCase();
-  const filtered=q?groups.filter(g=>g.name.toLowerCase().includes(q)):groups;
-  list.innerHTML="";
-  filtered.forEach(g=>{
-    const count=unread[g.id]||0;
-    const div=document.createElement("div");
-    div.className="ui"+(currentGroup?.id===g.id?" active":"");
-    div.innerHTML=`
-      <div class="uav" style="background:${g.color};font-size:12px;font-weight:800;color:white;flex-shrink:0">
-        ${g.name.slice(0,2).toUpperCase()}
-        <span class="udot" style="background:#3b82f6"></span>
-      </div>
-      <div class="uinfo">
-        <div class="uname">${escHtml(g.name)}</div>
-        <div class="usub">${g.members.length} miembros</div>
-      </div>
-      ${count>0?`<span class="ubadge">${count}</span>`:""}`;
-    div.addEventListener("click",()=>{ unread[g.id]=0; updateBadge(); selectGroup(g); });
-    list.appendChild(div);
-  });
-  if(noG) noG.style.display=filtered.length===0?"block":"none";
-}
-
-function selectGroup(g){
-  current=null; currentGroup=g; closeEmoji();
-  document.getElementById("topbar").innerHTML=`
-    <div class="tb-av" style="background:${g.color};font-size:14px;font-weight:800;color:white">${g.name.slice(0,2).toUpperCase()}</div>
-    <div class="tb-info">
-      <div class="tb-name">${escHtml(g.name)}</div>
-      <div class="tb-status"><span class="tb-status-txt">${g.members.length} miembros · ${g.members.join(", ")}</span></div>
-    </div>`;
-  const ciAv=document.getElementById("ciAv");
-  ciAv.style.background=g.color; ciAv.style.overflow="hidden"; ciAv.style.padding="0";
-  ciAv.innerHTML=`<span style="font-size:20px;font-weight:800;color:white">${g.name.slice(0,2).toUpperCase()}</span>`;
-  document.getElementById("ciName").textContent=g.name;
-  document.getElementById("ciDot").className="ci-sdot";
-  document.getElementById("ciDot").style.background=g.color;
-  document.getElementById("ciStatus").textContent=g.members.length+" miembros";
-  document.getElementById("ciEmailLink").style.display="none";
-  document.getElementById("ciDept").textContent=g.members.join(", ");
-  document.getElementById("ciDelegacion").textContent="–";
-  document.getElementById("ciTelefono").textContent="–";
-  document.getElementById("emptyState").style.display="none";
-  document.getElementById("chatCol").style.display="flex";
-  document.getElementById("chatInfo").style.display="flex";
-  document.getElementById("messageInput").disabled=false;
-  document.getElementById("sendBtn").disabled=false;
-  document.getElementById("messageInput").focus();
-  hideTyping(); newMsgCount=0;
-  document.getElementById("scrollBtn").style.display="none";
-  renderGroupsList();
-  const box=document.getElementById("messages");
-  const scrollBtn=document.getElementById("scrollBtn");
-  box.innerHTML=""; box.appendChild(scrollBtn);
-  box.innerHTML+=`<p class="msg-empty" id="msgEmpty">Cargando…</p>`;
-  fetch(`/group-messages/${g.id}`)
-    .then(r=>r.json())
-    .then(data=>{
-      document.getElementById("msgEmpty")?.remove();
-      if(!data.length){ box.innerHTML+='<p class="msg-empty">¡Sé el primero en escribir!</p>'; return; }
-      data.forEach(m=>addMessage(m,true));
-      scrollToBottom(true);
-    })
-    .catch(()=>{ document.getElementById("msgEmpty")?.remove(); });
-}
-
-function openCreateGroup(){
-  selectedGroupMembers=new Set();
-  document.getElementById("groupName").value="";
-  document.getElementById("groupOk").style.display="none";
-  document.getElementById("groupErr").style.display="none";
-  const list=document.getElementById("groupMembersList");
-  list.innerHTML="";
-  users.forEach(u=>{
-    const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
-    const displayName=(saved.nombre||saved.apellidos)?[saved.nombre,saved.apellidos].filter(Boolean).join(" "):(u.name||u.username);
-    const ini=initials(displayName), photo=saved.avatarUrl||null;
-    const item=document.createElement("div"); item.className="group-member-item";
-    item.innerHTML=`<label>
-      <input type="checkbox" value="${u.username}" onchange="toggleGroupMember('${u.username}',this.checked)">
-      <div class="uav" style="width:30px;height:30px;flex-shrink:0">${photo?`<img src="${photo}" alt="${ini}">`:ini}</div>
-      <div>
-        <div style="font-size:13px;font-weight:600;color:#111">${escHtml(displayName)}</div>
-        <div style="font-size:11px;color:#aaa">@${u.username}</div>
-      </div>
-    </label>`;
-    list.appendChild(item);
-  });
-  document.getElementById("createGroupModal").classList.add("open");
-}
-function closeCreateGroup(){ document.getElementById("createGroupModal").classList.remove("open"); }
-function toggleGroupMember(username,checked){ if(checked) selectedGroupMembers.add(username); else selectedGroupMembers.delete(username); }
-
-async function createGroup(){
-  const name=document.getElementById("groupName").value.trim();
-  const okEl=document.getElementById("groupOk"), errEl=document.getElementById("groupErr");
-  okEl.style.display="none"; errEl.style.display="none";
-  if(!name){ errEl.textContent="El nombre es obligatorio."; errEl.style.display="block"; return; }
-  if(selectedGroupMembers.size===0){ errEl.textContent="Selecciona al menos un miembro."; errEl.style.display="block"; return; }
-  const members=[me.username,...selectedGroupMembers];
-  const colors=["#6366f1","#22c55e","#f59e0b","#0ea5e9","#8b5cf6","#e30613","#ec4899","#f97316"];
-  const color=colors[Math.floor(Math.random()*colors.length)];
-  try{
-    const r=await fetch("/groups",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,members,createdBy:me.username,color})});
-    const group=await r.json();
-    groups.push(group);
-    renderGroupsList();
-    okEl.textContent=`✓ Grupo "${name}" creado`; okEl.style.display="block";
-    setTimeout(()=>{ okEl.style.display="none"; closeCreateGroup(); },1500);
-  }catch(err){ errEl.textContent="Error al crear el grupo."; errEl.style.display="block"; }
-}</script>/* 
+<script src="/socket.io/socket.io.js"></script>
 <script>
 /* ═══════════════════════════════════════
    ESTADO GLOBAL
@@ -876,6 +717,10 @@ let avatarDataUrl = null, editingUsername = null;
 let typingTimer = null, isTyping = false;
 let newMsgCount = 0;
 let emojiOpen = false;
+let groups = [], currentGroup = null, groupUnread = {}, lastGroupMsg = {};
+let selectedGroupColor = "#e30613";
+let managingGroup = null;
+const GROUP_COLORS = ["#e30613","#6366f1","#22c55e","#f59e0b","#0ea5e9","#ec4899","#f97316","#10182f","#84cc16","#8b5cf6"];
 
 const DEPARTMENTS = [
   { id:"it",            label:"IT",              emoji:"💻", color:"#6366f1" },
@@ -943,7 +788,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if(!document.getElementById("statusDropWrap").contains(e.target)) closeStatusMenu();
     if(!document.querySelector(".composer-wrap")?.contains(e.target)) closeEmoji();
   });
-  ["profileModal","adminModal","editUserModal","viewProfileModal"].forEach(id=>{
+  ["profileModal","adminModal","editUserModal","viewProfileModal","createGroupModal","manageGroupModal"].forEach(id=>{
     document.getElementById(id).addEventListener("click",e=>{ if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove("open"); });
   });
   document.getElementById("messages").addEventListener("scroll", onMessagesScroll);
@@ -1004,23 +849,8 @@ function mostrarApp(){
   if(socket){ socket.connect(); socket.emit("register",me.username); }
   try{ const s=JSON.parse(localStorage.getItem("hrmotor_chats_"+me.username)||"[]"); s.forEach(u=>openChats.add(u)); }catch(e){}
   cargarUsuarios();
+  loadGroups();
   restoreProfileData();
-  requestNotificationPermission();loadGroups();
-if(isAdmin(me.username)) document.getElementById("createGroupBtn").style.display="flex";
-}
-  function requestNotificationPermission(){
-  if(!('Notification' in window)||Notification.permission!=='default') return;
-  setTimeout(()=>{
-    const toast=document.createElement('div');
-    toast.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f1829;color:white;padding:14px 20px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.35);z-index:9000;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:500;animation:slideInMsg .25s ease;white-space:nowrap';
-    toast.innerHTML=`
-      <span>🔔 ¿Activar notificaciones de escritorio?</span>
-      <button onclick="Notification.requestPermission().then(()=>this.closest('div').remove())" style="background:#e30613;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit">Activar</button>
-      <button onclick="this.closest('div').remove()" style="background:rgba(255,255,255,.1);color:white;border:none;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-family:inherit">Ahora no</button>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(()=>toast.remove(),9000);
-  },2500);
 }
 function logout(){ localStorage.removeItem("hrmotor_user"); if(socket) socket.disconnect(); location.reload(); }
 
@@ -1046,17 +876,17 @@ function switchTab(t){
   document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("active",el.dataset.tab===t));
   document.querySelectorAll(".tab-panel").forEach(el=>el.classList.toggle("active",el.id==="panel-"+t));
   if(t==="chats") renderChatsList();
-  if(t==="groups") renderGroupsList();
+  if(t==="groups"){ renderGroupsList(); const btn=document.getElementById("createGroupBtn"); if(btn) btn.style.display=isAdmin(me?.username)?"flex":"none"; }
 }
 function updateBadge(){
-  const privateTotal=Object.entries(unread).filter(([k,v])=>!k.startsWith("grp_")&&v>0).length;
+  const total=Object.values(unread).filter(v=>v>0).length;
   const el=document.getElementById("totalBadge");
-  el.textContent=privateTotal>0?privateTotal:""; el.style.display=privateTotal>0?"inline-block":"none";
-  const groupTotal=Object.entries(unread).filter(([k,v])=>k.startsWith("grp_")&&v>0).length;
+  el.textContent=total>0?total:""; el.style.display=total>0?"inline-block":"none";
+  const gtotal=Object.values(groupUnread).filter(v=>v>0).length;
   const gel=document.getElementById("groupsBadge");
-  gel.textContent=groupTotal>0?groupTotal:""; gel.style.display=groupTotal>0?"inline-block":"none";
-  const total=privateTotal+groupTotal;
-  document.title=total>0?`(${total}) HRmotor Connect`:"HRmotor Connect";
+  if(gel){ gel.textContent=gtotal>0?gtotal:""; gel.style.display=gtotal>0?"inline-block":"none"; }
+  const all=total+gtotal;
+  document.title=all>0?`(${all}) HRmotor Connect`:"HRmotor Connect";
 }
 function addToOpenChats(username){
   const isNew=!openChats.has(username); openChats.add(username);
@@ -1125,7 +955,7 @@ function renderAllUsers(query){
     const estHeight=usersInDept.length*48;
     group.innerHTML=`
       <div class="dept-header" onclick="toggleDeptGroup(this)">
-       
+        <div class="dept-icon" style="background:${meta.color}22;color:${meta.color}">${meta.emoji}</div>
         <span class="dept-title">${escHtml(deptLabel)}</span>
         <span class="dept-count">${usersInDept.length}</span>
         ${unreadInDept>0?`<span class="ubadge" style="font-size:10px;padding:1px 5px;margin-right:2px">${unreadInDept}</span>`:""}
@@ -1196,7 +1026,7 @@ function renderChatsList(query){
   });
   if(noMsg) noMsg.style.display=filtered.length===0?"block":"none";
 }
-function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); if(activeTab==="groups") renderGroupsList(q); }
+function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); }
 function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsList(); updateBadge(); }
 
 /* ═══════════════════════════════════════
@@ -1299,24 +1129,25 @@ function selectUser(u){
    ENVIAR
 ═══════════════════════════════════════ */
 function send(){
-  if(!current&&!currentGroup) return;
-  const input=document.getElementById("messageInput");
-  const text=input.value.trim();
+  const input=document.getElementById("messageInput"), text=input.value.trim();
   if(!text) return;
   if(currentGroup){
-    const msg={groupId:currentGroup.id,from:me.username,fromName:me.name||me.username,text,time:horaActual()};
+    const msg={from:me.username,fromName:me.name||me.username,groupId:currentGroup.id,text,time:horaActual()};
+    lastGroupMsg[currentGroup.id]=text;
     if(socket&&socket.connected) socket.emit("group_message",msg);
-    else addMessage(msg);
-  } else {
-    const msg={from:me.username,fromName:me.name||me.username,to:current,text,time:horaActual()};
-    addToOpenChats(current); lastMsg[current]=text;
-    clearTimeout(typingTimer); isTyping=false;
-    if(socket&&socket.connected){ socket.emit("private_message",msg); socket.emit("typing",{from:me.username,to:current,typing:false}); }
-    else addMessage(msg);
-    renderUsers();
+    else addGroupMessage(msg);
+    if(activeTab==="groups") renderGroupsList();
+    input.value=""; input.focus(); closeEmoji(); return;
   }
-  input.value=""; input.focus(); closeEmoji();
+  if(!current) return;
+  const msg={from:me.username,fromName:me.name||me.username,to:current,text,time:horaActual()};
+  addToOpenChats(current); lastMsg[current]=text;
+  clearTimeout(typingTimer); isTyping=false;
+  if(socket&&socket.connected){ socket.emit("private_message",msg); socket.emit("typing",{from:me.username,to:current,typing:false}); }
+  else addMessage(msg);
+  renderUsers(); input.value=""; input.focus(); closeEmoji();
 }
+
 /* ═══════════════════════════════════════
    AÑADIR MENSAJE
 ═══════════════════════════════════════ */
@@ -1385,23 +1216,21 @@ function bindSocketEvents(){
       if(Notification?.permission==="granted") new Notification(`Nuevo mensaje de ${msg.fromName||msg.from}`,{body:msg.text,icon:""});
     }
   });
+  socket.on("group_message",msg=>{
+    if(!me) return;
+    const isCurrentGroup=currentGroup&&currentGroup.id===msg.groupId;
+    if(isCurrentGroup){ addGroupMessage(msg); lastGroupMsg[msg.groupId]=msg.text; }
+    else{
+      groupUnread[msg.groupId]=(groupUnread[msg.groupId]||0)+1;
+      lastGroupMsg[msg.groupId]=msg.text;
+      updateBadge();
+      if(activeTab==="groups") renderGroupsList();
+      if(Notification?.permission==="granted"){ const g=groups.find(g=>g.id===msg.groupId); new Notification(`${msg.fromName||msg.from} en ${g?.name||"grupo"}`,{body:msg.text,icon:""}); }
+    }
+  });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
-  socket.on("group_message",msg=>{
-  if(!me) return;
-  const isCurrentGroup=currentGroup&&currentGroup.id===msg.groupId;
-  if(isCurrentGroup){ addMessage(msg); }
-  else if(msg.from!==me.username){
-    unread[msg.groupId]=(unread[msg.groupId]||0)+1;
-    renderGroupsList(); updateBadge();
-    if(Notification?.permission==="granted"){
-      const g=groups.find(g=>g.id===msg.groupId);
-      new Notification(`${msg.fromName||msg.from} en ${g?.name||"Grupo"}`,{body:msg.text||"📎 Archivo"});
-    }
-    playNotifSound();
-  }
-});
 }
 function updateTopbarStatus(status){
   const label=SL[status]||"No disponible", dotCls=ST[status]||"";
@@ -1635,6 +1464,197 @@ function createUser(){
   setTimeout(()=>{ cargarUsuarios(); renderAdminTable(); },500);
 }
 function clearNewUserForm(){ ["nuNombre","nuApellidos","nuUsername","nuPassword","nuEmail","nuTelefono","nuDepartamento","nuDelegacion"].forEach(id=>document.getElementById(id).value=""); document.getElementById("nuRol").value="user"; }
+
+/* ═══════════════════════════════════════
+   GRUPOS
+═══════════════════════════════════════ */
+function loadGroups(){
+  if(!me) return;
+  fetch(`/groups?user=${me.username}`)
+    .then(r=>r.json())
+    .then(data=>{ groups=data; renderGroupsList(); })
+    .catch(()=>console.warn("No se pudieron cargar grupos"));
+}
+
+function renderGroupsList(){
+  const list=document.getElementById("groupsList");
+  const noG=document.getElementById("noGroups");
+  if(!list) return;
+  list.innerHTML="";
+  if(!groups.length){ if(noG) noG.style.display="block"; return; }
+  if(noG) noG.style.display="none";
+  groups.forEach(g=>{
+    const div=document.createElement("div");
+    div.className="gi"+(currentGroup&&currentGroup.id===g.id?" active":"");
+    div.onclick=()=>selectGroup(g);
+    const count=groupUnread[g.id]||0;
+    const preview=lastGroupMsg[g.id]?escHtml(lastGroupMsg[g.id]):`${g.members.length} miembros`;
+    div.innerHTML=`
+      <div class="gav" style="background:${g.color||"#e30613"}">${escHtml(g.name.slice(0,2).toUpperCase())}</div>
+      <div class="gi-info">
+        <div class="gi-name">${escHtml(g.name)}</div>
+        <div class="gi-sub">${preview}</div>
+      </div>
+      ${count>0?`<span class="ubadge">${count}</span>`:""}`;
+    list.appendChild(div);
+  });
+}
+
+function selectGroup(g){
+  currentGroup=g; current=null;
+  groupUnread[g.id]=0; updateBadge();
+  renderGroupsList();
+  const membersNames=g.members.map(m=>{ const u=users.find(u=>u.username===m); return u?u.name||u.username:m; }).join(", ");
+  const manageBtn=isAdmin(me.username)?`<button class="grp-manage-btn" onclick="openManageGroup()">Gestionar miembros</button>`:"";
+  document.getElementById("topbar").innerHTML=`
+    <div class="tb-av" style="background:${g.color||"#e30613"};color:white;font-weight:800;font-size:14px;overflow:visible;border-radius:10px">${escHtml(g.name.slice(0,2).toUpperCase())}</div>
+    <div class="tb-info">
+      <div class="tb-name">${escHtml(g.name)}</div>
+      <div class="tb-status"><span class="tb-status-txt" style="color:#aaa">${g.members.length} miembros · ${escHtml(membersNames)}</span></div>
+    </div>
+    ${manageBtn}`;
+  document.getElementById("emptyState").style.display="none";
+  document.getElementById("chatCol").style.display="flex";
+  document.getElementById("chatInfo").style.display="none";
+  document.getElementById("messageInput").disabled=false;
+  document.getElementById("sendBtn").disabled=false;
+  document.getElementById("messageInput").placeholder="Escribe en el grupo...";
+  document.getElementById("messageInput").focus();
+  hideTyping(); newMsgCount=0;
+  document.getElementById("scrollBtn").style.display="none";
+  const box=document.getElementById("messages");
+  const scrollBtn=document.getElementById("scrollBtn");
+  box.innerHTML=""; box.appendChild(scrollBtn);
+  box.innerHTML+=`<p class="msg-empty" id="msgEmpty">Cargando…</p>`;
+  fetch(`/group-messages/${g.id}`)
+    .then(r=>r.json())
+    .then(data=>{
+      document.getElementById("msgEmpty")?.remove();
+      if(!data.length){ box.innerHTML+='<p class="msg-empty">¡Sé el primero en escribir!</p>'; return; }
+      data.forEach(m=>addGroupMessage(m,true));
+      scrollToBottom(true);
+    })
+    .catch(()=>{ document.getElementById("msgEmpty")?.remove(); });
+}
+
+function addGroupMessage(msg, noScroll=false){
+  const box=document.getElementById("messages");
+  box.querySelector(".msg-empty")?.remove();
+  const isMe=msg.from===me.username, side=isMe?"mine":"theirs", time=msg.time||"";
+  const wasAtBottom=isAtBottom();
+  const lastGrp=box.querySelector(".mg:last-child"), sameGrp=lastGrp&&lastGrp.dataset.from===msg.from;
+  if(sameGrp){
+    const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
+    const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
+    const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text;
+    lastGrp.querySelector(".mg-bubbles").appendChild(bub);
+  } else {
+    const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
+    const row=document.createElement("div"); row.className="mg-row";
+    const av=document.createElement("div"); av.className="mg-av";
+    const msgPhoto=getUserAvatar(msg.from);
+    if(msgPhoto){ const img=document.createElement("img"); img.src=msgPhoto; img.alt=initials(msg.fromName||msg.from); av.appendChild(img); }
+    else{ av.textContent=initials(msg.fromName||msg.from); }
+    row.appendChild(av);
+    const col=document.createElement("div"); col.className="mg-bubbles";
+    if(!isMe){const snd=document.createElement("div");snd.className="mg-sender";snd.textContent=msg.fromName||msg.from;col.appendChild(snd);}
+    const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text; col.appendChild(bub);
+    row.appendChild(col); grp.appendChild(row);
+    const foot=document.createElement("div"); foot.className="mg-foot";
+    foot.innerHTML=`<span class="mg-time">${time}</span>`;
+    grp.appendChild(foot); box.appendChild(grp);
+  }
+  if(!noScroll){
+    if(wasAtBottom) scrollToBottom();
+    else{ newMsgCount++; const btn=document.getElementById("scrollBtn"),badge=document.getElementById("scrollBadge"); btn.style.display="flex"; badge.style.display="block"; badge.textContent=newMsgCount; if(!isMe) playNotifSound(); }
+  }
+}
+
+/* ── Crear grupo ── */
+function openCreateGroup(){
+  if(!isAdmin(me.username)) return;
+  document.getElementById("groupName").value="";
+  document.getElementById("createGroupErr").style.display="none";
+  selectedGroupColor=GROUP_COLORS[0];
+  const colorPick=document.getElementById("groupColorPick");
+  colorPick.innerHTML="";
+  GROUP_COLORS.forEach(c=>{
+    const btn=document.createElement("button");
+    btn.style.background=c; btn.dataset.color=c;
+    btn.className=c===selectedGroupColor?"selected":"";
+    btn.onclick=(e)=>{ e.preventDefault(); selectedGroupColor=c; colorPick.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b.dataset.color===c)); };
+    colorPick.appendChild(btn);
+  });
+  const allForGroup=[...users, {username:me.username, name:me.name||me.username}];
+  const list=document.getElementById("memberToggleList"); list.innerHTML="";
+  allForGroup.forEach(u=>{
+    const item=document.createElement("div"); item.className="member-toggle-item"; item.dataset.u=u.username;
+    const photo=getUserAvatar(u.username);
+    item.innerHTML=`<div class="mti-av">${photo?`<img src="${photo}" alt="">`:(initials(u.name||u.username))}</div><span class="mti-name">${escHtml(u.name||u.username)}</span><span class="mti-check">✓</span>`;
+    item.onclick=()=>item.classList.toggle("selected");
+    list.appendChild(item);
+  });
+  document.getElementById("createGroupModal").classList.add("open");
+}
+function closeCreateGroup(){ document.getElementById("createGroupModal").classList.remove("open"); }
+
+function createGroup(){
+  const name=document.getElementById("groupName").value.trim();
+  const errEl=document.getElementById("createGroupErr");
+  if(!name){ errEl.textContent="El nombre del grupo es obligatorio."; errEl.style.display="block"; return; }
+  const selected=[...document.querySelectorAll("#memberToggleList .member-toggle-item.selected")].map(el=>el.dataset.u);
+  if(!selected.length){ errEl.textContent="Selecciona al menos un miembro."; errEl.style.display="block"; return; }
+  errEl.style.display="none";
+  fetch("/groups",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({name, members:selected, createdBy:me.username, color:selectedGroupColor})
+  })
+    .then(r=>r.json())
+    .then(g=>{ groups.push(g); closeCreateGroup(); renderGroupsList(); selectGroup(g); switchTab("groups"); })
+    .catch(()=>{ errEl.textContent="Error al crear el grupo."; errEl.style.display="block"; });
+}
+
+/* ── Gestionar miembros ── */
+function openManageGroup(){
+  if(!currentGroup||!isAdmin(me.username)) return;
+  managingGroup=currentGroup;
+  document.getElementById("manageGroupTitle").textContent="Gestionar: "+currentGroup.name;
+  document.getElementById("manageGroupOk").style.display="none";
+  const allForGroup=[...users, {username:me.username, name:me.name||me.username}];
+  const list=document.getElementById("manageToggleList"); list.innerHTML="";
+  allForGroup.forEach(u=>{
+    const item=document.createElement("div");
+    const isMember=managingGroup.members.includes(u.username);
+    item.className="member-toggle-item"+(isMember?" selected":""); item.dataset.u=u.username;
+    const photo=getUserAvatar(u.username);
+    item.innerHTML=`<div class="mti-av">${photo?`<img src="${photo}" alt="">`:(initials(u.name||u.username))}</div><span class="mti-name">${escHtml(u.name||u.username)}</span><span class="mti-check">✓</span>`;
+    item.onclick=()=>item.classList.toggle("selected");
+    list.appendChild(item);
+  });
+  document.getElementById("manageGroupModal").classList.add("open");
+}
+function closeManageGroup(){ document.getElementById("manageGroupModal").classList.remove("open"); managingGroup=null; }
+
+function saveGroupMembers(){
+  if(!managingGroup) return;
+  const selected=[...document.querySelectorAll("#manageToggleList .member-toggle-item.selected")].map(el=>el.dataset.u);
+  if(!selected.length){ alert("El grupo debe tener al menos un miembro."); return; }
+  fetch(`/groups/${managingGroup.id}/members`,{
+    method:"PUT",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({members:selected})
+  })
+    .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
+    .then(updated=>{
+      const idx=groups.findIndex(g=>g.id===updated.id);
+      if(idx>=0) groups[idx]=updated;
+      if(currentGroup&&currentGroup.id===updated.id) currentGroup=updated;
+      const ok=document.getElementById("manageGroupOk"); ok.textContent="✓ Miembros actualizados"; ok.style.display="block";
+      setTimeout(()=>{ ok.style.display="none"; closeManageGroup(); selectGroup(updated); },1200);
+    })
+    .catch(()=>alert("Error al guardar cambios."));
+}
 
 /* ═══════════════════════════════════════
    UTILS
