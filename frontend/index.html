@@ -879,10 +879,10 @@ function switchTab(t){
   if(t==="groups"){ renderGroupsList(); const btn=document.getElementById("createGroupBtn"); if(btn) btn.style.display=isAdmin(me?.username)?"flex":"none"; }
 }
 function updateBadge(){
-  const total=Object.values(unread).filter(v=>v>0).length;
+  const total=Object.values(unread).reduce((s,v)=>s+v,0);
   const el=document.getElementById("totalBadge");
   el.textContent=total>0?total:""; el.style.display=total>0?"inline-block":"none";
-  const gtotal=Object.values(groupUnread).filter(v=>v>0).length;
+  const gtotal=Object.values(groupUnread).reduce((s,v)=>s+v,0);
   const gel=document.getElementById("groupsBadge");
   if(gel){ gel.textContent=gtotal>0?gtotal:""; gel.style.display=gtotal>0?"inline-block":"none"; }
   const all=total+gtotal;
@@ -948,7 +948,7 @@ function renderAllUsers(query){
   sortedDepts.forEach(deptLabel=>{
     const usersInDept=groups[deptLabel];
     const meta=getDeptMeta(deptLabel);
-    const isCollapsed=collapseState[deptLabel]||false;
+    const isCollapsed=collapseState[deptLabel]??true;
     const unreadInDept=usersInDept.reduce((sum,u)=>sum+(unread[u.username]||0),0);
     const group=document.createElement("div");
     group.className="dept-group"; group.dataset.dept=deptLabel;
