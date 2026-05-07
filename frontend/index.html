@@ -1073,7 +1073,7 @@ function insertEmoji(em){ const input=document.getElementById("messageInput"); c
    SELECCIONAR USUARIO
 ═══════════════════════════════════════ */
 function selectUser(u){
-  current=u.username; unread[u.username]=0; renderUsers(); closeEmoji();
+  current=u.username; currentGroup=null; unread[u.username]=0; renderUsers(); closeEmoji();
   const uSt=peerStatus[u.username]||"unavailable", label=SL[uSt]||"No disponible", dotCls=ST[uSt]||"";
   const ini=initials(u.name||u.username);
   const cp=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
