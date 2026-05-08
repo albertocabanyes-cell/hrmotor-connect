@@ -1638,7 +1638,7 @@ function createUser(){
       okEl.textContent=`✓ Usuario @${username} creado correctamente`; okEl.style.display="block";
       setTimeout(()=>okEl.style.display="none",4000);
       clearNewUserForm();
-      cargarUsuarios(); renderAdminTable();
+      cargarUsuarios(); loadServerProfiles(); renderAdminTable();
     })
     .catch(()=>{errEl.textContent="Error de conexión.";errEl.style.display="block";});
 }
