@@ -41,6 +41,18 @@ const MESSAGES_FILE  = path.join(__dirname, "messages.json");
 const GROUPS_FILE    = path.join(__dirname, "groups.json");
 const PROFILES_FILE  = path.join(__dirname, "profiles.json");
 const ADMINS_FILE    = path.join(__dirname, "admins.json");
+const EXTRA_USERS_FILE = path.join(__dirname, "extra_users.json");
+
+function loadExtraUsers() {
+  if (!fs.existsSync(EXTRA_USERS_FILE)) fs.writeFileSync(EXTRA_USERS_FILE, "[]");
+  try { return JSON.parse(fs.readFileSync(EXTRA_USERS_FILE, "utf8") || "[]"); } catch(e) { return []; }
+}
+function saveExtraUsers(list) { fs.writeFileSync(EXTRA_USERS_FILE, JSON.stringify(list, null, 2)); }
+function getAllUsers() {
+  const base = Object.values(USERS);
+  const extra = loadExtraUsers().filter(u => !USERS[u.username]);
+  return [...base, ...extra];
+}
 
 function loadProfiles() {
   if (!fs.existsSync(PROFILES_FILE)) fs.writeFileSync(PROFILES_FILE, "{}");
@@ -92,12 +104,31 @@ app.put("/profile/:username", (req, res) => {
 });
 
 app.get("/users", (req, res) => {
-  res.json(Object.values(USERS).map(u => ({ username: u.username, name: u.name })));
+  res.json(getAllUsers().map(u => ({ username: u.username, name: u.name })));
+});
+
+app.post("/users", (req, res) => {
+  const { username, password, name, email, telefono, dpto, delegacion } = req.body;
+  if (!username || !password) return res.status(400).json({ error: "Usuario y contraseña obligatorios" });
+  if (USERS[username]) return res.status(409).json({ error: "Usuario ya existe" });
+  const extra = loadExtraUsers();
+  if (extra.find(u => u.username === username)) return res.status(409).json({ error: "Usuario ya existe" });
+  const newUser = { username, password, name: name || username };
+  extra.push(newUser);
+  saveExtraUsers(extra);
+  if (email || telefono || dpto || delegacion) {
+    const profiles = loadProfiles();
+    profiles[username] = { ...(profiles[username] || {}), nombre: name?.split(" ")[0]||"", apellidos: name?.split(" ").slice(1).join(" ")||"", email: email||"", telefono: telefono||"", dpto: dpto||"", delegacion: delegacion||"" };
+    saveProfiles(profiles);
+  }
+  io.emit("user_created", { username, name: newUser.name });
+  res.json({ username, name: newUser.name });
 });
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
-  const user = USERS[username];
+  let user = USERS[username];
+  if (!user) user = loadExtraUsers().find(u => u.username === username);
   if (!user || user.password !== password)
     return res.status(401).json({ error: "Credenciales incorrectas" });
   res.json({ username: user.username, name: user.name });

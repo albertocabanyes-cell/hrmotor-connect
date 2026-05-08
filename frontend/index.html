@@ -1381,6 +1381,7 @@ function bindSocketEvents(){
     if(activeTab==="groups") renderGroupsList();
   });
   socket.on("admins_updated",list=>{ serverAdmins=list; renderUsers(); if(me){ const admin=isAdmin(me.username); document.getElementById("adminBadge").style.display=admin?"inline-block":"none"; document.getElementById("adminBtn").style.display=admin?"flex":"none"; } });
+  socket.on("user_created",u=>{ if(!users.find(x=>x.username===u.username)){ users.push({username:u.username,name:u.name}); renderUsers(); } });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
@@ -1628,16 +1629,18 @@ function createUser(){
   const okEl=document.getElementById("newUserOk"), errEl=document.getElementById("newUserErr");
   okEl.style.display="none"; errEl.style.display="none";
   if(!username||!password){errEl.textContent="Usuario y contraseña son obligatorios.";errEl.style.display="block";return;}
-  if(getAllKnownUsers().find(u=>u.username===username)){errEl.textContent="Ese nombre de usuario ya existe.";errEl.style.display="block";return;}
   const fullName=[nombre,apellidos].filter(Boolean).join(" ")||username;
-  localStorage.setItem("hrmotor_profile_"+username,JSON.stringify({nombre,apellidos,email,telefono,dpto,delegacion}));
-  try{ const local=JSON.parse(localStorage.getItem("hrmotor_local_users")||"[]"); local.push({username,name:fullName,dept:dpto}); localStorage.setItem("hrmotor_local_users",JSON.stringify(local)); }catch(e){}
-  if(rol==="admin") promoteUser(username);
-  if(socket&&socket.connected) socket.emit("admin_create_user",{username,password,name:fullName,dept:dpto,email,adminUser:me.username});
-  okEl.textContent=`✓ Usuario @${username} creado correctamente`; okEl.style.display="block";
-  setTimeout(()=>okEl.style.display="none",4000);
-  clearNewUserForm();
-  setTimeout(()=>{ cargarUsuarios(); renderAdminTable(); },500);
+  fetch("/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password,name:fullName,email,telefono,dpto,delegacion})})
+    .then(r=>r.json().then(d=>({ok:r.ok,d})))
+    .then(({ok,d})=>{
+      if(!ok){errEl.textContent=d.error||"Error al crear el usuario.";errEl.style.display="block";return;}
+      if(rol==="admin") promoteUser(username);
+      okEl.textContent=`✓ Usuario @${username} creado correctamente`; okEl.style.display="block";
+      setTimeout(()=>okEl.style.display="none",4000);
+      clearNewUserForm();
+      cargarUsuarios(); renderAdminTable();
+    })
+    .catch(()=>{errEl.textContent="Error de conexión.";errEl.style.display="block";});
 }
 function clearNewUserForm(){ ["nuNombre","nuApellidos","nuUsername","nuPassword","nuEmail","nuTelefono","nuDepartamento","nuDelegacion"].forEach(id=>document.getElementById(id).value=""); document.getElementById("nuRol").value="user"; }
 
