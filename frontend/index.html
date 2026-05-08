@@ -92,6 +92,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .udot{position:absolute;bottom:-3px;right:-3px;width:13px;height:13px;border-radius:50%;border:2.5px solid #10182f;background:#444;z-index:3}
 .uav.available .udot{background:#22c55e;box-shadow:0 0 0 1px rgba(34,197,94,.35)}
 .uav.busy .udot{background:#f59e0b;box-shadow:0 0 0 1px rgba(245,158,11,.35)}
+.uav.is-admin{box-shadow:0 0 0 2.5px #e30613}
 .uinfo{flex:1;min-width:0}
 .uname{font-size:13px;color:rgba(255,255,255,.82);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ui.active .uname{color:white;font-weight:700}
@@ -357,6 +358,60 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .group-color-pick button.selected{border-color:#333;transform:scale(1.15)}
 .grp-manage-btn{background:#fff0f0;border:1px solid rgba(227,6,19,.25);color:#e30613;padding:6px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;font-family:inherit;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .grp-manage-btn:hover{background:#e30613;color:white}
+.mti-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1.5px solid #e8e8e8;transition:all .15s;margin-bottom:6px}
+.mti-row.selected{border-color:#e30613;background:#fff8f8}
+.mti-row .mti-av{width:32px;height:32px;border-radius:50%;background:#e30613;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.mti-row .mti-av img{width:100%;height:100%;object-fit:cover}
+.mti-row .mti-name{flex:1;font-size:13px;font-weight:600;color:#222}
+.mti-toggle{width:20px;height:20px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s;font-size:11px;font-weight:700;color:transparent;user-select:none}
+.mti-row.selected .mti-toggle{background:#e30613;border-color:#e30613;color:white}
+.mti-admin-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;border:1.5px solid #ddd;background:white;color:#aaa;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;flex-shrink:0}
+.mti-admin-tag.active{background:#f59e0b;border-color:#f59e0b;color:white}
+.mti-admin-tag:hover:not(.active){border-color:#f59e0b;color:#f59e0b}
+/* ══ PANEL DE ARCHIVOS ══════════════════ */
+.files-panel{width:255px;border-left:1px solid #f0f0f0;background:white;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.fp-head{padding:18px 16px 12px;border-bottom:1px solid #f5f5f5;flex-shrink:0}
+.fp-title{font-size:14px;font-weight:700;color:#111;margin-bottom:3px}
+.fp-sub{font-size:11px;color:#bbb;line-height:1.5}
+.fp-upload-wrap{padding:12px 14px;border-bottom:1px solid #f5f5f5;flex-shrink:0}
+.fp-upload-label{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:1.5px dashed rgba(227,6,19,.4);border-radius:10px;color:#e30613;font-size:13px;font-weight:700;cursor:pointer;background:rgba(227,6,19,.02);transition:all .15s;user-select:none}
+.fp-upload-label:hover{background:rgba(227,6,19,.07);border-color:#e30613}
+.fp-limit-txt{font-size:11px;color:#bbb;text-align:center;margin-top:5px}
+.fp-tabs{display:flex;border-bottom:1px solid #f0f0f0;flex-shrink:0;padding:0 10px}
+.fp-tab{flex:1;padding:8px 2px;font-size:11px;font-weight:600;color:#bbb;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .18s;font-family:inherit}
+.fp-tab.active{color:#e30613;border-bottom-color:#e30613}
+.fp-list{flex:1;overflow-y:auto;padding:6px 8px;min-height:0}
+.fp-list::-webkit-scrollbar{width:3px}.fp-list::-webkit-scrollbar-thumb{background:#eee;border-radius:3px}
+.fp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 12px;color:#ddd;text-align:center}
+.fp-empty-txt{font-size:12px;color:#ccc;line-height:1.5}
+.fp-item{display:flex;align-items:center;gap:9px;padding:8px 6px;border-radius:9px;transition:background .12s}
+.fp-item:hover{background:#f7f8fc}
+.fp-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;letter-spacing:.03em;text-transform:uppercase;overflow:hidden}
+.fp-ico.pdf{background:#fde8e9;color:#e30613}.fp-ico.xls{background:#e6f7ee;color:#22c55e}
+.fp-ico.doc{background:#e3f0fd;color:#0ea5e9}.fp-ico.img{background:#f5f0ff;color:#8b5cf6}
+.fp-ico.img img{width:100%;height:100%;object-fit:cover}.fp-ico.other{background:#f0f2f5;color:#6b7280}
+.fp-info{flex:1;min-width:0}
+.fp-fname{font-size:12px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.fp-fmeta{font-size:10px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-acts{display:flex;gap:2px;flex-shrink:0}
+.fp-act{width:26px;height:26px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#ccc;transition:all .12s;text-decoration:none}
+.fp-act:hover{background:#f0f0f0;color:#555}.fp-act svg{width:13px;height:13px}
+/* File message bubble */
+.bub.bub-file{padding:0;background:transparent!important;box-shadow:none!important}
+.file-bubble{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:12px;min-width:180px;max-width:260px}
+.mine .file-bubble{background:rgba(255,255,255,.13)}
+.theirs .file-bubble{background:#f0f2f5}
+.fb-ico{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;text-transform:uppercase;overflow:hidden}
+.fb-ico.pdf{background:#fde8e9;color:#e30613}.fb-ico.xls{background:#e6f7ee;color:#22c55e}
+.fb-ico.doc{background:#e3f0fd;color:#0ea5e9}.fb-ico.img{background:#f5f0ff;color:#8b5cf6}
+.fb-ico.img img{width:100%;height:100%;object-fit:cover;border-radius:7px}.fb-ico.other{background:#f0f2f5;color:#6b7280}
+.fb-info{flex:1;min-width:0}
+.fb-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mine .fb-name{color:rgba(255,255,255,.92)}.theirs .fb-name{color:#111}
+.fb-size{font-size:10px;color:#aaa;margin-top:1px}
+.fb-dl{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;transition:opacity .13s}
+.mine .fb-dl{background:rgba(255,255,255,.18);color:white}.theirs .fb-dl{background:rgba(0,0,0,.07);color:#555}
+.fb-dl:hover{opacity:.7}.fb-dl svg{width:13px;height:13px}
 </style>
 </head>
 <body>
@@ -478,6 +533,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
             <button class="emoji-btn" onclick="toggleEmoji(event)" title="Emojis">😊</button>
             <input id="messageInput" placeholder="Escribe tu mensaje..." disabled
               onkeydown="handleComposerKey(event)" oninput="handleTyping()">
+            <label style="cursor:pointer;display:flex;align-items:center;padding:0 4px;color:#bbb;flex-shrink:0;transition:color .15s" title="Adjuntar archivo" for="fileUploadInput">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </label>
             <button class="btn-send" id="sendBtn" disabled onclick="send()">
               <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
             </button>
@@ -489,20 +547,27 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         </div>
       </div>
 
-      <!-- Contact info panel -->
-      <div class="chat-info" id="chatInfo" style="display:none">
-        <div class="chat-info-av" id="ciAv">–</div>
-        <div class="chat-info-name" id="ciName">–</div>
-        <div class="chat-info-status"><span class="ci-sdot" id="ciDot"></span><span id="ciStatus">–</span></div>
-        <a class="ci-email-link" id="ciEmailLink" style="display:none">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-          <span id="ciEmailTxt"></span>
-        </a>
-        <div class="chat-info-divider"></div>
-        <div class="ci-row"><div class="ci-row-label">Empresa</div><div class="ci-row-val">HRmotor</div></div>
-        <div class="ci-row"><div class="ci-row-label">Departamento</div><div class="ci-row-val" id="ciDept">–</div></div>
-        <div class="ci-row"><div class="ci-row-label">Delegación</div><div class="ci-row-val" id="ciDelegacion">–</div></div>
-        <div class="ci-row"><div class="ci-row-label">Teléfono</div><div class="ci-row-val" id="ciTelefono">–</div></div>
+      <!-- Panel de archivos -->
+      <div class="files-panel" id="filesPanel" style="display:none">
+        <div class="fp-head">
+          <div class="fp-title">Archivos del chat</div>
+          <div class="fp-sub">Documentos, imágenes y adjuntos<br>enviados en esta conversación.</div>
+        </div>
+        <div class="fp-upload-wrap">
+          <label class="fp-upload-label" for="fileUploadInput">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            + Subir archivo
+          </label>
+          <input type="file" id="fileUploadInput" style="display:none" onchange="uploadAndSendFile(event)">
+          <div class="fp-limit-txt">Máx. 5 MB por archivo</div>
+        </div>
+        <div class="fp-tabs">
+          <button class="fp-tab active" onclick="filterFpFiles('all',this)">Todos</button>
+          <button class="fp-tab" onclick="filterFpFiles('img',this)">Imágenes</button>
+          <button class="fp-tab" onclick="filterFpFiles('doc',this)">Documentos</button>
+          <button class="fp-tab" onclick="filterFpFiles('other',this)">Otros</button>
+        </div>
+        <div class="fp-list" id="fpList"></div>
       </div>
     </div>
   </div>
@@ -685,18 +750,20 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
   <div class="modal" style="width:460px">
     <div class="modal-header">
       <button class="modal-close" onclick="closeManageGroup()">✕</button>
-      <div style="font-size:16px;font-weight:700;color:white;margin-top:6px" id="manageGroupTitle">Gestionar grupo</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4)">Añade o elimina miembros del grupo</div>
+      <div style="font-size:16px;font-weight:700;color:white;margin-top:6px" id="manageGroupTitle">Configuración del grupo</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4)">Gestiona los ajustes y miembros del grupo</div>
     </div>
     <div class="modal-body">
-      <div class="form-field" style="margin-bottom:4px">
-        <label>Miembros del grupo</label>
-        <div class="member-toggle-list" id="manageToggleList"></div>
+      <div class="form-field" style="margin-bottom:16px">
+        <label>Nombre del grupo</label>
+        <input type="text" id="manageGroupNameInput" placeholder="Nombre del grupo" maxlength="40">
       </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="modal-btn primary" onclick="saveGroupMembers()">Guardar cambios</button>
+      <div class="modal-section-title">Miembros</div>
+      <div style="max-height:280px;overflow-y:auto;padding:2px 0" id="manageToggleList"></div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center">
+        <button class="modal-btn primary" onclick="saveGroupConfig()">Guardar cambios</button>
         <button class="modal-btn secondary" onclick="closeManageGroup()">Cancelar</button>
-        <button class="modal-btn" style="margin-left:auto;background:#fff0f0;color:#e30613;border:1px solid rgba(227,6,19,.25);font-weight:700" onclick="deleteGroup()">Eliminar grupo</button>
+        <button class="modal-btn" id="deleteGroupBtn" style="margin-left:auto;background:#fff0f0;color:#e30613;border:1px solid rgba(227,6,19,.25);font-weight:700" onclick="deleteGroup()">Eliminar grupo</button>
       </div>
       <p class="modal-save-ok" id="manageGroupOk" style="text-align:left;margin-top:8px;display:none"></p>
     </div>
@@ -721,6 +788,7 @@ let emojiOpen = false;
 let groups = [], currentGroup = null, groupUnread = {}, lastGroupMsg = {};
 let selectedGroupColor = "#e30613";
 let managingGroup = null;
+let currentChatFiles = [], fpFilter = 'all';
 const GROUP_COLORS = ["#e30613","#6366f1","#22c55e","#f59e0b","#0ea5e9","#ec4899","#f97316","#10182f","#84cc16","#8b5cf6"];
 
 const DEPARTMENTS = [
@@ -770,9 +838,26 @@ const EMOJI_CAT_KEYS = Object.keys(EMOJIS);
 /* ═══════════════════════════════════════
    ADMIN HELPERS
 ═══════════════════════════════════════ */
-function getAdmins(){ try{ return JSON.parse(localStorage.getItem(ADMIN_USERS_KEY)||"null")||DEFAULT_ADMINS; }catch(e){ return DEFAULT_ADMINS; } }
-function saveAdmins(l){ localStorage.setItem(ADMIN_USERS_KEY,JSON.stringify(l)); }
+let serverAdmins = [...DEFAULT_ADMINS];
+function getAdmins(){ return serverAdmins; }
+function saveAdmins(list){
+  serverAdmins=list;
+  fetch("/admins",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({admins:list})}).catch(()=>{});
+}
+function loadServerAdmins(){
+  fetch("/admins").then(r=>r.json()).then(data=>{
+    // Migración: fusiona con admins guardados en localStorage (sistema antiguo)
+    let local=[]; try{ local=JSON.parse(localStorage.getItem(ADMIN_USERS_KEY)||"[]"); }catch(e){}
+    const merged=[...new Set([...DEFAULT_ADMINS,...data,...local])];
+    serverAdmins=merged;
+    // Si localStorage añadió admins que el servidor no tenía, los guarda en el servidor
+    if(local.some(u=>!data.includes(u))) saveAdmins(merged);
+    renderUsers();
+    if(me){ const admin=isAdmin(me.username); document.getElementById("adminBadge").style.display=admin?"inline-block":"none"; document.getElementById("adminBtn").style.display=admin?"flex":"none"; }
+  }).catch(()=>{});
+}
 function isAdmin(u){ return getAdmins().includes(u); }
+function isGroupAdmin(group){ if(!group||!me) return false; return isAdmin(me.username)||(group.admins||[]).includes(me.username); }
 
 /* ═══════════════════════════════════════
    INIT
@@ -852,6 +937,7 @@ function mostrarApp(){
   cargarUsuarios();
   loadGroups();
   loadServerProfiles();
+  loadServerAdmins();
 }
 function logout(){ localStorage.removeItem("hrmotor_user"); if(socket) socket.disconnect(); location.reload(); }
 
@@ -916,7 +1002,14 @@ function cargarUsuarios(){
 function loadServerProfiles(){
   fetch("/profiles")
     .then(r=>r.json())
-    .then(data=>{ serverProfiles=data; renderUsers(); restoreProfileData(); })
+    .then(data=>{
+      serverProfiles=data;
+      renderUsers();
+      restoreProfileData();
+      const admin=isAdmin(me.username);
+      document.getElementById("adminBadge").style.display=admin?"inline-block":"none";
+      document.getElementById("adminBtn").style.display=admin?"flex":"none";
+    })
     .catch(()=>{});
 }
 
@@ -988,11 +1081,11 @@ function _buildUserDiv(u){
   div.className="ui"+(active?" active":"");
   const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
   const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
-  const adminMark=isAdmin(u.username)?` <span style="font-size:9px;background:#e30613;color:white;padding:1px 4px;border-radius:3px;vertical-align:middle">A</span>`:"";
+  const adminCls=isAdmin(u.username)?" is-admin":"";
   div.innerHTML=`
-    <div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
+    <div class="uav ${avCls}${adminCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
     <div class="uinfo">
-      <div class="uname">${escHtml(u.name||u.username)}${adminMark}</div>
+      <div class="uname">${escHtml(u.name||u.username)}</div>
       <div class="usub">${SL[uSt]||"No disponible"}</div>
     </div>
     ${count>0?`<span class="ubadge">${count}</span>`:""}
@@ -1101,6 +1194,7 @@ function selectUser(u){
     <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div></div>`;
 
   const ciAv=document.getElementById("ciAv"); ciAv.style.overflow="hidden"; ciAv.style.padding="0";
+  ciAv.style.boxShadow=isAdmin(u.username)?"0 0 0 3px #e30613":"";
   ciAv.innerHTML=photo?`<img src="${photo}" alt="${ini}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:20px;font-weight:700">${ini}</span>`;
   document.getElementById("ciName").textContent=displayName;
   document.getElementById("ciDot").className="ci-sdot"+(dotCls?" "+dotCls:"");
@@ -1114,7 +1208,7 @@ function selectUser(u){
 
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
-  document.getElementById("chatInfo").style.display="flex";
+  document.getElementById("filesPanel").style.display="flex";
   document.getElementById("messageInput").disabled=false;
   document.getElementById("sendBtn").disabled=false;
   document.getElementById("messageInput").focus();
@@ -1131,6 +1225,9 @@ function selectUser(u){
     .then(r=>r.json())
     .then(data=>{
       document.getElementById("msgEmpty")?.remove();
+      currentChatFiles=data.filter(m=>m.fileUrl); fpFilter='all';
+      document.querySelectorAll('.fp-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+      renderFilesPanel();
       if(!data.length){ box.innerHTML+='<p class="msg-empty">¡Sé el primero en escribir!</p>'; return; }
       data.forEach(m=>addMessage(m,true));
       scrollToBottom(true);
@@ -1173,7 +1270,8 @@ function addMessage(msg, noScroll=false){
   if(sameGrp){
     const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
     const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
-    const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text;
+    const bub=document.createElement("div");
+    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
     lastGrp.querySelector(".mg-bubbles").appendChild(bub);
   } else {
     const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
@@ -1185,7 +1283,9 @@ function addMessage(msg, noScroll=false){
     row.appendChild(av);
     const col=document.createElement("div"); col.className="mg-bubbles";
     if(!isMe){const snd=document.createElement("div");snd.className="mg-sender";snd.textContent=msg.fromName||msg.from;col.appendChild(snd);}
-    const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text; col.appendChild(bub);
+    const bub=document.createElement("div");
+    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    col.appendChild(bub);
     row.appendChild(col); grp.appendChild(row);
     const foot=document.createElement("div"); foot.className="mg-foot";
     foot.innerHTML=`<span class="mg-time">${time}</span>${isMe?`<span class="mg-ticks"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>`:""}`;
@@ -1222,7 +1322,7 @@ function bindSocketEvents(){
   socket.on("private_message",msg=>{
     if(!me) return;
     const sameChat=current&&((msg.from===me.username&&msg.to===current)||(msg.to===me.username&&msg.from===current));
-    if(sameChat){ hideTyping(); addMessage(msg); addToOpenChats(msg.from===me.username?msg.to:msg.from); lastMsg[msg.from===me.username?msg.to:msg.from]=msg.text; renderUsers(); }
+    if(sameChat){ hideTyping(); if(msg.fileUrl){currentChatFiles.push(msg);renderFilesPanel();} addMessage(msg); addToOpenChats(msg.from===me.username?msg.to:msg.from); lastMsg[msg.from===me.username?msg.to:msg.from]=msg.text||('📎 '+msg.fileName); renderUsers(); }
     else if(msg.to===me.username){
       const isNew=addToOpenChats(msg.from); lastMsg[msg.from]=msg.text; unread[msg.from]=(unread[msg.from]||0)+1; renderUsers();
       if(isNew&&activeTab==="all") switchTab("chats");
@@ -1232,7 +1332,7 @@ function bindSocketEvents(){
   socket.on("group_message",msg=>{
     if(!me) return;
     const isCurrentGroup=currentGroup&&currentGroup.id===msg.groupId;
-    if(isCurrentGroup){ addGroupMessage(msg); lastGroupMsg[msg.groupId]=msg.text; }
+    if(isCurrentGroup){ if(msg.fileUrl){currentChatFiles.push(msg);renderFilesPanel();} addGroupMessage(msg); lastGroupMsg[msg.groupId]=msg.text||('📎 '+msg.fileName); }
     else{
       groupUnread[msg.groupId]=(groupUnread[msg.groupId]||0)+1;
       lastGroupMsg[msg.groupId]=msg.text;
@@ -1256,13 +1356,11 @@ function bindSocketEvents(){
     if(idx>=0) groups[idx]=group; else groups.push(group);
     if(currentGroup&&currentGroup.id===group.id){
       currentGroup=group;
-      // Refresh topbar member count without resetting the chat
-      const membersNames=group.members.map(m=>{ const u=users.find(u=>u.username===m); return u?u.name||u.username:m; }).join(", ");
-      const tb=document.querySelector("#topbar .tb-status-txt");
-      if(tb) tb.textContent=`${group.members.length} miembros · ${membersNames}`;
+      renderGroupTopbar(group);
     }
     if(activeTab==="groups") renderGroupsList();
   });
+  socket.on("admins_updated",list=>{ serverAdmins=list; renderUsers(); if(me){ const admin=isAdmin(me.username); document.getElementById("adminBadge").style.display=admin?"inline-block":"none"; document.getElementById("adminBtn").style.display=admin?"flex":"none"; } });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
@@ -1324,6 +1422,7 @@ function openViewProfile(u){
   const ini=initials(displayName);
   const vpAv=document.getElementById("vpAv");
   vpAv.innerHTML=photo?`<img src="${photo}" alt="${ini}">`:`<span>${ini}</span>`;
+  vpAv.style.boxShadow=isAdmin(u.username)?"0 0 0 3px #e30613":"0 4px 16px rgba(227,6,19,.2)";
   document.getElementById("vpName").textContent=displayName;
   document.getElementById("vpDept").textContent=dept||"HRmotor";
   const dot=document.getElementById("vpDot"); dot.className="vp-sdot"+(dotCls?" "+dotCls:"");
@@ -1445,8 +1544,17 @@ function renderAdminTable(query=""){
   wrap.innerHTML=html;
 }
 
-function promoteUser(username){ if(!isAdmin(me.username)) return; const a=getAdmins(); if(!a.includes(username)) a.push(username); saveAdmins(a); renderAdminTable(document.getElementById("adminSearch").value); renderUsers(); }
-function demoteUser(username){ if(!isAdmin(me.username)) return; if(username==="alberto"){alert("No se puede quitar el rol admin a Alberto.");return;} saveAdmins(getAdmins().filter(a=>a!==username)); renderAdminTable(document.getElementById("adminSearch").value); renderUsers(); }
+function promoteUser(username){
+  if(!isAdmin(me.username)) return;
+  const a=getAdmins(); if(!a.includes(username)) a.push(username); saveAdmins(a);
+  renderAdminTable(document.getElementById("adminSearch").value); renderUsers();
+}
+function demoteUser(username){
+  if(!isAdmin(me.username)) return;
+  if(username==="alberto"){alert("No se puede quitar el rol admin a Alberto.");return;}
+  saveAdmins(getAdmins().filter(a=>a!==username));
+  renderAdminTable(document.getElementById("adminSearch").value); renderUsers();
+}
 function toggleUserActive(username,active){
   let inactives=JSON.parse(localStorage.getItem("hrmotor_inactive_users")||"[]");
   if(active) inactives=inactives.filter(u=>u!==username); else if(!inactives.includes(username)) inactives.push(username);
@@ -1548,12 +1656,9 @@ function renderGroupsList(){
   });
 }
 
-function selectGroup(g){
-  currentGroup=g; current=null;
-  groupUnread[g.id]=0; updateBadge();
-  renderGroupsList();
+function renderGroupTopbar(g){
   const membersNames=g.members.map(m=>{ const u=users.find(u=>u.username===m); return u?u.name||u.username:m; }).join(", ");
-  const manageBtn=isAdmin(me.username)?`<button class="grp-manage-btn" onclick="openManageGroup()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Miembros</button>`:"";
+  const manageBtn=isGroupAdmin(g)?`<button class="grp-manage-btn" onclick="openManageGroup()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="3"/><path d="M20 21a8 8 0 1 0-16 0"/><path d="M19 8l2 2-6 6h-2v-2l6-6z"/></svg>Configuración</button>`:"";
   document.getElementById("topbar").innerHTML=`
     <div class="tb-av" style="background:${g.color||"#e30613"};color:white;font-weight:800;font-size:14px;overflow:visible;border-radius:10px">${escHtml(g.name.slice(0,2).toUpperCase())}</div>
     <div class="tb-info">
@@ -1561,9 +1666,16 @@ function selectGroup(g){
       <div class="tb-status"><span class="tb-status-txt" style="color:#aaa">${g.members.length} miembros · ${escHtml(membersNames)}</span></div>
     </div>
     ${manageBtn}`;
+}
+
+function selectGroup(g){
+  currentGroup=g; current=null;
+  groupUnread[g.id]=0; updateBadge();
+  renderGroupsList();
+  renderGroupTopbar(g);
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
-  document.getElementById("chatInfo").style.display="none";
+  document.getElementById("filesPanel").style.display="flex";
   document.getElementById("messageInput").disabled=false;
   document.getElementById("sendBtn").disabled=false;
   document.getElementById("messageInput").placeholder="Escribe en el grupo...";
@@ -1578,6 +1690,9 @@ function selectGroup(g){
     .then(r=>r.json())
     .then(data=>{
       document.getElementById("msgEmpty")?.remove();
+      currentChatFiles=data.filter(m=>m.fileUrl); fpFilter='all';
+      document.querySelectorAll('.fp-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+      renderFilesPanel();
       if(!data.length){ box.innerHTML+='<p class="msg-empty">¡Sé el primero en escribir!</p>'; return; }
       data.forEach(m=>addGroupMessage(m,true));
       scrollToBottom(true);
@@ -1594,7 +1709,8 @@ function addGroupMessage(msg, noScroll=false){
   if(sameGrp){
     const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
     const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
-    const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text;
+    const bub=document.createElement("div");
+    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
     lastGrp.querySelector(".mg-bubbles").appendChild(bub);
   } else {
     const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
@@ -1606,7 +1722,9 @@ function addGroupMessage(msg, noScroll=false){
     row.appendChild(av);
     const col=document.createElement("div"); col.className="mg-bubbles";
     if(!isMe){const snd=document.createElement("div");snd.className="mg-sender";snd.textContent=msg.fromName||msg.from;col.appendChild(snd);}
-    const bub=document.createElement("div"); bub.className="bub last"; bub.textContent=msg.text; col.appendChild(bub);
+    const bub=document.createElement("div");
+    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    col.appendChild(bub);
     row.appendChild(col); grp.appendChild(row);
     const foot=document.createElement("div"); foot.className="mg-foot";
     foot.innerHTML=`<span class="mg-time">${time}</span>`;
@@ -1665,27 +1783,33 @@ function createGroup(){
 
 /* ── Gestionar miembros ── */
 function openManageGroup(){
-  if(!currentGroup||!isAdmin(me.username)) return;
+  if(!currentGroup||!isGroupAdmin(currentGroup)) return;
   managingGroup=currentGroup;
-  document.getElementById("manageGroupTitle").textContent="Gestionar: "+currentGroup.name;
+  document.getElementById("manageGroupTitle").textContent="Configuración: "+currentGroup.name;
   document.getElementById("manageGroupOk").style.display="none";
+  document.getElementById("manageGroupNameInput").value=currentGroup.name;
   const allForGroup=[...users, {username:me.username, name:me.name||me.username}];
   const list=document.getElementById("manageToggleList"); list.innerHTML="";
   allForGroup.forEach(u=>{
-    const item=document.createElement("div");
     const isMember=managingGroup.members.includes(u.username);
-    item.className="member-toggle-item"+(isMember?" selected":""); item.dataset.u=u.username;
+    const isGrpAdm=(managingGroup.admins||[]).includes(u.username);
     const photo=getUserAvatar(u.username);
-    item.innerHTML=`<div class="mti-av">${photo?`<img src="${photo}" alt="">`:(initials(u.name||u.username))}</div><span class="mti-name">${escHtml(u.name||u.username)}</span><span class="mti-check">✓</span>`;
-    item.onclick=()=>item.classList.toggle("selected");
-    list.appendChild(item);
+    const row=document.createElement("div");
+    row.className="mti-row"+(isMember?" selected":""); row.dataset.u=u.username;
+    row.innerHTML=`<div class="mti-av">${photo?`<img src="${photo}" alt="">`:(initials(u.name||u.username))}</div><span class="mti-name">${escHtml(u.name||u.username)}</span><span class="mti-admin-tag${isGrpAdm?" active":""}" data-u="${u.username}">Admin</span><span class="mti-toggle">✓</span>`;
+    row.addEventListener("click",e=>{ if(e.target.classList.contains("mti-admin-tag")) return; row.classList.toggle("selected"); });
+    const tag=row.querySelector(".mti-admin-tag");
+    if(tag) tag.addEventListener("click",e=>{ e.stopPropagation(); tag.classList.toggle("active"); });
+    list.appendChild(row);
   });
+  const deleteBtn=document.getElementById("deleteGroupBtn");
+  if(deleteBtn) deleteBtn.style.display=isAdmin(me.username)?"":"none";
   document.getElementById("manageGroupModal").classList.add("open");
 }
 function closeManageGroup(){ document.getElementById("manageGroupModal").classList.remove("open"); managingGroup=null; }
 
 function deleteGroup(){
-  if(!managingGroup||!isAdmin(me.username)) return;
+  if(!managingGroup||!isAdmin(me.username)) return; // only system admins can delete a group
   if(!confirm(`¿Eliminar el grupo "${managingGroup.name}"? Esta acción no se puede deshacer.`)) return;
   fetch(`/groups/${managingGroup.id}`,{method:"DELETE"})
     .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
@@ -1697,6 +1821,7 @@ function _removeGroupLocally(groupId){
   groups=groups.filter(g=>g.id!==groupId);
   if(currentGroup&&currentGroup.id===groupId){
     currentGroup=null;
+    document.getElementById("filesPanel").style.display="none";
     document.getElementById("chatCol").style.display="none";
     document.getElementById("emptyState").style.display="flex";
   }
@@ -1704,21 +1829,23 @@ function _removeGroupLocally(groupId){
   updateBadge();
 }
 
-function saveGroupMembers(){
+function saveGroupConfig(){
   if(!managingGroup) return;
-  const selected=[...document.querySelectorAll("#manageToggleList .member-toggle-item.selected")].map(el=>el.dataset.u);
+  const selected=[...document.querySelectorAll("#manageToggleList .mti-row.selected")].map(el=>el.dataset.u);
   if(!selected.length){ alert("El grupo debe tener al menos un miembro."); return; }
+  const newName=document.getElementById("manageGroupNameInput").value.trim()||managingGroup.name;
+  const admins=[...document.querySelectorAll("#manageToggleList .mti-admin-tag.active")].map(el=>el.dataset.u);
   fetch(`/groups/${managingGroup.id}/members`,{
     method:"PUT",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({members:selected})
+    body:JSON.stringify({members:selected, admins:admins.length?admins:(managingGroup.admins||[]), name:newName})
   })
     .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
     .then(updated=>{
       const idx=groups.findIndex(g=>g.id===updated.id);
       if(idx>=0) groups[idx]=updated;
       if(currentGroup&&currentGroup.id===updated.id) currentGroup=updated;
-      const ok=document.getElementById("manageGroupOk"); ok.textContent="✓ Miembros actualizados"; ok.style.display="block";
+      const ok=document.getElementById("manageGroupOk"); ok.textContent="✓ Configuración guardada"; ok.style.display="block";
       setTimeout(()=>{ ok.style.display="none"; closeManageGroup(); selectGroup(updated); },1200);
     })
     .catch(()=>alert("Error al guardar cambios."));
@@ -1730,6 +1857,86 @@ function saveGroupMembers(){
 function initials(n){ return String(n).split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
 function horaActual(){ const d=new Date(); return d.getHours().toString().padStart(2,"0")+":"+d.getMinutes().toString().padStart(2,"0"); }
 function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ═══════════════════════════════════════
+   ARCHIVOS
+═══════════════════════════════════════ */
+function getFileCategory(type,name){
+  const mime=(type||'').toLowerCase(), ext=(name||'').split('.').pop().toLowerCase();
+  if(mime.startsWith('image/')) return 'img';
+  if(['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','csv'].includes(ext)) return 'doc';
+  return 'other';
+}
+function getFpIconClass(type,name){
+  const cat=getFileCategory(type,name), ext=(name||'').split('.').pop().toLowerCase();
+  if(cat==='img') return 'img';
+  if(ext==='pdf') return 'pdf';
+  if(['xls','xlsx','csv'].includes(ext)) return 'xls';
+  if(['doc','docx','txt','ppt','pptx'].includes(ext)) return 'doc';
+  return 'other';
+}
+function formatFileSize(bytes){
+  if(!bytes) return '';
+  if(bytes<1024) return bytes+' B';
+  if(bytes<1024*1024) return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/(1024*1024)).toFixed(1)+' MB';
+}
+function buildFileBubbleHTML(msg){
+  const cat=getFpIconClass(msg.fileType,msg.fileName);
+  const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';
+  const ext=((msg.fileName||'').split('.').pop()||'').slice(0,4).toUpperCase();
+  const size=formatFileSize(msg.fileSize);
+  const iconHtml=isImg?`<img src="${msg.fileUrl}" alt="">`:`${ext||'FILE'}`;
+  return `<div class="file-bubble"><div class="fb-ico ${cat}">${iconHtml}</div><div class="fb-info"><div class="fb-name">${escHtml(msg.fileName||'Archivo')}</div>${size?`<div class="fb-size">${size}</div>`:''}</div><a class="fb-dl" href="${msg.fileUrl}" download="${escHtml(msg.fileName||'archivo')}" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a></div>`;
+}
+function filterFpFiles(filter,btn){
+  fpFilter=filter;
+  document.querySelectorAll('.fp-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderFilesPanel();
+}
+function renderFilesPanel(){
+  const list=document.getElementById('fpList'); if(!list) return;
+  const filtered=fpFilter==='all'?currentChatFiles:currentChatFiles.filter(f=>getFileCategory(f.fileType,f.fileName)===fpFilter);
+  if(!filtered.length){
+    list.innerHTML=`<div class="fp-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><div class="fp-empty-txt">Aquí se mostrarán los archivos compartidos en este chat.</div></div>`;
+    return;
+  }
+  list.innerHTML='';
+  [...filtered].reverse().forEach(f=>{
+    const cat=getFpIconClass(f.fileType,f.fileName);
+    const isImg=getFileCategory(f.fileType,f.fileName)==='img';
+    const ext=((f.fileName||'').split('.').pop()||'').slice(0,4).toUpperCase();
+    const sName=f.fromName||(users.find(u=>u.username===f.from)?.name)||f.from||'';
+    const dateStr=f.date?new Date(f.date).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'}):'';
+    const meta=['Por '+sName, dateStr+(f.time?' · '+f.time:''), formatFileSize(f.fileSize)].filter(Boolean).join(' · ');
+    const item=document.createElement('div'); item.className='fp-item';
+    item.innerHTML=`<div class="fp-ico ${cat}">${isImg?`<img src="${f.fileUrl}" alt="">`:ext}</div><div class="fp-info"><div class="fp-fname">${escHtml(f.fileName||'Archivo')}</div><div class="fp-fmeta">${escHtml(meta)}</div></div><div class="fp-acts"><a class="fp-act" href="${f.fileUrl}" target="_blank" title="Ver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a><a class="fp-act" href="${f.fileUrl}" download="${escHtml(f.fileName||'archivo')}" title="Descargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a></div>`;
+    list.appendChild(item);
+  });
+}
+function uploadAndSendFile(e){
+  const file=e.target.files[0]; if(!file) return;
+  if(file.size>5*1024*1024){alert('El archivo no puede superar 5 MB.');e.target.value='';return;}
+  if(!current&&!currentGroup){alert('Selecciona una conversación primero.');e.target.value='';return;}
+  const fd=new FormData(); fd.append('file',file);
+  fetch('/upload',{method:'POST',body:fd})
+    .then(r=>r.json())
+    .then(res=>{
+      const msg={from:me.username,fromName:me.name||me.username,fileUrl:res.url,fileName:res.name,fileType:res.type,fileSize:res.size,text:'',time:horaActual()};
+      if(currentGroup){
+        msg.groupId=currentGroup.id; lastGroupMsg[currentGroup.id]='📎 '+res.name;
+        if(socket&&socket.connected) socket.emit('group_message',msg); else addGroupMessage(msg);
+        if(activeTab==='groups') renderGroupsList();
+      } else {
+        msg.to=current; addToOpenChats(current); lastMsg[current]='📎 '+res.name;
+        if(socket&&socket.connected) socket.emit('private_message',msg); else addMessage(msg);
+        renderUsers();
+      }
+    })
+    .catch(()=>alert('Error al subir el archivo.'));
+  e.target.value='';
+}
 </script>
 </body>
 </html>

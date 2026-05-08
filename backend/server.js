@@ -40,12 +40,19 @@ const USERS = {
 const MESSAGES_FILE  = path.join(__dirname, "messages.json");
 const GROUPS_FILE    = path.join(__dirname, "groups.json");
 const PROFILES_FILE  = path.join(__dirname, "profiles.json");
+const ADMINS_FILE    = path.join(__dirname, "admins.json");
 
 function loadProfiles() {
   if (!fs.existsSync(PROFILES_FILE)) fs.writeFileSync(PROFILES_FILE, "{}");
   try { return JSON.parse(fs.readFileSync(PROFILES_FILE, "utf8") || "{}"); } catch(e) { return {}; }
 }
 function saveProfiles(p) { fs.writeFileSync(PROFILES_FILE, JSON.stringify(p, null, 2)); }
+
+function loadAdmins() {
+  if (!fs.existsSync(ADMINS_FILE)) fs.writeFileSync(ADMINS_FILE, JSON.stringify(["alberto"]));
+  try { return JSON.parse(fs.readFileSync(ADMINS_FILE, "utf8")); } catch(e) { return ["alberto"]; }
+}
+function saveAdminsFile(list) { fs.writeFileSync(ADMINS_FILE, JSON.stringify(list)); }
 
 function loadMessages() {
   if (!fs.existsSync(MESSAGES_FILE)) fs.writeFileSync(MESSAGES_FILE, "[]");
@@ -64,6 +71,17 @@ function saveGroups(groups) { fs.writeFileSync(GROUPS_FILE, JSON.stringify(group
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../frontend/index.html")));
 
 app.get("/profiles", (req, res) => res.json(loadProfiles()));
+
+app.get("/admins", (req, res) => res.json(loadAdmins()));
+
+app.put("/admins", (req, res) => {
+  const { admins } = req.body;
+  if (!Array.isArray(admins)) return res.status(400).json({ error: "Invalid" });
+  if (!admins.includes("alberto")) admins.unshift("alberto");
+  saveAdminsFile(admins);
+  io.emit("admins_updated", admins);
+  res.json(admins);
+});
 
 app.put("/profile/:username", (req, res) => {
   const profiles = loadProfiles();
@@ -105,7 +123,7 @@ app.post("/groups", (req, res) => {
   const { name, members, createdBy, color } = req.body;
   if (!name || !members || !createdBy) return res.status(400).json({ error: "Faltan campos" });
   const groups = loadGroups();
-  const group = { id: `grp_${Date.now()}`, name, members, createdBy, color: color || "#e30613", createdAt: new Date().toISOString() };
+  const group = { id: `grp_${Date.now()}`, name, members, admins: [createdBy], createdBy, color: color || "#e30613", createdAt: new Date().toISOString() };
   groups.push(group); saveGroups(groups);
   members.forEach(m => io.to(m).emit("group_created", group));
   res.json(group);
@@ -126,13 +144,15 @@ app.delete("/groups/:id", (req, res) => {
 });
 
 app.put("/groups/:id/members", (req, res) => {
-  const { members } = req.body;
+  const { members, admins, name } = req.body;
   if (!members || !Array.isArray(members)) return res.status(400).json({ error: "Faltan miembros" });
   const groups = loadGroups();
   const idx = groups.findIndex(g => g.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: "Grupo no encontrado" });
   const oldMembers = groups[idx].members;
   groups[idx].members = members;
+  if (admins !== undefined) groups[idx].admins = admins;
+  if (name && name.trim()) groups[idx].name = name.trim();
   saveGroups(groups);
   [...new Set([...oldMembers, ...members])].forEach(m => io.to(m).emit("group_updated", groups[idx]));
   res.json(groups[idx]);
@@ -164,7 +184,7 @@ io.on("connection", (socket) => {
     const saved = {
       id: Date.now(), conversationId: getConversationId(msg.from, msg.to),
       from: msg.from, fromName: msg.fromName, to: msg.to, text: msg.text || "",
-      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null, fileType: msg.fileType || null,
+      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null, fileType: msg.fileType || null, fileSize: msg.fileSize || null,
       time: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
       date: new Date().toISOString()
     };
@@ -178,7 +198,7 @@ io.on("connection", (socket) => {
     const saved = {
       id: Date.now(), groupId: msg.groupId,
       from: msg.from, fromName: msg.fromName, text: msg.text || "",
-      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null, fileType: msg.fileType || null,
+      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null, fileType: msg.fileType || null, fileSize: msg.fileSize || null,
       time: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
       date: new Date().toISOString()
     };
