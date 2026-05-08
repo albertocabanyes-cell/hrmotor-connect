@@ -1158,7 +1158,9 @@ function renderChatsList(query){
     div.innerHTML=`<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
       <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}</div>
       ${preview?`<div class="usub">${preview}</div>`:`<div class="usub">${SL[uSt]||"No disponible"}</div>`}</div>
-      ${count>0?`<span class="ubadge">${count}</span>`:""}`;
+      ${count>0?`<span class="ubadge">${count}</span>`:""}
+      <div class="ui-actions"><button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button></div>`;
+    div.querySelector(".ui-action-btn.view").addEventListener("click", e=>{ e.stopPropagation(); openViewProfile(u); });
     list.appendChild(div);
   });
   if(noMsg) noMsg.style.display=filtered.length===0?"block":"none";
