@@ -851,7 +851,7 @@ function mostrarApp(){
   try{ const s=JSON.parse(localStorage.getItem("hrmotor_chats_"+me.username)||"[]"); s.forEach(u=>openChats.add(u)); }catch(e){}
   cargarUsuarios();
   loadGroups();
-  restoreProfileData();
+  loadServerProfiles();
 }
 function logout(){ localStorage.removeItem("hrmotor_user"); if(socket) socket.disconnect(); location.reload(); }
 
@@ -897,17 +897,23 @@ function addToOpenChats(username){
   localStorage.setItem("hrmotor_chats_"+me.username,JSON.stringify([...openChats]));
   return isNew;
 }
-function getUserAvatar(username){ try{ return JSON.parse(localStorage.getItem("hrmotor_profile_"+username)||"{}").avatarUrl||null; }catch(e){ return null; } }
+let serverProfiles = {};
+function getUserAvatar(username){ return serverProfiles[username]?.avatarUrl || null; }
 
 /* ═══════════════════════════════════════
    CARGAR USUARIOS
 ═══════════════════════════════════════ */
 function cargarUsuarios(){
-  // ✅ CORREGIDO: ruta relativa en lugar de http://127.0.0.1:3000/users
   fetch("/users")
     .then(r=>r.json())
     .then(data=>{ users=data.filter(u=>u.username!==me.username); renderAllUsers(); })
     .catch(()=>console.warn("No se pudo cargar usuarios"));
+}
+function loadServerProfiles(){
+  fetch("/profiles")
+    .then(r=>r.json())
+    .then(data=>{ serverProfiles=data; renderUsers(); restoreProfileData(); })
+    .catch(()=>{});
 }
 
 function renderAllUsers(query){
@@ -1231,6 +1237,12 @@ function bindSocketEvents(){
       if(Notification?.permission==="granted"){ const g=groups.find(g=>g.id===msg.groupId); new Notification(`${msg.fromName||msg.from} en ${g?.name||"grupo"}`,{body:msg.text,icon:""}); }
     }
   });
+  socket.on("profile_updated",({username,profile})=>{
+    serverProfiles[username]={...(serverProfiles[username]||{}),...profile};
+    if(username===me.username){ avatarDataUrl=profile.avatarUrl||null; if(avatarDataUrl) applySidebarAvatar(avatarDataUrl); }
+    renderUsers();
+    if(current===username) selectUser(users.find(u=>u.username===username)||{username});
+  });
   socket.on("group_deleted",({id})=>{ _removeGroupLocally(id); });
   socket.on("group_created",group=>{
     if(!groups.find(g=>g.id===group.id)){ groups.push(group); if(activeTab==="groups") renderGroupsList(); updateBadge(); }
@@ -1328,9 +1340,16 @@ function openChatFromProfile(){ if(!viewingUser) return; closeViewProfile(); sel
 function handleAvatarChange(e){
   const file=e.target.files[0]; if(!file) return;
   if(file.size>2*1024*1024){alert("La imagen no puede superar 2 MB.");return;}
-  const reader=new FileReader();
-  reader.onload=ev=>{ avatarDataUrl=ev.target.result; document.getElementById("profileAvatar").innerHTML=`<img src="${avatarDataUrl}" alt="foto">`; applySidebarAvatar(avatarDataUrl); };
-  reader.readAsDataURL(file); e.target.value="";
+  const fd=new FormData(); fd.append("file",file);
+  fetch("/upload",{method:"POST",body:fd})
+    .then(r=>r.json())
+    .then(res=>{
+      avatarDataUrl=res.url;
+      document.getElementById("profileAvatar").innerHTML=`<img src="${res.url}" alt="foto">`;
+      applySidebarAvatar(res.url);
+    })
+    .catch(()=>alert("Error al subir la imagen."));
+  e.target.value="";
 }
 function applySidebarAvatar(url){
   const av=document.getElementById("meAvatar"), init=document.getElementById("meInitials");
@@ -1354,11 +1373,15 @@ function saveProfile(){
   } else { data={...existing}; }
   if(avatarDataUrl) data.avatarUrl=avatarDataUrl;
   localStorage.setItem(profileKey(),JSON.stringify(data));
+  serverProfiles[me.username]={...(serverProfiles[me.username]||{}),...data};
+  fetch(`/profile/${me.username}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
+    .catch(()=>{});
   const ok=document.getElementById("saveOk"); ok.style.display="block"; setTimeout(()=>ok.style.display="none",3000);
   renderUsers();
 }
 function restoreProfileData(){
-  const saved=JSON.parse(localStorage.getItem(profileKey())||"{}");
+  const srv=serverProfiles[me.username]||{};
+  const saved={...JSON.parse(localStorage.getItem(profileKey())||"{}"),...srv};
   avatarDataUrl=saved.avatarUrl||null;
   if(avatarDataUrl) applySidebarAvatar(avatarDataUrl);
   if(saved.nombre||saved.apellidos){

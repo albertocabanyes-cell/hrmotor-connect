@@ -37,8 +37,15 @@ const USERS = {
   juan:     { username: "juan",     password: "1234", name: "Juan IT Juiña" },
 };
 
-const MESSAGES_FILE = path.join(__dirname, "messages.json");
-const GROUPS_FILE   = path.join(__dirname, "groups.json");
+const MESSAGES_FILE  = path.join(__dirname, "messages.json");
+const GROUPS_FILE    = path.join(__dirname, "groups.json");
+const PROFILES_FILE  = path.join(__dirname, "profiles.json");
+
+function loadProfiles() {
+  if (!fs.existsSync(PROFILES_FILE)) fs.writeFileSync(PROFILES_FILE, "{}");
+  try { return JSON.parse(fs.readFileSync(PROFILES_FILE, "utf8") || "{}"); } catch(e) { return {}; }
+}
+function saveProfiles(p) { fs.writeFileSync(PROFILES_FILE, JSON.stringify(p, null, 2)); }
 
 function loadMessages() {
   if (!fs.existsSync(MESSAGES_FILE)) fs.writeFileSync(MESSAGES_FILE, "[]");
@@ -55,6 +62,16 @@ function saveGroups(groups) { fs.writeFileSync(GROUPS_FILE, JSON.stringify(group
 
 /* ── Routes ── */
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../frontend/index.html")));
+
+app.get("/profiles", (req, res) => res.json(loadProfiles()));
+
+app.put("/profile/:username", (req, res) => {
+  const profiles = loadProfiles();
+  profiles[req.params.username] = { ...(profiles[req.params.username] || {}), ...req.body };
+  saveProfiles(profiles);
+  io.emit("profile_updated", { username: req.params.username, profile: profiles[req.params.username] });
+  res.json(profiles[req.params.username]);
+});
 
 app.get("/users", (req, res) => {
   res.json(Object.values(USERS).map(u => ({ username: u.username, name: u.name })));
