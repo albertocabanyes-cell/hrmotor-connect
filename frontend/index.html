@@ -1193,19 +1193,6 @@ function selectUser(u){
     <div class="tb-info"><div class="tb-name">${escHtml(displayName)}</div>
     <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div></div>`;
 
-  const ciAv=document.getElementById("ciAv"); ciAv.style.overflow="hidden"; ciAv.style.padding="0";
-  ciAv.style.boxShadow=isAdmin(u.username)?"0 0 0 3px #e30613":"";
-  ciAv.innerHTML=photo?`<img src="${photo}" alt="${ini}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:20px;font-weight:700">${ini}</span>`;
-  document.getElementById("ciName").textContent=displayName;
-  document.getElementById("ciDot").className="ci-sdot"+(dotCls?" "+dotCls:"");
-  document.getElementById("ciStatus").textContent=label;
-  document.getElementById("ciDept").textContent=dept;
-  document.getElementById("ciDelegacion").textContent=delegacion;
-  document.getElementById("ciTelefono").textContent=telefono;
-  const emailLink=document.getElementById("ciEmailLink"), emailTxt=document.getElementById("ciEmailTxt");
-  if(email){ emailLink.href="mailto:"+email; emailTxt.textContent=email; emailLink.style.display="flex"; }
-  else{ emailLink.style.display="none"; }
-
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
   document.getElementById("filesPanel").style.display="flex";
