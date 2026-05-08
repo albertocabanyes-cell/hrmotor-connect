@@ -899,6 +899,10 @@ function addToOpenChats(username){
 }
 let serverProfiles = {};
 function getUserAvatar(username){ return serverProfiles[username]?.avatarUrl || null; }
+function getProfile(username){
+  const local=JSON.parse(localStorage.getItem("hrmotor_profile_"+username)||"{}");
+  return {...local,...(serverProfiles[username]||{})};
+}
 
 /* ═══════════════════════════════════════
    CARGAR USUARIOS
@@ -920,7 +924,7 @@ function renderAllUsers(query){
   const list=document.getElementById("allUsersList");
   const q=(query!==undefined?query:(document.getElementById("searchInput").value||"")).toLowerCase().trim();
   const enriched=users.map(u=>{
-    const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
+    const saved=getProfile(u.username);
     return {...u, _dept: saved.dpto||u.dept||"Otros" };
   });
   const filtered=q?enriched.filter(u=>
@@ -1085,7 +1089,7 @@ function selectUser(u){
   current=u.username; currentGroup=null; unread[u.username]=0; renderUsers(); closeEmoji();
   const uSt=peerStatus[u.username]||"unavailable", label=SL[uSt]||"No disponible", dotCls=ST[uSt]||"";
   const ini=initials(u.name||u.username);
-  const cp=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
+  const cp=getProfile(u.username);
   const photo=cp.avatarUrl||null;
   const displayName=(cp.nombre||cp.apellidos)?[cp.nombre,cp.apellidos].filter(Boolean).join(" "):(u.name||u.username);
   const dept=cp.dpto||u.dept||"–", delegacion=cp.delegacion||u.delegacion||"–";
@@ -1279,7 +1283,7 @@ function updateTopbarStatus(status){
 function profileKey(){ return "hrmotor_profile_"+(me?.username||"guest"); }
 function openProfile(){
   populateDeptSelects();
-  const saved=JSON.parse(localStorage.getItem(profileKey())||"{}"), name=me.name||me.username||"", parts=name.split(" ");
+  const saved=getProfile(me.username), name=me.name||me.username||"", parts=name.split(" ");
   const admin=isAdmin(me.username);
   document.getElementById("pNombre").value=saved.nombre||parts[0]||"";
   document.getElementById("pApellidos").value=saved.apellidos||parts.slice(1).join(" ")||"";
@@ -1311,7 +1315,7 @@ function closeProfile(){ document.getElementById("profileModal").classList.remov
 let viewingUser = null;
 function openViewProfile(u){
   viewingUser=u;
-  const cp=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
+  const cp=getProfile(u.username);
   const photo=cp.avatarUrl||null;
   const displayName=(cp.nombre||cp.apellidos)?[cp.nombre,cp.apellidos].filter(Boolean).join(" "):(u.name||u.username);
   const dept=cp.dpto||u.dept||"";
@@ -1358,7 +1362,7 @@ function applySidebarAvatar(url){
 }
 function saveProfile(){
   const admin=isAdmin(me.username);
-  const existing=JSON.parse(localStorage.getItem(profileKey())||"{}");
+  const existing=getProfile(me.username);
   let data;
   if(admin){
     const nombre=document.getElementById("pNombre").value.trim();
@@ -1380,8 +1384,7 @@ function saveProfile(){
   renderUsers();
 }
 function restoreProfileData(){
-  const srv=serverProfiles[me.username]||{};
-  const saved={...JSON.parse(localStorage.getItem(profileKey())||"{}"),...srv};
+  const saved=getProfile(me.username);
   avatarDataUrl=saved.avatarUrl||null;
   if(avatarDataUrl) applySidebarAvatar(avatarDataUrl);
   if(saved.nombre||saved.apellidos){
@@ -1420,7 +1423,7 @@ function renderAdminTable(query=""){
   let html=`<table class="admin-table"><thead><tr><th>Usuario</th><th>Departamento</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
   allUsers.forEach(u=>{
     const isAdm=admins.includes(u.username), isInactive=inactives.includes(u.username);
-    const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+u.username)||"{}");
+    const saved=getProfile(u.username);
     const photo=saved.avatarUrl||null, ini=initials(u.name||u.username);
     const displayName=(saved.nombre||saved.apellidos)?[saved.nombre,saved.apellidos].filter(Boolean).join(" "):(u.name||u.username);
     const dept=saved.dpto||u.dept||"–", isSelf=u.username===me.username;
@@ -1453,7 +1456,7 @@ function toggleUserActive(username,active){
 
 function openEditUser(username){
   populateDeptSelects(); editingUsername=username;
-  const saved=JSON.parse(localStorage.getItem("hrmotor_profile_"+username)||"{}");
+  const saved=getProfile(username);
   const u=getAllKnownUsers().find(u=>u.username===username)||{};
   document.getElementById("euNombre").value=saved.nombre||(u.name||"").split(" ")[0]||"";
   document.getElementById("euApellidos").value=saved.apellidos||(u.name||"").split(" ").slice(1).join(" ")||"";
@@ -1475,8 +1478,11 @@ function saveEditUser(){
   const email=document.getElementById("euEmail").value.trim(), telefono=document.getElementById("euTelefono").value.trim();
   const dpto=document.getElementById("euDepartamento").value.trim(), delegacion=document.getElementById("euDelegacion").value.trim();
   const rol=document.getElementById("euRol").value;
-  const existing=JSON.parse(localStorage.getItem("hrmotor_profile_"+editingUsername)||"{}");
-  localStorage.setItem("hrmotor_profile_"+editingUsername,JSON.stringify({...existing,nombre,apellidos,email,telefono,dpto,delegacion}));
+  const existing=getProfile(editingUsername);
+  const updated={...existing,nombre,apellidos,email,telefono,dpto,delegacion};
+  localStorage.setItem("hrmotor_profile_"+editingUsername,JSON.stringify(updated));
+  serverProfiles[editingUsername]={...(serverProfiles[editingUsername]||{}),...updated};
+  fetch(`/profile/${editingUsername}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(updated)}).catch(()=>{});
   if(rol==="admin") promoteUser(editingUsername); else demoteUser(editingUsername);
   const newPass=document.getElementById("euPassword").value.trim();
   if(newPass&&socket&&socket.connected) socket.emit("admin_change_password",{username:editingUsername,password:newPass,adminUser:me.username});
