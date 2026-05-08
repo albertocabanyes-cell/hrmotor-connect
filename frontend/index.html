@@ -412,9 +412,39 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .fb-dl{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;transition:opacity .13s}
 .mine .fb-dl{background:rgba(255,255,255,.18);color:white}.theirs .fb-dl{background:rgba(0,0,0,.07);color:#555}
 .fb-dl:hover{opacity:.7}.fb-dl svg{width:13px;height:13px}
+/* Image preview in chat */
+.bub.bub-img{padding:0;background:transparent!important;box-shadow:none!important}
+.img-bubble{cursor:pointer;border-radius:12px;overflow:hidden;max-width:260px;display:inline-block}
+.img-bubble img{display:block;width:100%;max-height:220px;object-fit:cover;transition:filter .15s}
+.img-bubble:hover img{filter:brightness(.88)}
+.img-bubble-meta{padding:4px 8px 5px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mine .img-bubble{background:rgba(255,255,255,.13)}.mine .img-bubble-meta{color:rgba(255,255,255,.55)}
+.theirs .img-bubble{background:#f0f2f5}.theirs .img-bubble-meta{color:#aaa}
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;align-items:center;justify-content:center;cursor:zoom-out;flex-direction:column;gap:12px}
+.lightbox.open{display:flex}
+.lightbox-img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.5);cursor:default}
+.lightbox-bar{display:flex;align-items:center;gap:10px}
+.lightbox-name{color:rgba(255,255,255,.7);font-size:13px;font-weight:500}
+.lightbox-close{background:rgba(255,255,255,.12);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.lightbox-close:hover{background:rgba(255,255,255,.22)}
+.lightbox-dl{background:rgba(255,255,255,.12);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;text-decoration:none}
+.lightbox-dl:hover{background:rgba(255,255,255,.22)}.lightbox-dl svg{width:15px;height:15px}
 </style>
 </head>
 <body>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="lightbox-bar" onclick="event.stopPropagation()">
+    <span class="lightbox-name" id="lightboxName"></span>
+    <a class="lightbox-dl" id="lightboxDl" href="#" download title="Descargar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </a>
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  </div>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="" onclick="event.stopPropagation()">
+</div>
 
 <!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
@@ -1258,7 +1288,7 @@ function addMessage(msg, noScroll=false){
     const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
     const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
     const bub=document.createElement("div");
-    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
     lastGrp.querySelector(".mg-bubbles").appendChild(bub);
   } else {
     const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
@@ -1271,7 +1301,7 @@ function addMessage(msg, noScroll=false){
     const col=document.createElement("div"); col.className="mg-bubbles";
     if(!isMe){const snd=document.createElement("div");snd.className="mg-sender";snd.textContent=msg.fromName||msg.from;col.appendChild(snd);}
     const bub=document.createElement("div");
-    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
     col.appendChild(bub);
     row.appendChild(col); grp.appendChild(row);
     const foot=document.createElement("div"); foot.className="mg-foot";
@@ -1697,7 +1727,7 @@ function addGroupMessage(msg, noScroll=false){
     const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
     const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
     const bub=document.createElement("div");
-    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
     lastGrp.querySelector(".mg-bubbles").appendChild(bub);
   } else {
     const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
@@ -1710,7 +1740,7 @@ function addGroupMessage(msg, noScroll=false){
     const col=document.createElement("div"); col.className="mg-bubbles";
     if(!isMe){const snd=document.createElement("div");snd.className="mg-sender";snd.textContent=msg.fromName||msg.from;col.appendChild(snd);}
     const bub=document.createElement("div");
-    if(msg.fileUrl){bub.className="bub last bub-file";bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
     col.appendChild(bub);
     row.appendChild(col); grp.appendChild(row);
     const foot=document.createElement("div"); foot.className="mg-foot";
@@ -1869,12 +1899,26 @@ function formatFileSize(bytes){
   return (bytes/(1024*1024)).toFixed(1)+' MB';
 }
 function buildFileBubbleHTML(msg){
-  const cat=getFpIconClass(msg.fileType,msg.fileName);
   const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';
-  const ext=((msg.fileName||'').split('.').pop()||'').slice(0,4).toUpperCase();
   const size=formatFileSize(msg.fileSize);
-  const iconHtml=isImg?`<img src="${msg.fileUrl}" alt="">`:`${ext||'FILE'}`;
-  return `<div class="file-bubble"><div class="fb-ico ${cat}">${iconHtml}</div><div class="fb-info"><div class="fb-name">${escHtml(msg.fileName||'Archivo')}</div>${size?`<div class="fb-size">${size}</div>`:''}</div><a class="fb-dl" href="${msg.fileUrl}" download="${escHtml(msg.fileName||'archivo')}" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a></div>`;
+  if(isImg){
+    const safeUrl=msg.fileUrl.replace(/'/g,"\\'"), safeName=escHtml(msg.fileName||'imagen');
+    return `<div class="img-bubble" onclick="openLightbox('${safeUrl}','${safeName}',event)"><img src="${msg.fileUrl}" alt="${safeName}" loading="lazy"><div class="img-bubble-meta">${safeName}${size?' · '+size:''}</div></div>`;
+  }
+  const cat=getFpIconClass(msg.fileType,msg.fileName);
+  const ext=((msg.fileName||'').split('.').pop()||'').slice(0,4).toUpperCase();
+  return `<div class="file-bubble"><div class="fb-ico ${cat}">${ext||'FILE'}</div><div class="fb-info"><div class="fb-name">${escHtml(msg.fileName||'Archivo')}</div>${size?`<div class="fb-size">${size}</div>`:''}</div><a class="fb-dl" href="${msg.fileUrl}" download="${escHtml(msg.fileName||'archivo')}" onclick="event.stopPropagation()" title="Descargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a></div>`;
+}
+function openLightbox(url,name,e){
+  if(e) e.stopPropagation();
+  document.getElementById('lightboxImg').src=url;
+  document.getElementById('lightboxName').textContent=name||'';
+  const dl=document.getElementById('lightboxDl'); dl.href=url; dl.download=name||'imagen';
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src='';
 }
 function filterFpFiles(filter,btn){
   fpFilter=filter;
