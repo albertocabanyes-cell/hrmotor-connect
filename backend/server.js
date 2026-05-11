@@ -139,6 +139,16 @@ app.post("/users", async (req, res) => {
   res.json({ username, name: newUser.name });
 });
 
+app.delete("/users/:username", async (req, res) => {
+  const { username } = req.params;
+  if (USERS[username]) return res.status(403).json({ error: "No se puede eliminar un usuario base" });
+  const deleted = await ExtraUser.findOneAndDelete({ username });
+  if (!deleted) return res.status(404).json({ error: "Usuario no encontrado" });
+  await Profile.deleteOne({ username });
+  io.emit("user_deleted", { username });
+  res.json({ ok: true });
+});
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   let user = USERS[username];

@@ -220,6 +220,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .at-btn.demote{color:#f59e0b;border-color:#fde8c0}.at-btn.demote:hover{background:#fffbf0}
 .at-btn.deactivate{color:#e30613;border-color:#fdd}.at-btn.deactivate:hover{background:#fff0f0}
 .at-btn.activate{color:#22c55e;border-color:#d4f5e3}.at-btn.activate:hover{background:#f0fff7}
+.at-btn.delete{color:#e30613;border-color:#fdd;font-weight:700}.at-btn.delete:hover{background:#fff0f0}
 .add-user-form{background:#f7f8fc;border-radius:12px;padding:18px}
 .add-user-title{font-size:13px;font-weight:700;color:#333;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 
@@ -1390,6 +1391,7 @@ function bindSocketEvents(){
   });
   socket.on("admins_updated",list=>{ serverAdmins=list; renderUsers(); if(me){ const admin=isAdmin(me.username); document.getElementById("adminBadge").style.display=admin?"inline-block":"none"; document.getElementById("adminBtn").style.display=admin?"flex":"none"; } });
   socket.on("user_created",u=>{ if(!users.find(x=>x.username===u.username)){ users.push({username:u.username,name:u.name}); renderUsers(); } });
+  socket.on("user_deleted",({username})=>{ if(username!==me.username) _removeUserLocally(username); });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
@@ -1566,6 +1568,7 @@ function renderAdminTable(query=""){
         ${!isSelf&&!isInactive&&isAdm?`<button class="at-btn demote" onclick="demoteUser('${u.username}')">Quitar admin</button>`:""}
         ${!isSelf&&!isInactive?`<button class="at-btn deactivate" onclick="toggleUserActive('${u.username}',false)">Desactivar</button>`:""}
         ${!isSelf&&isInactive?`<button class="at-btn activate" onclick="toggleUserActive('${u.username}',true)">Activar</button>`:""}
+        ${!isSelf?`<button class="at-btn delete" onclick="deleteUser('${u.username}','${escHtml(displayName)}')">Eliminar</button>`:""}
       </div></td>
     </tr>`;
   });
@@ -1589,6 +1592,24 @@ function toggleUserActive(username,active){
   if(active) inactives=inactives.filter(u=>u!==username); else if(!inactives.includes(username)) inactives.push(username);
   localStorage.setItem("hrmotor_inactive_users",JSON.stringify(inactives));
   renderAdminTable(document.getElementById("adminSearch").value); renderUsers();
+}
+function deleteUser(username, displayName){
+  if(!isAdmin(me.username)) return;
+  if(!confirm(`¿Eliminar al usuario "${displayName}" (@${username})? Esta acción no se puede deshacer.`)) return;
+  fetch(`/users/${username}`,{method:"DELETE"})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.error){ alert(d.error); return; }
+      _removeUserLocally(username);
+    })
+    .catch(()=>alert("Error al eliminar el usuario."));
+}
+function _removeUserLocally(username){
+  users=users.filter(u=>u.username!==username);
+  delete serverProfiles[username];
+  if(current===username){ current=null; document.getElementById("chatMain").style.display="none"; document.getElementById("emptyState").style.display="flex"; }
+  renderAdminTable(document.getElementById("adminSearch").value);
+  renderUsers();
 }
 
 function openEditUser(username){
