@@ -829,10 +829,10 @@ const DEPARTMENTS = [
   { id:"marketing",     label:"Marketing",        emoji:"📣", color:"#ec4899" },
   { id:"operaciones",   label:"Operaciones",      emoji:"⚙️", color:"#f97316" },
   { id:"talleres",      label:"Talleres",         emoji:"🔧", color:"#0ea5e9" },
-  { id:"administracion",label:"Administración",   emoji:"📂", color:"#84cc16" },
-  { id:"logistica",     label:"Logística",        emoji:"🚚", color:"#06b6d4" },
+  { id:"administracion",label:"Administracion",   emoji:"📂", color:"#84cc16" },
+  { id:"logistica",     label:"Logistica",        emoji:"🚚", color:"#06b6d4" },
   { id:"legal",         label:"Legal",            emoji:"⚖️", color:"#8b5cf6" },
-  { id:"direccion",     label:"Dirección",        emoji:"🏢", color:"#e30613" },
+  { id:"direccion",     label:"Direccion",        emoji:"🏢", color:"#e30613" },
   { id:"areamanager",   label:"Área Manager",     emoji:"🎯", color:"#d946ef" },
   { id:"recambios",     label:"Recambios",        emoji:"🔩", color:"#78716c" },
   { id:"otros",         label:"Otros",            emoji:"📋", color:"#6b7280" },
@@ -889,12 +889,7 @@ function saveAdmins(list){
 }
 function loadServerAdmins(){
   fetch("/admins").then(r=>r.json()).then(data=>{
-    // Migración: fusiona con admins guardados en localStorage (sistema antiguo)
-    let local=[]; try{ local=JSON.parse(localStorage.getItem(ADMIN_USERS_KEY)||"[]"); }catch(e){}
-    const merged=[...new Set([...DEFAULT_ADMINS,...data,...local])];
-    serverAdmins=merged;
-    // Si localStorage añadió admins que el servidor no tenía, los guarda en el servidor
-    if(local.some(u=>!data.includes(u))) saveAdmins(merged);
+    serverAdmins=[...new Set([...DEFAULT_ADMINS,...data])];
     renderUsers();
     if(me){ const admin=isAdmin(me.username); document.getElementById("adminBadge").style.display=admin?"inline-block":"none"; document.getElementById("adminBtn").style.display=admin?"flex":"none"; }
   }).catch(()=>{});
@@ -1061,7 +1056,8 @@ function renderAllUsers(query){
   const q=(query!==undefined?query:(document.getElementById("searchInput").value||"")).toLowerCase().trim();
   const enriched=users.map(u=>{
     const saved=getProfile(u.username);
-    return {...u, _dept: saved.dpto||u.dept||"Otros" };
+    const displayName=(saved.nombre||saved.apellidos)?[saved.nombre,saved.apellidos].filter(Boolean).join(" "):(u.name||u.username);
+    return {...u, name: displayName, _dept: saved.dpto||u.dept||"Otros" };
   });
   const filtered=q?enriched.filter(u=>
     (u.name||u.username).toLowerCase().includes(q)||
