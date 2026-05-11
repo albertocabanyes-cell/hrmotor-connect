@@ -2,9 +2,10 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
+const mongoose = require("mongoose");
 
 const app = express();
 app.use(cors());
@@ -24,11 +25,47 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-app.get("/healthz", (req, res) => res.status(200).send("OK"));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB conectado"))
+  .catch(err => console.error("MongoDB error:", err));
 
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+/* ── Schemas ── */
+const MsgSchema = new mongoose.Schema({
+  id: Number, conversationId: String, groupId: String,
+  from: String, fromName: String, to: String, text: String,
+  fileUrl: String, fileName: String, fileType: String, fileSize: Number,
+  time: String, date: String
+}, { versionKey: false });
 
+const GroupSchema = new mongoose.Schema({
+  id: { type: String, unique: true },
+  name: String, members: [String], admins: [String],
+  createdBy: String, color: String, createdAt: String
+}, { versionKey: false });
+
+const ProfileSchema = new mongoose.Schema({
+  username: { type: String, unique: true },
+  nombre: String, apellidos: String, email: String,
+  telefono: String, dpto: String, delegacion: String, avatarUrl: String
+}, { versionKey: false });
+
+const AdminSchema = new mongoose.Schema({
+  key: { type: String, default: "admins" },
+  list: [String]
+}, { versionKey: false });
+
+const ExtraUserSchema = new mongoose.Schema({
+  username: { type: String, unique: true },
+  password: String, name: String
+}, { versionKey: false });
+
+const Msg       = mongoose.model("Message",   MsgSchema);
+const Group     = mongoose.model("Group",     GroupSchema);
+const Profile   = mongoose.model("Profile",   ProfileSchema);
+const AdminDoc  = mongoose.model("Admin",     AdminSchema);
+const ExtraUser = mongoose.model("ExtraUser", ExtraUserSchema);
+
+/* ── Usuarios base ── */
 const USERS = {
   alberto:  { username: "alberto",  password: "1234", name: "Alberto IT Cabanyes" },
   carlos:   { username: "carlos",   password: "1234", name: "Carlos IT Torres" },
@@ -37,106 +74,83 @@ const USERS = {
   juan:     { username: "juan",     password: "1234", name: "Juan IT Juiña" },
 };
 
-const MESSAGES_FILE  = path.join(__dirname, "messages.json");
-const GROUPS_FILE    = path.join(__dirname, "groups.json");
-const PROFILES_FILE  = path.join(__dirname, "profiles.json");
-const ADMINS_FILE    = path.join(__dirname, "admins.json");
-const EXTRA_USERS_FILE = path.join(__dirname, "extra_users.json");
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
-function loadExtraUsers() {
-  if (!fs.existsSync(EXTRA_USERS_FILE)) fs.writeFileSync(EXTRA_USERS_FILE, "[]");
-  try { return JSON.parse(fs.readFileSync(EXTRA_USERS_FILE, "utf8") || "[]"); } catch(e) { return []; }
-}
-function saveExtraUsers(list) { fs.writeFileSync(EXTRA_USERS_FILE, JSON.stringify(list, null, 2)); }
-function getAllUsers() {
-  const base = Object.values(USERS);
-  const extra = loadExtraUsers().filter(u => !USERS[u.username]);
-  return [...base, ...extra];
-}
-
-function loadProfiles() {
-  if (!fs.existsSync(PROFILES_FILE)) fs.writeFileSync(PROFILES_FILE, "{}");
-  try { return JSON.parse(fs.readFileSync(PROFILES_FILE, "utf8") || "{}"); } catch(e) { return {}; }
-}
-function saveProfiles(p) { fs.writeFileSync(PROFILES_FILE, JSON.stringify(p, null, 2)); }
-
-function loadAdmins() {
-  if (!fs.existsSync(ADMINS_FILE)) fs.writeFileSync(ADMINS_FILE, JSON.stringify(["alberto"]));
-  try { return JSON.parse(fs.readFileSync(ADMINS_FILE, "utf8")); } catch(e) { return ["alberto"]; }
-}
-function saveAdminsFile(list) { fs.writeFileSync(ADMINS_FILE, JSON.stringify(list)); }
-
-function loadMessages() {
-  if (!fs.existsSync(MESSAGES_FILE)) fs.writeFileSync(MESSAGES_FILE, "[]");
-  return JSON.parse(fs.readFileSync(MESSAGES_FILE, "utf8") || "[]");
-}
-function saveMessages(msgs) { fs.writeFileSync(MESSAGES_FILE, JSON.stringify(msgs, null, 2)); }
-function getConversationId(a, b) { return [a, b].sort().join("__"); }
-
-function loadGroups() {
-  if (!fs.existsSync(GROUPS_FILE)) fs.writeFileSync(GROUPS_FILE, "[]");
-  return JSON.parse(fs.readFileSync(GROUPS_FILE, "utf8") || "[]");
-}
-function saveGroups(groups) { fs.writeFileSync(GROUPS_FILE, JSON.stringify(groups, null, 2)); }
+function convId(a, b) { return [a, b].sort().join("__"); }
 
 /* ── Routes ── */
+app.get("/healthz", (req, res) => res.status(200).send("OK"));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../frontend/index.html")));
 
-app.get("/profiles", (req, res) => res.json(loadProfiles()));
+app.get("/profiles", async (req, res) => {
+  const docs = await Profile.find().lean();
+  const result = {};
+  docs.forEach(p => { const { _id, ...rest } = p; result[p.username] = rest; });
+  res.json(result);
+});
 
-app.get("/admins", (req, res) => res.json(loadAdmins()));
+app.put("/profile/:username", async (req, res) => {
+  const profile = await Profile.findOneAndUpdate(
+    { username: req.params.username },
+    { $set: { ...req.body, username: req.params.username } },
+    { upsert: true, new: true, lean: true }
+  );
+  io.emit("profile_updated", { username: req.params.username, profile });
+  res.json(profile);
+});
 
-app.put("/admins", (req, res) => {
+app.get("/admins", async (req, res) => {
+  let doc = await AdminDoc.findOne({ key: "admins" });
+  if (!doc) doc = await AdminDoc.create({ key: "admins", list: ["alberto"] });
+  res.json(doc.list);
+});
+
+app.put("/admins", async (req, res) => {
   const { admins } = req.body;
   if (!Array.isArray(admins)) return res.status(400).json({ error: "Invalid" });
   if (!admins.includes("alberto")) admins.unshift("alberto");
-  saveAdminsFile(admins);
+  await AdminDoc.findOneAndUpdate({ key: "admins" }, { list: admins }, { upsert: true });
   io.emit("admins_updated", admins);
   res.json(admins);
 });
 
-app.put("/profile/:username", (req, res) => {
-  const profiles = loadProfiles();
-  profiles[req.params.username] = { ...(profiles[req.params.username] || {}), ...req.body };
-  saveProfiles(profiles);
-  io.emit("profile_updated", { username: req.params.username, profile: profiles[req.params.username] });
-  res.json(profiles[req.params.username]);
+app.get("/users", async (req, res) => {
+  const extra = await ExtraUser.find().lean();
+  const base = Object.values(USERS).map(u => ({ username: u.username, name: u.name }));
+  const extraMapped = extra.filter(u => !USERS[u.username]).map(u => ({ username: u.username, name: u.name }));
+  res.json([...base, ...extraMapped]);
 });
 
-app.get("/users", (req, res) => {
-  res.json(getAllUsers().map(u => ({ username: u.username, name: u.name })));
-});
-
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
   const { username, password, name, email, telefono, dpto, delegacion } = req.body;
   if (!username || !password) return res.status(400).json({ error: "Usuario y contraseña obligatorios" });
   if (USERS[username]) return res.status(409).json({ error: "Usuario ya existe" });
-  const extra = loadExtraUsers();
-  if (extra.find(u => u.username === username)) return res.status(409).json({ error: "Usuario ya existe" });
-  const newUser = { username, password, name: name || username };
-  extra.push(newUser);
-  saveExtraUsers(extra);
+  if (await ExtraUser.findOne({ username })) return res.status(409).json({ error: "Usuario ya existe" });
+  const newUser = await ExtraUser.create({ username, password, name: name || username });
   if (email || telefono || dpto || delegacion) {
-    const profiles = loadProfiles();
-    profiles[username] = { ...(profiles[username] || {}), nombre: name?.split(" ")[0]||"", apellidos: name?.split(" ").slice(1).join(" ")||"", email: email||"", telefono: telefono||"", dpto: dpto||"", delegacion: delegacion||"" };
-    saveProfiles(profiles);
+    const parts = (name || "").split(" ");
+    await Profile.findOneAndUpdate({ username }, {
+      $set: { username, nombre: parts[0]||"", apellidos: parts.slice(1).join(" ")||"",
+              email: email||"", telefono: telefono||"", dpto: dpto||"", delegacion: delegacion||"" }
+    }, { upsert: true });
   }
   io.emit("user_created", { username, name: newUser.name });
   res.json({ username, name: newUser.name });
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   let user = USERS[username];
-  if (!user) user = loadExtraUsers().find(u => u.username === username);
+  if (!user) user = await ExtraUser.findOne({ username }).lean();
   if (!user || user.password !== password)
     return res.status(401).json({ error: "Credenciales incorrectas" });
   res.json({ username: user.username, name: user.name });
 });
 
-app.get("/messages/:userA/:userB", (req, res) => {
-  const id = getConversationId(req.params.userA, req.params.userB);
-  res.json(loadMessages().filter(m => m.conversationId === id));
+app.get("/messages/:userA/:userB", async (req, res) => {
+  const msgs = await Msg.find({ conversationId: convId(req.params.userA, req.params.userB) }).sort({ date: 1 }).lean();
+  res.json(msgs);
 });
 
 app.post("/upload", upload.single("file"), (req, res) => {
@@ -144,49 +158,45 @@ app.post("/upload", upload.single("file"), (req, res) => {
   res.json({ url: "/uploads/" + req.file.filename, name: req.file.originalname, size: req.file.size, type: req.file.mimetype });
 });
 
-app.get("/groups", (req, res) => {
+app.get("/groups", async (req, res) => {
   const { user } = req.query;
-  const groups = loadGroups();
-  res.json(user ? groups.filter(g => g.members.includes(user)) : groups);
+  const groups = await Group.find(user ? { members: user } : {}).lean();
+  res.json(groups);
 });
 
-app.post("/groups", (req, res) => {
+app.post("/groups", async (req, res) => {
   const { name, members, createdBy, color } = req.body;
   if (!name || !members || !createdBy) return res.status(400).json({ error: "Faltan campos" });
-  const groups = loadGroups();
-  const group = { id: `grp_${Date.now()}`, name, members, admins: [createdBy], createdBy, color: color || "#e30613", createdAt: new Date().toISOString() };
-  groups.push(group); saveGroups(groups);
+  const group = await Group.create({ id: `grp_${Date.now()}`, name, members, admins: [createdBy], createdBy, color: color || "#e30613", createdAt: new Date().toISOString() });
   members.forEach(m => io.to(m).emit("group_created", group));
   res.json(group);
 });
 
-app.get("/group-messages/:groupId", (req, res) => {
-  res.json(loadMessages().filter(m => m.groupId === req.params.groupId));
+app.get("/group-messages/:groupId", async (req, res) => {
+  const msgs = await Msg.find({ groupId: req.params.groupId }).sort({ date: 1 }).lean();
+  res.json(msgs);
 });
 
-app.delete("/groups/:id", (req, res) => {
-  const groups = loadGroups();
-  const idx = groups.findIndex(g => g.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "Grupo no encontrado" });
-  const [removed] = groups.splice(idx, 1);
-  saveGroups(groups);
-  removed.members.forEach(m => io.to(m).emit("group_deleted", { id: removed.id }));
+app.delete("/groups/:id", async (req, res) => {
+  const group = await Group.findOneAndDelete({ id: req.params.id }).lean();
+  if (!group) return res.status(404).json({ error: "Grupo no encontrado" });
+  group.members.forEach(m => io.to(m).emit("group_deleted", { id: group.id }));
   res.json({ ok: true });
 });
 
-app.put("/groups/:id/members", (req, res) => {
+app.put("/groups/:id/members", async (req, res) => {
   const { members, admins, name } = req.body;
   if (!members || !Array.isArray(members)) return res.status(400).json({ error: "Faltan miembros" });
-  const groups = loadGroups();
-  const idx = groups.findIndex(g => g.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "Grupo no encontrado" });
-  const oldMembers = groups[idx].members;
-  groups[idx].members = members;
-  if (admins !== undefined) groups[idx].admins = admins;
-  if (name && name.trim()) groups[idx].name = name.trim();
-  saveGroups(groups);
-  [...new Set([...oldMembers, ...members])].forEach(m => io.to(m).emit("group_updated", groups[idx]));
-  res.json(groups[idx]);
+  const group = await Group.findOne({ id: req.params.id });
+  if (!group) return res.status(404).json({ error: "Grupo no encontrado" });
+  const oldMembers = [...group.members];
+  group.members = members;
+  if (admins !== undefined) group.admins = admins;
+  if (name && name.trim()) group.name = name.trim();
+  await group.save();
+  const updated = group.toObject();
+  [...new Set([...oldMembers, ...members])].forEach(m => io.to(m).emit("group_updated", updated));
+  res.json(updated);
 });
 
 /* ── Socket.IO ── */
@@ -210,32 +220,32 @@ io.on("connection", (socket) => {
     if (to) io.to(to).emit("typing", { from, typing });
   });
 
-  socket.on("private_message", (msg) => {
-    const all = loadMessages();
-    const saved = {
-      id: Date.now(), conversationId: getConversationId(msg.from, msg.to),
+  socket.on("private_message", async (msg) => {
+    const saved = await Msg.create({
+      id: Date.now(), conversationId: convId(msg.from, msg.to),
       from: msg.from, fromName: msg.fromName, to: msg.to, text: msg.text || "",
-      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null, fileType: msg.fileType || null, fileSize: msg.fileSize || null,
+      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null,
+      fileType: msg.fileType || null, fileSize: msg.fileSize || null,
       time: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
       date: new Date().toISOString()
-    };
-    all.push(saved); saveMessages(all);
-    io.to(msg.to).emit("private_message", saved);
-    io.to(msg.from).emit("private_message", saved);
+    });
+    const out = saved.toObject();
+    io.to(msg.to).emit("private_message", out);
+    io.to(msg.from).emit("private_message", out);
   });
 
-  socket.on("group_message", (msg) => {
-    const all = loadMessages();
-    const saved = {
+  socket.on("group_message", async (msg) => {
+    const saved = await Msg.create({
       id: Date.now(), groupId: msg.groupId,
       from: msg.from, fromName: msg.fromName, text: msg.text || "",
-      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null, fileType: msg.fileType || null, fileSize: msg.fileSize || null,
+      fileUrl: msg.fileUrl || null, fileName: msg.fileName || null,
+      fileType: msg.fileType || null, fileSize: msg.fileSize || null,
       time: new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }),
       date: new Date().toISOString()
-    };
-    all.push(saved); saveMessages(all);
-    const group = loadGroups().find(g => g.id === msg.groupId);
-    if (group) group.members.forEach(m => io.to(m).emit("group_message", saved));
+    });
+    const out = saved.toObject();
+    const group = await Group.findOne({ id: msg.groupId }).lean();
+    if (group) group.members.forEach(m => io.to(m).emit("group_message", out));
   });
 
   socket.on("disconnect", () => {
