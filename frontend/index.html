@@ -1808,7 +1808,7 @@ function createGroup(){
     body:JSON.stringify({name, members:selected, createdBy:me.username, color:selectedGroupColor})
   })
     .then(r=>r.json())
-    .then(g=>{ groups.push(g); closeCreateGroup(); renderGroupsList(); selectGroup(g); switchTab("groups"); })
+    .then(g=>{ closeCreateGroup(); if(!groups.find(x=>x.id===g.id)) groups.push(g); renderGroupsList(); selectGroup(g); switchTab("groups"); })
     .catch(()=>{ errEl.textContent="Error al crear el grupo."; errEl.style.display="block"; });
 }
 
