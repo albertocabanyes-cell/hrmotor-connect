@@ -136,6 +136,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .ui-action-btn.chat:hover{background:#e30613;color:white}
 .ui-action-btn.view{background:rgba(255,255,255,.1);color:white}
 .ui-action-btn.view:hover{background:rgba(255,255,255,.22);color:white}
+.ui-action-btn.close-chat{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);font-size:11px}
+.ui-action-btn.close-chat:hover{background:rgba(227,6,19,.25);color:#ff6b6b}
 .ui-action-btn svg{width:14px;height:14px;flex-shrink:0}
 
 /* Modal ver perfil de contacto */
@@ -1113,6 +1115,18 @@ function addToOpenChats(username){
   localStorage.setItem("hrmotor_chats_"+me.username,JSON.stringify([...openChats]));
   return isNew;
 }
+function closeChat(username){
+  openChats.delete(username);
+  delete unread[username];
+  delete lastMsg[username];
+  localStorage.setItem("hrmotor_chats_"+me.username,JSON.stringify([...openChats]));
+  if(current===username){
+    current=null;
+    document.getElementById("chatMain").style.display="none";
+    document.getElementById("emptyState").style.display="flex";
+  }
+  renderUsers(); updateBadge();
+}
 let serverProfiles = {};
 function getUserAvatar(username){ return serverProfiles[username]?.avatarUrl || null; }
 function getProfile(username){
@@ -1259,8 +1273,9 @@ function renderChatsList(query){
       <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}</div>
       ${preview?`<div class="usub">${preview}</div>`:`<div class="usub">${SL[uSt]||"No disponible"}</div>`}</div>
       ${count>0?`<span class="ubadge">${count}</span>`:""}
-      <div class="ui-actions"><button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button></div>`;
+      <div class="ui-actions"><button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button><button class="ui-action-btn close-chat" title="Cerrar conversación">✕</button></div>`;
     div.querySelector(".ui-action-btn.view").addEventListener("click", e=>{ e.stopPropagation(); openViewProfile(u); });
+    div.querySelector(".ui-action-btn.close-chat").addEventListener("click", e=>{ e.stopPropagation(); closeChat(u.username); });
     list.appendChild(div);
   });
   if(noMsg) noMsg.style.display=filtered.length===0?"block":"none";
