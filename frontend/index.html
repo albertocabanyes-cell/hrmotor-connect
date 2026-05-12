@@ -476,7 +476,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 </div>
 
 <!-- POLÍTICA DE USO -->
-<div class="policy-screen" id="policyScreen">
+<div class="policy-screen" id="policyScreen" style="display:none">
   <div class="policy-box">
     <div class="policy-header">
       <div class="policy-logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
@@ -981,10 +981,8 @@ window.addEventListener("DOMContentLoaded", () => {
   buildEmojiPicker();
   populateDeptSelects();
   try{ socket=io({autoConnect:false}); bindSocketEvents(); }catch(e){ console.warn("Socket.io no disponible"); }
-  // Flujo de pantallas: política → login → app
-  let hasSession=false;
-  try{ const s=localStorage.getItem("hrmotor_user"); if(s){ me=JSON.parse(s); mostrarApp(); hasSession=true; } }catch(e){ localStorage.removeItem("hrmotor_user"); }
-  if(!hasSession) initPolicyScreen();
+  // Política siempre primero, luego login o app según sesión
+  initPolicyScreen();
   document.getElementById("passInput").addEventListener("keydown",e=>{ if(e.key==="Enter") hacerLogin(); });
   document.addEventListener("click",e=>{
     if(!document.getElementById("statusDropWrap").contains(e.target)) closeStatusMenu();
@@ -1000,8 +998,9 @@ window.addEventListener("DOMContentLoaded", () => {
    POLÍTICA DE USO
 ═══════════════════════════════════════ */
 function initPolicyScreen(){
+  document.getElementById("policyCheck").checked = false;
+  document.getElementById("policyBtn").disabled = true;
   document.getElementById("policyScreen").style.display = "flex";
-  document.getElementById("loginScreen").style.display = "none";
 }
 function togglePolicyBtn(){
   const checked = document.getElementById("policyCheck").checked;
@@ -1009,6 +1008,11 @@ function togglePolicyBtn(){
 }
 function acceptPolicy(){
   document.getElementById("policyScreen").style.display = "none";
+  // Si hay sesión activa, ir directo a la app; si no, mostrar login
+  try{
+    const s = localStorage.getItem("hrmotor_user");
+    if(s){ me = JSON.parse(s); mostrarApp(); return; }
+  }catch(e){ localStorage.removeItem("hrmotor_user"); }
   document.getElementById("loginScreen").style.display = "flex";
 }
 
