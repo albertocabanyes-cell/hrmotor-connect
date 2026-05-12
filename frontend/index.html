@@ -998,18 +998,14 @@ window.addEventListener("DOMContentLoaded", () => {
    POLÍTICA DE USO
 ═══════════════════════════════════════ */
 function initPolicyScreen(){
-  const accepted = localStorage.getItem("hrmotor_policy_accepted");
-  if(accepted === "1"){
-    document.getElementById("policyScreen").style.display = "none";
-    document.getElementById("loginScreen").style.display = "flex";
-  }
+  document.getElementById("policyScreen").style.display = "flex";
+  document.getElementById("loginScreen").style.display = "none";
 }
 function togglePolicyBtn(){
   const checked = document.getElementById("policyCheck").checked;
   document.getElementById("policyBtn").disabled = !checked;
 }
 function acceptPolicy(){
-  localStorage.setItem("hrmotor_policy_accepted","1");
   document.getElementById("policyScreen").style.display = "none";
   document.getElementById("loginScreen").style.display = "flex";
 }
