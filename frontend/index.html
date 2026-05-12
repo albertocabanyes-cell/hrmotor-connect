@@ -8,6 +8,31 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;display:flex;overflow:hidden}
 
+/* ══ POLÍTICA DE USO ════════════════════ */
+.policy-screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1526 0%,#1a2744 100%);padding:20px;box-sizing:border-box}
+.policy-box{background:white;border-radius:16px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.35);overflow:hidden}
+.policy-header{padding:28px 32px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.policy-logo{display:flex;align-items:baseline;gap:4px;margin-bottom:8px}
+.policy-logo .hr{font-size:22px;font-weight:900;color:#e30613;letter-spacing:-1px}
+.policy-logo .motor{font-size:22px;font-weight:900;color:#10182f;letter-spacing:-1px}
+.policy-logo .conn{font-size:12px;font-weight:500;color:#999;margin-left:2px}
+.policy-title{font-size:15px;font-weight:700;color:#111;margin-bottom:2px}
+.policy-subtitle{font-size:12px;color:#aaa}
+.policy-body{padding:20px 32px;overflow-y:auto;flex:1}
+.policy-section{margin-bottom:18px}
+.policy-section-title{font-size:11px;font-weight:800;color:#e30613;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.policy-section p{font-size:13px;color:#444;line-height:1.6;margin:0 0 6px}
+.policy-section ul{margin:0;padding-left:18px}
+.policy-section ul li{font-size:13px;color:#444;line-height:1.6;margin-bottom:3px}
+.policy-footer{padding:16px 32px 24px;border-top:1px solid #f0f0f0;flex-shrink:0}
+.policy-check{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;cursor:pointer}
+.policy-check input[type=checkbox]{width:16px;height:16px;margin-top:2px;accent-color:#e30613;flex-shrink:0;cursor:pointer}
+.policy-check span{font-size:12px;color:#555;line-height:1.5}
+.policy-btn{background:#e30613;color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;width:100%;transition:all .2s;font-family:inherit}
+.policy-btn:disabled{background:#ccc;cursor:not-allowed}
+.policy-btn:not(:disabled):hover{background:#c00}
+.policy-hosting{font-size:10px;color:#bbb;text-align:center;margin-top:10px}
+
 /* ══ LOGIN ══════════════════════════════ */
 .login-screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1526 0%,#1a2744 100%)}
 .login-box{background:white;padding:40px 36px;border-radius:16px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,.25)}
@@ -448,8 +473,56 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
   <img class="lightbox-img" id="lightboxImg" src="" alt="" onclick="event.stopPropagation()">
 </div>
 
+<!-- POLÍTICA DE USO -->
+<div class="policy-screen" id="policyScreen">
+  <div class="policy-box">
+    <div class="policy-header">
+      <div class="policy-logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
+      <div class="policy-title">Aviso de uso de herramienta corporativa</div>
+      <div class="policy-subtitle">Lee y acepta las condiciones antes de acceder</div>
+    </div>
+    <div class="policy-body">
+      <div class="policy-section">
+        <div class="policy-section-title">🏢 Herramienta corporativa interna</div>
+        <p>HRmotor Connect es una herramienta de comunicación interna exclusiva para empleados de HRmotor. Su uso está reservado a fines laborales y profesionales dentro de la organización.</p>
+      </div>
+      <div class="policy-section">
+        <div class="policy-section-title">🔒 Información que no debes compartir</div>
+        <p>Queda expresamente prohibido compartir a través de este chat:</p>
+        <ul>
+          <li>Datos personales de clientes o terceros</li>
+          <li>Datos bancarios o financieros</li>
+          <li>Contratos, documentos confidenciales o propiedad intelectual</li>
+          <li>Credenciales de acceso o contraseñas de cualquier sistema</li>
+          <li>Cualquier información sensible o clasificada de la empresa</li>
+        </ul>
+      </div>
+      <div class="policy-section">
+        <div class="policy-section-title">👁️ Supervisión y control</div>
+        <p>La empresa podrá revisar el uso de esta herramienta, incluyendo los mensajes intercambiados, exclusivamente por motivos de seguridad, cumplimiento normativo o control laboral justificado, conforme a la legislación vigente. Dicha revisión será realizada por el responsable de IT o dirección, en los casos y con las garantías que establece la ley.</p>
+      </div>
+      <div class="policy-section">
+        <div class="policy-section-title">⏰ Desconexión digital</div>
+        <p>El uso de este chat no implica ninguna obligación de responder mensajes fuera del horario laboral habitual, salvo situaciones excepcionales debidamente justificadas. Se respeta el derecho a la desconexión digital de todos los empleados.</p>
+      </div>
+      <div class="policy-section">
+        <div class="policy-section-title">💾 Almacenamiento de datos</div>
+        <p>Los mensajes y datos de usuario se almacenan de forma segura. Esta herramienta está alojada en <strong>Render.com</strong> con base de datos en <strong>MongoDB Atlas</strong>, ambos servicios con centros de datos en Europa y medidas de seguridad conformes con el RGPD.</p>
+      </div>
+    </div>
+    <div class="policy-footer">
+      <label class="policy-check">
+        <input type="checkbox" id="policyCheck" onchange="togglePolicyBtn()">
+        <span>He leído y acepto las condiciones de uso de HRmotor Connect como herramienta corporativa interna.</span>
+      </label>
+      <button class="policy-btn" id="policyBtn" disabled onclick="acceptPolicy()">Acceder al chat</button>
+      <div class="policy-hosting">Alojamiento: Render.com · Base de datos: MongoDB Atlas · Versión corporativa HRmotor</div>
+    </div>
+  </div>
+</div>
+
 <!-- LOGIN -->
-<div class="login-screen" id="loginScreen">
+<div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-box">
     <div class="login-logo"><span class="hr">HR</span><span class="motor">MOTOR</span><span class="conn">connect</span></div>
     <div class="login-sub">Comunicación interna de equipo</div>
@@ -905,9 +978,11 @@ window.addEventListener("DOMContentLoaded", () => {
   const admins=getAdmins(); if(!admins.includes("alberto")){ admins.push("alberto"); saveAdmins(admins); }
   buildEmojiPicker();
   populateDeptSelects();
-  // ✅ CORREGIDO: Socket.IO sin URL hardcodeada (usa la misma URL del servidor)
   try{ socket=io({autoConnect:false}); bindSocketEvents(); }catch(e){ console.warn("Socket.io no disponible"); }
-  try{ const s=localStorage.getItem("hrmotor_user"); if(s){ me=JSON.parse(s); mostrarApp(); } }catch(e){ localStorage.removeItem("hrmotor_user"); }
+  // Flujo de pantallas: política → login → app
+  let hasSession=false;
+  try{ const s=localStorage.getItem("hrmotor_user"); if(s){ me=JSON.parse(s); mostrarApp(); hasSession=true; } }catch(e){ localStorage.removeItem("hrmotor_user"); }
+  if(!hasSession) initPolicyScreen();
   document.getElementById("passInput").addEventListener("keydown",e=>{ if(e.key==="Enter") hacerLogin(); });
   document.addEventListener("click",e=>{
     if(!document.getElementById("statusDropWrap").contains(e.target)) closeStatusMenu();
@@ -918,6 +993,26 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("messages").addEventListener("scroll", onMessagesScroll);
 });
+
+/* ═══════════════════════════════════════
+   POLÍTICA DE USO
+═══════════════════════════════════════ */
+function initPolicyScreen(){
+  const accepted = localStorage.getItem("hrmotor_policy_accepted");
+  if(accepted === "1"){
+    document.getElementById("policyScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+  }
+}
+function togglePolicyBtn(){
+  const checked = document.getElementById("policyCheck").checked;
+  document.getElementById("policyBtn").disabled = !checked;
+}
+function acceptPolicy(){
+  localStorage.setItem("hrmotor_policy_accepted","1");
+  document.getElementById("policyScreen").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+}
 
 /* ═══════════════════════════════════════
    LOGIN / LOGOUT

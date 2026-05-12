@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 app.use(cors());
@@ -127,7 +128,8 @@ app.post("/users", async (req, res) => {
   if (!username || !password) return res.status(400).json({ error: "Usuario y contraseña obligatorios" });
   if (USERS[username]) return res.status(409).json({ error: "Usuario ya existe" });
   if (await ExtraUser.findOne({ username })) return res.status(409).json({ error: "Usuario ya existe" });
-  const newUser = await ExtraUser.create({ username, password, name: name || username });
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const newUser = await ExtraUser.create({ username, password: hashedPassword, name: name || username });
   if (email || telefono || dpto || delegacion) {
     const parts = (name || "").split(" ");
     await Profile.findOneAndUpdate({ username }, {
@@ -151,10 +153,27 @@ app.delete("/users/:username", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  let user = USERS[username];
-  if (!user) user = await ExtraUser.findOne({ username }).lean();
-  if (!user || user.password !== password)
-    return res.status(401).json({ error: "Credenciales incorrectas" });
+  // Usuarios base (hardcoded)
+  const baseUser = USERS[username];
+  if (baseUser) {
+    if (baseUser.password !== password)
+      return res.status(401).json({ error: "Credenciales incorrectas" });
+    return res.json({ username: baseUser.username, name: baseUser.name });
+  }
+  // Usuarios extra (MongoDB)
+  const user = await ExtraUser.findOne({ username }).lean();
+  if (!user) return res.status(401).json({ error: "Credenciales incorrectas" });
+  // Soporta contraseñas antiguas en texto plano y nuevas hasheadas
+  const isHash = user.password.startsWith("$2");
+  const valid = isHash
+    ? await bcrypt.compare(password, user.password)
+    : user.password === password;
+  if (!valid) return res.status(401).json({ error: "Credenciales incorrectas" });
+  // Migración automática: si era texto plano, actualizar a hash
+  if (!isHash) {
+    const hashed = await bcrypt.hash(password, 12);
+    await ExtraUser.updateOne({ username }, { password: hashed });
+  }
   res.json({ username: user.username, name: user.name });
 });
 
