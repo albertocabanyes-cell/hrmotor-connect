@@ -998,6 +998,16 @@ window.addEventListener("DOMContentLoaded", () => {
    POLÍTICA DE USO
 ═══════════════════════════════════════ */
 function initPolicyScreen(){
+  const accepted = localStorage.getItem("hrmotor_policy_accepted");
+  if(accepted === "1"){
+    // Ya aceptada: ir a app o login directamente
+    try{
+      const s = localStorage.getItem("hrmotor_user");
+      if(s){ me = JSON.parse(s); mostrarApp(); return; }
+    }catch(e){ localStorage.removeItem("hrmotor_user"); }
+    document.getElementById("loginScreen").style.display = "flex";
+    return;
+  }
   document.getElementById("policyCheck").checked = false;
   document.getElementById("policyBtn").disabled = true;
   document.getElementById("policyScreen").style.display = "flex";
@@ -1007,8 +1017,8 @@ function togglePolicyBtn(){
   document.getElementById("policyBtn").disabled = !checked;
 }
 function acceptPolicy(){
+  localStorage.setItem("hrmotor_policy_accepted","1");
   document.getElementById("policyScreen").style.display = "none";
-  // Si hay sesión activa, ir directo a la app; si no, mostrar login
   try{
     const s = localStorage.getItem("hrmotor_user");
     if(s){ me = JSON.parse(s); mostrarApp(); return; }
@@ -1075,7 +1085,7 @@ function mostrarApp(){
   loadServerProfiles();
   loadServerAdmins();
 }
-function logout(){ localStorage.removeItem("hrmotor_user"); if(socket) socket.disconnect(); location.reload(); }
+function logout(){ localStorage.removeItem("hrmotor_user"); localStorage.removeItem("hrmotor_policy_accepted"); if(socket) socket.disconnect(); location.reload(); }
 
 /* ═══════════════════════════════════════
    ESTADO
