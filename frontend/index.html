@@ -690,7 +690,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <div class="profile-av-edit"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
       </div>
       <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarChange(event)">
-      <div class="profile-av-hint">Haz clic en la foto para cambiarla</div>
+      <div class="profile-av-hint">Haz clic en la foto para cambiarla · <span id="removeAvatarBtn" onclick="removeAvatar()" style="color:#e30613;cursor:pointer;display:none">Quitar foto</span></div>
       <div class="modal-name-display" id="modalNameDisplay">–</div>
       <div class="modal-dept-display" id="modalDeptDisplay">HRmotor</div>
     </div>
@@ -1554,6 +1554,7 @@ function openProfile(){
   document.getElementById("profileSaveBtn").style.display="flex";
   const av=document.getElementById("profileAvatar");
   av.innerHTML=saved.avatarUrl?`<img src="${saved.avatarUrl}" alt="foto">`:`<span>${initials(name)}</span>`;
+  document.getElementById("removeAvatarBtn").style.display=saved.avatarUrl?"inline":"none";
   document.getElementById("modalNameDisplay").textContent=name;
   document.getElementById("modalDeptDisplay").textContent=saved.dpto||me.dept||"HRmotor";
   document.getElementById("saveOk").style.display="none";
@@ -1600,10 +1601,25 @@ function handleAvatarChange(e){
     .then(res=>{
       avatarDataUrl=res.url;
       document.getElementById("profileAvatar").innerHTML=`<img src="${res.url}" alt="foto">`;
+      document.getElementById("removeAvatarBtn").style.display="inline";
       applySidebarAvatar(res.url);
     })
     .catch(()=>alert("Error al subir la imagen."));
   e.target.value="";
+}
+function removeAvatar(){
+  avatarDataUrl=null;
+  const name=me.name||me.username;
+  document.getElementById("profileAvatar").innerHTML=`<span>${initials(name)}</span>`;
+  document.getElementById("removeAvatarBtn").style.display="none";
+  applySidebarAvatar(null);
+  // Guardar en servidor
+  const existing=getProfile(me.username);
+  const updated={...existing, avatarUrl:null};
+  localStorage.setItem(profileKey(),JSON.stringify(updated));
+  serverProfiles[me.username]={...(serverProfiles[me.username]||{}),...updated};
+  fetch(`/profile/${me.username}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(updated)}).catch(()=>{});
+  renderUsers();
 }
 function applySidebarAvatar(url){
   const av=document.getElementById("meAvatar"), init=document.getElementById("meInitials");
