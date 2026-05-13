@@ -190,6 +190,8 @@ app.put("/messages/:id", async (req, res) => {
   const msg = await Msg.findOne({ id: Number(req.params.id) });
   if (!msg) return res.status(404).json({ error: "Mensaje no encontrado" });
   if (msg.from !== username) return res.status(403).json({ error: "No puedes editar este mensaje" });
+  const ageSeconds = (Date.now() - new Date(msg.date).getTime()) / 1000;
+  if (ageSeconds > 60) return res.status(403).json({ error: "El tiempo para editar este mensaje ha expirado (1 minuto)" });
   // Guardar versión anterior en historial
   msg.editHistory.push({ text: msg.text, editedAt: new Date().toISOString() });
   msg.text = text.trim();

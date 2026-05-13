@@ -1517,9 +1517,21 @@ function addMessage(msg, noScroll=false){
   }
 }
 
+function canEdit(msg){
+  if(!msg.date) return false;
+  return (Date.now() - new Date(msg.date).getTime()) < 60000;
+}
 function buildTextBubble(msg, isMe){
   const edited = msg.edited ? '<span class="msg-edited-tag">(editado)</span>' : '';
-  const editBtn = (isMe && msg.id) ? `<button class="msg-edit-btn" onclick="startEditMessage(${msg.id},this)">✏️</button>` : '';
+  const editBtn = (isMe && msg.id && canEdit(msg)) ? `<button class="msg-edit-btn" data-msgid="${msg.id}" onclick="startEditMessage(${msg.id},this)">✏️</button>` : '';
+  // Auto-ocultar el botón cuando caduque el minuto
+  if(isMe && msg.id && canEdit(msg)){
+    const remaining = 60000 - (Date.now() - new Date(msg.date).getTime());
+    setTimeout(()=>{
+      const btn=document.querySelector(`.msg-edit-btn[data-msgid="${msg.id}"]`);
+      if(btn) btn.remove();
+    }, remaining);
+  }
   return `<span class="bub-text">${escHtml(msg.text)}</span>${edited}${editBtn}`;
 }
 function startEditMessage(msgId, btn){
