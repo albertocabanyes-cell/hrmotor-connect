@@ -796,6 +796,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
               <select id="exportUserB" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
             </div>
           </div>
+          <div style="background:#f7f8fc;border-radius:10px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Desde</label>
+              <input type="date" id="exportDateFrom" style="padding:7px 10px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#444;background:white;cursor:pointer" oninput="applyExportDateFilter()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Hasta</label>
+              <input type="date" id="exportDateTo" style="padding:7px 10px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#444;background:white;cursor:pointer" oninput="applyExportDateFilter()">
+            </div>
+            <button onclick="clearExportDates()" style="background:none;border:1px solid #e0e0e0;color:#aaa;padding:7px 12px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;margin-bottom:1px" title="Quitar filtro de fechas">✕ Limpiar fechas</button>
+            <span id="exportDateCount" style="font-size:12px;color:#aaa;align-self:center;margin-bottom:2px"></span>
+          </div>
           <button onclick="loadExportConversation()" style="background:#e30613;color:white;border:none;padding:10px 20px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start">Ver conversación</button>
           <div id="exportPreview" style="display:none;flex-direction:column;gap:10px">
             <div style="display:flex;justify-content:space-between;align-items:center">
@@ -1831,6 +1843,53 @@ function populateExportSelects(){
   document.getElementById("exportUserB").innerHTML=opts;
   document.getElementById("exportPreview").style.display="none";
   document.getElementById("exportEmpty").style.display="none";
+  document.getElementById("exportDateCount").textContent="";
+}
+function clearExportDates(){
+  document.getElementById("exportDateFrom").value="";
+  document.getElementById("exportDateTo").value="";
+  applyExportDateFilter();
+}
+function getFilteredExportData(){
+  const from=document.getElementById("exportDateFrom").value;
+  const to=document.getElementById("exportDateTo").value;
+  if(!from&&!to) return exportData;
+  return exportData.filter(m=>{
+    if(!m.date) return true;
+    const d=m.date.slice(0,10);
+    if(from&&d<from) return false;
+    if(to&&d>to) return false;
+    return true;
+  });
+}
+function applyExportDateFilter(){
+  if(!exportData.length) return;
+  const filtered=getFilteredExportData();
+  const countEl=document.getElementById("exportDateCount");
+  const from=document.getElementById("exportDateFrom").value;
+  const to=document.getElementById("exportDateTo").value;
+  if(from||to) countEl.textContent=`${filtered.length} mensaje${filtered.length!==1?"s":""}`;
+  else countEl.textContent="";
+  renderExportPreview(filtered);
+}
+function renderExportPreview(msgs){
+  const uA=document.getElementById("exportUserA").value;
+  const uB=document.getElementById("exportUserB").value;
+  document.getElementById("exportPreview").style.display="none";
+  document.getElementById("exportEmpty").style.display="none";
+  if(!msgs.length){document.getElementById("exportEmpty").style.display="block";return;}
+  const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
+  const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
+  document.getElementById("exportTitle").textContent=`${nameA} ↔ ${nameB} (${msgs.length} mensajes)`;
+  const lines=msgs.map(m=>{
+    const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
+    const name=m.fromName||m.from;
+    const text=m.fileUrl?`[Archivo: ${m.fileName||m.fileUrl}]`:(m.text||"");
+    const edited=m.edited?" (editado)":"";
+    return `[${date}] ${name}: ${text}${edited}`;
+  }).join("\n");
+  document.getElementById("exportMessages").textContent=lines;
+  document.getElementById("exportPreview").style.display="flex";
 }
 let exportData=[];
 function loadExportConversation(){
@@ -1842,21 +1901,8 @@ function loadExportConversation(){
     .then(r=>r.json())
     .then(msgs=>{
       exportData=msgs;
-      document.getElementById("exportPreview").style.display="none";
-      document.getElementById("exportEmpty").style.display="none";
-      if(!msgs.length){document.getElementById("exportEmpty").style.display="block";return;}
-      const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
-      const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
-      document.getElementById("exportTitle").textContent=`Conversación: ${nameA} ↔ ${nameB} (${msgs.length} mensajes)`;
-      const lines=msgs.map(m=>{
-        const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
-        const name=m.fromName||m.from;
-        const text=m.fileUrl?`[Archivo: ${m.fileName||m.fileUrl}]`:(m.text||"");
-        const edited=m.edited?" (editado)":"";
-        return `[${date}] ${name}: ${text}${edited}`;
-      }).join("\n");
-      document.getElementById("exportMessages").textContent=lines;
-      document.getElementById("exportPreview").style.display="flex";
+      document.getElementById("exportDateCount").textContent="";
+      renderExportPreview(getFilteredExportData());
     })
     .catch(()=>alert("Error al cargar la conversación."));
 }
@@ -1866,8 +1912,13 @@ function downloadConversation(){
   const uB=document.getElementById("exportUserB").value;
   const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
   const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
-  const header=`Conversación HRmotor Connect\nExportado: ${new Date().toLocaleString("es-ES")}\nParticipantes: ${nameA} / ${nameB}\n${"─".repeat(50)}\n\n`;
-  const lines=exportData.map(m=>{
+  const filtered=getFilteredExportData();
+  if(!filtered.length){alert("No hay mensajes en el rango seleccionado.");return;}
+  const from=document.getElementById("exportDateFrom").value;
+  const to=document.getElementById("exportDateTo").value;
+  const rangeStr=(from||to)?`\nPeriodo: ${from?new Date(from).toLocaleDateString("es-ES"):"inicio"} → ${to?new Date(to).toLocaleDateString("es-ES"):"hoy"}`:"";
+  const header=`Conversación HRmotor Connect\nExportado: ${new Date().toLocaleString("es-ES")}\nParticipantes: ${nameA} / ${nameB}${rangeStr}\n${"─".repeat(50)}\n\n`;
+  const lines=filtered.map(m=>{
     const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
     const name=m.fromName||m.from;
     const text=m.fileUrl?`[Archivo: ${m.fileName||m.fileUrl}]`:(m.text||"");
@@ -1877,7 +1928,8 @@ function downloadConversation(){
   const blob=new Blob([header+lines],{type:"text/plain;charset=utf-8"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download=`conversacion_${uA}_${uB}_${Date.now()}.txt`;
+  const suffix=(from||to)?`_${from||""}${to?"_"+to:""}`:"";
+  a.download=`conversacion_${uA}_${uB}${suffix}.txt`;
   a.click(); URL.revokeObjectURL(a.href);
 }
 function openAdmin(){ if(!isAdmin(me.username)){alert("Sin permisos.");return;} switchAdminTab("users"); document.getElementById("adminSearch").value=""; document.getElementById("adminModal").classList.add("open"); }
