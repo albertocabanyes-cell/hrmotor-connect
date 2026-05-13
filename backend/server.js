@@ -35,7 +35,9 @@ const MsgSchema = new mongoose.Schema({
   id: Number, conversationId: String, groupId: String,
   from: String, fromName: String, to: String, text: String,
   fileUrl: String, fileName: String, fileType: String, fileSize: Number,
-  time: String, date: String
+  time: String, date: String,
+  edited: { type: Boolean, default: false },
+  editHistory: [{ text: String, editedAt: String }]
 }, { versionKey: false });
 
 const GroupSchema = new mongoose.Schema({
@@ -180,6 +182,30 @@ app.post("/login", async (req, res) => {
 app.get("/messages/:userA/:userB", async (req, res) => {
   const msgs = await Msg.find({ conversationId: convId(req.params.userA, req.params.userB) }).sort({ date: 1 }).lean();
   res.json(msgs);
+});
+
+app.put("/messages/:id", async (req, res) => {
+  const { text, username } = req.body;
+  if (!text || !text.trim()) return res.status(400).json({ error: "El texto no puede estar vacío" });
+  const msg = await Msg.findOne({ id: Number(req.params.id) });
+  if (!msg) return res.status(404).json({ error: "Mensaje no encontrado" });
+  if (msg.from !== username) return res.status(403).json({ error: "No puedes editar este mensaje" });
+  // Guardar versión anterior en historial
+  msg.editHistory.push({ text: msg.text, editedAt: new Date().toISOString() });
+  msg.text = text.trim();
+  msg.edited = true;
+  await msg.save();
+  const out = msg.toObject();
+  // Notificar a los participantes en tiempo real
+  if (msg.conversationId) {
+    const [userA, userB] = msg.conversationId.split("__");
+    io.to(userA).emit("message_edited", out);
+    io.to(userB).emit("message_edited", out);
+  } else if (msg.groupId) {
+    const group = await Group.findOne({ id: msg.groupId }).lean();
+    if (group) group.members.forEach(m => io.to(m).emit("message_edited", out));
+  }
+  res.json(out);
 });
 
 app.post("/upload", upload.single("file"), (req, res) => {

@@ -320,6 +320,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .mg-foot{display:flex;align-items:center;gap:5px;margin-top:3px;padding:0 2px;position:relative;z-index:1}
 .mg.mine .mg-foot{justify-content:flex-end}.mg.theirs .mg-foot{justify-content:flex-start}
 .mg-time{font-size:11px;color:#bbb;font-weight:500}
+.msg-edited-tag{font-size:10px;color:#bbb;font-style:italic;margin-left:2px}
+.msg-edit-btn{opacity:0;background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:5px;color:#aaa;font-size:11px;transition:all .15s;line-height:1}
+.msg-edit-btn:hover{background:rgba(0,0,0,.07);color:#555}
+.mg:hover .msg-edit-btn{opacity:1}
+.msg-edit-wrap{display:flex;gap:5px;align-items:center;margin-top:4px;width:100%}
+.msg-edit-input{flex:1;border:1.5px solid #e30613;border-radius:8px;padding:6px 10px;font-size:13px;outline:none;font-family:inherit}
+.msg-edit-save{background:#e30613;color:white;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.msg-edit-cancel{background:#f0f0f0;color:#555;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .mg-ticks{display:flex;align-items:center}
 .mg-ticks svg{width:14px;height:14px;display:block;stroke:rgba(26,58,107,.45)}
 .mg-ticks.read svg{stroke:#22c55e}
@@ -1474,7 +1482,9 @@ function addMessage(msg, noScroll=false){
     const prev=lastGrp.querySelector(".bub.last"); if(prev){prev.classList.remove("last");prev.classList.add("mid");}
     const ft=lastGrp.querySelector(".mg-time"); if(ft) ft.textContent=time;
     const bub=document.createElement("div");
-    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    bub.dataset.msgid=msg.id||"";
+    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}
+    else{bub.className="bub last";bub.innerHTML=buildTextBubble(msg,isMe);}
     lastGrp.querySelector(".mg-bubbles").appendChild(bub);
   } else {
     const grp=document.createElement("div"); grp.className="mg "+side; grp.dataset.from=msg.from;
@@ -1487,7 +1497,9 @@ function addMessage(msg, noScroll=false){
     const col=document.createElement("div"); col.className="mg-bubbles";
     if(!isMe){const snd=document.createElement("div");snd.className="mg-sender";snd.textContent=msg.fromName||msg.from;col.appendChild(snd);}
     const bub=document.createElement("div");
-    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}else{bub.className="bub last";bub.textContent=msg.text;}
+    bub.dataset.msgid=msg.id||"";
+    if(msg.fileUrl){const isImg=getFileCategory(msg.fileType,msg.fileName)==='img';bub.className="bub last "+(isImg?"bub-img":"bub-file");bub.innerHTML=buildFileBubbleHTML(msg);}
+    else{bub.className="bub last";bub.innerHTML=buildTextBubble(msg,isMe);}
     col.appendChild(bub);
     row.appendChild(col); grp.appendChild(row);
     const foot=document.createElement("div"); foot.className="mg-foot";
@@ -1505,6 +1517,50 @@ function addMessage(msg, noScroll=false){
   }
 }
 
+function buildTextBubble(msg, isMe){
+  const edited = msg.edited ? '<span class="msg-edited-tag">(editado)</span>' : '';
+  const editBtn = (isMe && msg.id) ? `<button class="msg-edit-btn" onclick="startEditMessage(${msg.id},this)">✏️</button>` : '';
+  return `<span class="bub-text">${escHtml(msg.text)}</span>${edited}${editBtn}`;
+}
+function startEditMessage(msgId, btn){
+  const bub = btn.closest(".bub");
+  if(!bub) return;
+  const currentText = bub.querySelector(".bub-text")?.textContent || "";
+  bub.dataset.origHtml = bub.innerHTML;
+  bub.innerHTML=`<div class="msg-edit-wrap">
+    <input class="msg-edit-input" id="editInput_${msgId}" value="${currentText.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveEditMessage(${msgId});}if(event.key==='Escape')cancelEditMessage(${msgId});">
+    <button class="msg-edit-save" onclick="saveEditMessage(${msgId})">Guardar</button>
+    <button class="msg-edit-cancel" onclick="cancelEditMessage(${msgId})">Cancelar</button>
+  </div>`;
+  const input=document.getElementById(`editInput_${msgId}`);
+  if(input){ input.focus(); input.select(); }
+}
+function cancelEditMessage(msgId){
+  const bub=document.querySelector(`[data-msgid="${msgId}"]`);
+  if(!bub||!bub.dataset.origHtml) return;
+  bub.innerHTML=bub.dataset.origHtml;
+  delete bub.dataset.origHtml;
+}
+function saveEditMessage(msgId){
+  const input=document.getElementById(`editInput_${msgId}`);
+  if(!input) return;
+  const newText=input.value.trim();
+  if(!newText){ alert("El mensaje no puede estar vacío."); return; }
+  fetch(`/messages/${msgId}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:newText,username:me.username})})
+    .then(r=>r.json())
+    .then(updated=>{
+      if(updated.error){ alert(updated.error); cancelEditMessage(msgId); return; }
+      applyEditedMessage(updated);
+    })
+    .catch(()=>{ alert("Error al editar el mensaje."); cancelEditMessage(msgId); });
+}
+function applyEditedMessage(msg){
+  const bub=document.querySelector(`[data-msgid="${msg.id}"]`);
+  if(!bub) return;
+  const isMe=msg.from===me.username;
+  bub.innerHTML=buildTextBubble(msg,isMe);
+  delete bub.dataset.origHtml;
+}
 function playNotifSound(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1566,6 +1622,7 @@ function bindSocketEvents(){
   socket.on("admins_updated",list=>{ serverAdmins=list; renderUsers(); if(me){ const admin=isAdmin(me.username); document.getElementById("adminBadge").style.display=admin?"inline-block":"none"; document.getElementById("adminBtn").style.display=admin?"flex":"none"; } });
   socket.on("user_created",u=>{ if(!users.find(x=>x.username===u.username)){ users.push({username:u.username,name:u.name}); renderUsers(); } });
   socket.on("user_deleted",({username})=>{ if(username!==me.username) _removeUserLocally(username); });
+  socket.on("message_edited", msg=>{ applyEditedMessage(msg); });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
