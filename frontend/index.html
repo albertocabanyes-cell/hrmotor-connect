@@ -138,6 +138,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .ui-action-btn.view:hover{background:rgba(255,255,255,.22);color:white}
 .ui-action-btn.close-chat{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);font-size:11px}
 .ui-action-btn.close-chat:hover{background:rgba(227,6,19,.25);color:#ff6b6b}
+.ui-action-btn.fav-btn{background:rgba(255,255,255,.07);color:rgba(255,255,255,.35)}
+.ui-action-btn.fav-btn:hover{background:rgba(245,158,11,.15);color:#f59e0b}
+.ui-action-btn.fav-btn.fav-active{background:rgba(245,158,11,.15);color:#f59e0b}
 .ui-action-btn svg{width:14px;height:14px;flex-shrink:0}
 
 /* Modal ver perfil de contacto */
@@ -572,6 +575,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <div class="tab active" data-tab="all" onclick="switchTab('all')">Empresa</div>
         <div class="tab" data-tab="chats" onclick="switchTab('chats')">Chats<span class="tab-badge" id="totalBadge"></span></div>
         <div class="tab" data-tab="groups" onclick="switchTab('groups')">Grupos<span class="tab-badge" id="groupsBadge"></span></div>
+        <div class="tab" data-tab="favs" onclick="switchTab('favs')">Favoritos</div>
       </div>
       <div class="search-wrap">
         <div class="search-inner">
@@ -588,6 +592,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <div class="sec-label">Conversaciones activas</div>
         <div id="chatsList"></div>
         <p class="no-results" id="noChats" style="display:none">Sin conversaciones activas</p>
+      </div>
+      <div class="tab-panel" id="panel-favs">
+        <div class="sec-label">Usuarios favoritos</div>
+        <div id="favsList"></div>
+        <p class="no-results" id="noFavs" style="display:none">No tienes favoritos aún</p>
       </div>
       <div class="tab-panel" id="panel-groups">
         <button class="create-group-btn" id="createGroupBtn" onclick="openCreateGroup()" style="display:none">
@@ -887,6 +896,7 @@ const ADMIN_USERS_KEY = "hrmotor_admins";
 const DEFAULT_ADMINS  = ["alberto"];
 let socket, me = null, users = [], current = null;
 let unread = {}, peerStatus = {}, openChats = new Set(), lastMsg = {};
+let favorites = new Set();
 let myStatus = "available", activeTab = "all";
 let avatarDataUrl = null, editingUsername = null;
 let typingTimer = null, isTyping = false;
@@ -1080,6 +1090,7 @@ function mostrarApp(){
   document.getElementById("adminBtn").style.display=admin?"flex":"none";
   if(socket){ socket.connect(); socket.emit("register",me.username); }
   try{ const s=JSON.parse(localStorage.getItem("hrmotor_chats_"+me.username)||"[]"); s.forEach(u=>openChats.add(u)); }catch(e){}
+  try{ const f=JSON.parse(localStorage.getItem("hrmotor_favs_"+me.username)||"[]"); f.forEach(u=>favorites.add(u)); }catch(e){}
   cargarUsuarios();
   loadGroups();
   loadServerProfiles();
@@ -1112,6 +1123,7 @@ function switchTab(t){
   document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("active",el.dataset.tab===t));
   document.querySelectorAll(".tab-panel").forEach(el=>el.classList.toggle("active",el.id==="panel-"+t));
   if(t==="chats") renderChatsList();
+  if(t==="favs") renderFavoritesList();
   if(t==="groups"){ renderGroupsList(); const btn=document.getElementById("createGroupBtn"); if(btn) btn.style.display=isAdmin(me?.username)?"flex":"none"; }
 }
 function updateBadge(){
@@ -1128,6 +1140,43 @@ function addToOpenChats(username){
   const isNew=!openChats.has(username); openChats.add(username);
   localStorage.setItem("hrmotor_chats_"+me.username,JSON.stringify([...openChats]));
   return isNew;
+}
+function toggleFavorite(username){
+  if(favorites.has(username)) favorites.delete(username);
+  else favorites.add(username);
+  localStorage.setItem("hrmotor_favs_"+me.username, JSON.stringify([...favorites]));
+  renderUsers();
+  if(activeTab==="favs") renderFavoritesList();
+}
+function renderFavoritesList(query){
+  const list=document.getElementById("favsList");
+  const noFavs=document.getElementById("noFavs");
+  const q=(query!==undefined?query:(document.getElementById("searchInput").value||"")).toLowerCase().trim();
+  const favUsers=users.filter(u=>favorites.has(u.username));
+  const filtered=q?favUsers.filter(u=>(u.name||u.username).toLowerCase().includes(q)):favUsers;
+  list.innerHTML="";
+  filtered.forEach(u=>{
+    const div=document.createElement("div");
+    div.dataset.u=u.username;
+    div.className="ui"+(current===u.username?" active":"");
+    div.addEventListener("click",()=>selectUser(u));
+    const uSt=peerStatus[u.username]||"unavailable";
+    const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
+    const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
+    const count=unread[u.username]||0;
+    div.innerHTML=`<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
+      <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}</div>
+      <div class="usub">${SL[uSt]||"No disponible"}</div></div>
+      ${count>0?`<span class="ubadge">${count}</span>`:""}
+      <div class="ui-actions">
+        <button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button>
+        <button class="ui-action-btn fav-btn fav-active" title="Quitar de favoritos"><svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+      </div>`;
+    div.querySelector(".ui-action-btn.view").addEventListener("click",e=>{ e.stopPropagation(); openViewProfile(u); });
+    div.querySelector(".ui-action-btn.fav-btn").addEventListener("click",e=>{ e.stopPropagation(); toggleFavorite(u.username); });
+    list.appendChild(div);
+  });
+  if(noFavs) noFavs.style.display=filtered.length===0?"block":"none";
 }
 function closeChat(username){
   openChats.delete(username);
@@ -1255,9 +1304,13 @@ function _buildUserDiv(u){
       <button class="ui-action-btn view" title="Ver perfil">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       </button>
+      <button class="ui-action-btn fav-btn ${favorites.has(u.username)?'fav-active':''}" title="${favorites.has(u.username)?'Quitar de favoritos':'Añadir a favoritos'}">
+        <svg viewBox="0 0 24 24" fill="${favorites.has(u.username)?'#f59e0b':'none'}" stroke="${favorites.has(u.username)?'#f59e0b':'currentColor'}" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </button>
     </div>`;
   div.querySelector(".ui-action-btn.chat").addEventListener("click", e => { e.stopPropagation(); selectUser(u); switchTab("chats"); });
   div.querySelector(".ui-action-btn.view").addEventListener("click", e => { e.stopPropagation(); openViewProfile(u); });
+  div.querySelector(".ui-action-btn.fav-btn").addEventListener("click", e => { e.stopPropagation(); toggleFavorite(u.username); });
   return div;
 }
 
@@ -1287,15 +1340,16 @@ function renderChatsList(query){
       <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}</div>
       ${preview?`<div class="usub">${preview}</div>`:`<div class="usub">${SL[uSt]||"No disponible"}</div>`}</div>
       ${count>0?`<span class="ubadge">${count}</span>`:""}
-      <div class="ui-actions"><button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button><button class="ui-action-btn close-chat" title="Cerrar conversación">✕</button></div>`;
+      <div class="ui-actions"><button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button><button class="ui-action-btn fav-btn ${favorites.has(u.username)?'fav-active':''}" title="${favorites.has(u.username)?'Quitar de favoritos':'Añadir a favoritos'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="${favorites.has(u.username)?'#f59e0b':'none'}" stroke="${favorites.has(u.username)?'#f59e0b':'currentColor'}" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button><button class="ui-action-btn close-chat" title="Cerrar conversación">✕</button></div>`;
     div.querySelector(".ui-action-btn.view").addEventListener("click", e=>{ e.stopPropagation(); openViewProfile(u); });
+    div.querySelector(".ui-action-btn.fav-btn").addEventListener("click", e=>{ e.stopPropagation(); toggleFavorite(u.username); });
     div.querySelector(".ui-action-btn.close-chat").addEventListener("click", e=>{ e.stopPropagation(); closeChat(u.username); });
     list.appendChild(div);
   });
   if(noMsg) noMsg.style.display=filtered.length===0?"block":"none";
 }
-function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); }
-function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsList(); updateBadge(); }
+function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); if(activeTab==="favs") renderFavoritesList(q); }
+function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsList(); if(activeTab==="favs") renderFavoritesList(); updateBadge(); }
 
 /* ═══════════════════════════════════════
    SCROLL
