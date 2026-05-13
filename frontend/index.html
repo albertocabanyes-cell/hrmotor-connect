@@ -244,6 +244,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .at-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
 .at-badge.admin{background:#fde8e9;color:#e30613}
 .at-badge.user{background:#f0f2f5;color:#888}
+.at-badge.store-manager{background:#eff6ff;color:#3b82f6}
 .at-badge.inactive{background:#f5f5f5;color:#bbb}
 .at-select{border:1px solid #e8e8e8;border-radius:7px;padding:4px 8px;font-size:12px;font-family:inherit;color:#444;background:#fafafa;cursor:pointer;outline:none;transition:border-color .15s}
 .at-select:hover{border-color:#ccc}
@@ -781,7 +782,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
             <div class="form-field"><label>Teléfono</label><input type="tel" id="nuTelefono" placeholder="+34 600 000 000"></div>
             <div class="form-field"><label>Departamento</label><select id="nuDepartamento"></select></div>
             <div class="form-field"><label>Delegación</label><select id="nuDelegacion"></select></div>
-            <div class="form-field full"><label>Rol</label><select id="nuRol"><option value="user">Usuario estándar</option><option value="admin">Administrador</option></select></div>
+            <div class="form-field full"><label>Rol</label><select id="nuRol"><option value="user">Usuario estándar</option><option value="store_manager">Jefe de tienda</option><option value="admin">Administrador</option></select></div>
           </div>
           <div style="display:flex;gap:10px;align-items:center">
             <button class="modal-btn primary" style="width:auto;padding:11px 24px" onclick="createUser()">Crear usuario</button>
@@ -852,7 +853,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
       </div>
       <div class="modal-section-title" style="margin-top:6px">Permisos y seguridad</div>
       <div class="form-grid">
-        <div class="form-field"><label>Rol</label><select id="euRol"><option value="user">Usuario estándar</option><option value="admin">Administrador</option></select></div>
+        <div class="form-field"><label>Rol</label><select id="euRol"><option value="user">Usuario estándar</option><option value="store_manager">Jefe de tienda</option><option value="admin">Administrador</option></select></div>
         <div class="form-field"><label>Nueva contraseña <span style="font-weight:400;color:#bbb">(vacío = sin cambios)</span></label><input type="password" id="euPassword" placeholder="Nueva contraseña"></div>
       </div>
       <div style="display:flex;gap:10px;margin-bottom:6px">
@@ -1986,7 +1987,7 @@ function renderAdminTable(query=""){
       <td><div class="at-user"><div class="at-av">${photo?`<img src="${photo}" alt="${ini}">`:ini}</div>
         <div><div class="at-name">${escHtml(displayName)}</div><div class="at-un">@${u.username}</div></div></div></td>
       <td style="color:#666;font-size:12px">${escHtml(dept)}</td>
-      <td><span class="at-badge ${isInactive?"inactive":isAdm?"admin":"user"}">${isInactive?"Inactivo":isAdm?"Admin":"Estándar"}</span></td>
+      <td>${(()=>{ const r=saved.role; const cls=isInactive?"inactive":isAdm?"admin":r==="store_manager"?"store-manager":"user"; const lbl=isInactive?"Inactivo":isAdm?"Admin":r==="store_manager"?"Jefe de tienda":"Estándar"; return `<span class="at-badge ${cls}">${lbl}</span>`; })()}</td>
       <td style="color:#666;font-size:12px">${escHtml(deleg)}</td>
       <td style="color:#666;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(email)}">${escHtml(email)}</td>
       <td style="color:#666;font-size:12px;white-space:nowrap">${escHtml(tel)}</td>
@@ -2054,7 +2055,7 @@ function openEditUser(username){
   document.getElementById("euTelefono").value=saved.telefono||"";
   document.getElementById("euDepartamento").value=saved.dpto||u.dept||"";
   document.getElementById("euDelegacion").value=saved.delegacion||"";
-  document.getElementById("euRol").value=isAdmin(username)?"admin":"user";
+  document.getElementById("euRol").value=isAdmin(username)?"admin":(saved.role||"user");
   document.getElementById("euPassword").value="";
   document.getElementById("euUsername").value=username;
   document.getElementById("editUserSubtitle").textContent="@"+username;
@@ -2096,7 +2097,7 @@ function saveEditUser(){
   const dpto=document.getElementById("euDepartamento").value.trim(), delegacion=document.getElementById("euDelegacion").value.trim();
   const rol=document.getElementById("euRol").value;
   const existing=getProfile(editingUsername);
-  const updated={...existing,nombre,apellidos,email,telefono,dpto,delegacion};
+  const updated={...existing,nombre,apellidos,email,telefono,dpto,delegacion,role:rol==="admin"?"admin":rol};
   localStorage.setItem("hrmotor_profile_"+editingUsername,JSON.stringify(updated));
   serverProfiles[editingUsername]={...(serverProfiles[editingUsername]||{}),...updated};
   fetch(`/profile/${editingUsername}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(updated)}).catch(()=>{});
@@ -2123,6 +2124,7 @@ function createUser(){
     .then(({ok,d})=>{
       if(!ok){errEl.textContent=d.error||"Error al crear el usuario.";errEl.style.display="block";return;}
       if(rol==="admin") promoteUser(username);
+      if(rol&&rol!=="admin"){ const p=getProfile(username); const up={...p,role:rol}; localStorage.setItem("hrmotor_profile_"+username,JSON.stringify(up)); fetch(`/profile/${username}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(up)}).catch(()=>{}); }
       okEl.textContent=`✓ Usuario @${username} creado correctamente`; okEl.style.display="block";
       setTimeout(()=>okEl.style.display="none",4000);
       clearNewUserForm();
