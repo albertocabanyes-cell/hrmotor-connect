@@ -77,7 +77,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .status-trigger .slabel{font-size:12px;font-weight:600;color:rgba(255,255,255,.75);flex:1}
 .status-trigger .schevron{width:14px;height:14px;opacity:.85;transition:transform .2s;flex-shrink:0;color:white}
 .status-trigger.open .schevron{transform:rotate(180deg)}
-.sdot-available{background:#22c55e}.sdot-busy{background:#f59e0b}.sdot-unavailable{background:#6b7280}.sdot-descanso{background:#06b6d4}
+.sdot-available{background:#22c55e}.sdot-busy{background:#f59e0b}.sdot-unavailable{background:#e30613}.sdot-descanso{background:#06b6d4}
 .status-menu{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#1e2d50;border:1px solid rgba(255,255,255,.10);border-radius:10px;overflow:hidden;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
 .status-menu.open{display:block}
 .status-opt{display:flex;align-items:center;gap:9px;padding:10px 12px;cursor:pointer;transition:background .13s}
@@ -575,7 +575,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <div class="status-menu" id="statusMenu">
             <div class="status-opt" onclick="setMyStatus('available')"><span class="sdot sdot-available"></span><div><div class="oname">Disponible</div><div class="odesc">Listo para chatear</div></div></div>
             <div class="status-opt" onclick="setMyStatus('busy')"><span class="sdot sdot-busy"></span><div><div class="oname">Ocupado</div><div class="odesc">En reunión o concentrado</div></div></div>
-            <div class="status-opt" onclick="setMyStatus('descanso')"><span class="sdot sdot-descanso"></span><div><div class="oname">Descanso</div><div class="odesc">Fuera un momento</div></div></div>
+            <div class="status-opt" onclick="setMyStatus('descanso')"><span class="sdot sdot-descanso"></span><div><div class="oname">Descanso</div><div class="odesc">Fuera por un tiempo</div></div></div>
             <div class="status-opt" onclick="setMyStatus('unavailable')"><span class="sdot sdot-unavailable"></span><div><div class="oname">No disponible</div><div class="odesc">No molestar</div></div></div>
           </div>
         </div>
@@ -1113,7 +1113,7 @@ function logout(){ localStorage.removeItem("hrmotor_user"); localStorage.removeI
 ═══════════════════════════════════════ */
 function toggleStatusMenu(){ const open=document.getElementById("statusMenu").classList.toggle("open"); document.getElementById("statusTrigger").classList.toggle("open",open); }
 function closeStatusMenu(){ document.getElementById("statusMenu").classList.remove("open"); document.getElementById("statusTrigger").classList.remove("open"); }
-const S_SHADOW={ available:"rgba(34,197,94,.4)", busy:"rgba(245,158,11,.4)", descanso:"rgba(6,182,212,.4)", unavailable:"rgba(107,114,128,.3)" };
+const S_SHADOW={ available:"rgba(34,197,94,.4)", busy:"rgba(245,158,11,.4)", descanso:"rgba(6,182,212,.4)", unavailable:"rgba(227,6,19,.3)" };
 function setMyStatus(s){
   myStatus=s; closeStatusMenu();
   document.getElementById("trigDot").className="sdot "+SD[s];
