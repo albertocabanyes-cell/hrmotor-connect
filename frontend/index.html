@@ -187,7 +187,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.open{display:flex}
 .modal{background:white;border-radius:20px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:modalIn .22s ease}
-.modal.wide{width:780px}
+.modal.wide{width:980px}
 @keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
 .modal-header{background:linear-gradient(135deg,#10182f 0%,#1a2744 100%);padding:22px 28px 20px;border-radius:20px 20px 0 0;position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
 .modal-close{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.1);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s;font-family:inherit}
@@ -248,6 +248,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .at-select{border:1px solid #e8e8e8;border-radius:7px;padding:4px 8px;font-size:12px;font-family:inherit;color:#444;background:#fafafa;cursor:pointer;outline:none;transition:border-color .15s}
 .at-select:hover{border-color:#ccc}
 .at-select:focus{border-color:#e30613}
+.at-edit-btn{background:none;border:1px solid #e0e0e0;color:#555;padding:5px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.at-edit-btn:hover{border-color:#e30613;color:#e30613;background:#fff5f5}
+.at-edit-btn.open{border-color:#e30613;color:#e30613;background:#fff5f5}
+.at-edit-panel{background:#f7f8fc;border-top:1px solid #f0f0f0}
+.at-edit-inner{display:flex;gap:16px;padding:12px 16px;align-items:flex-end;flex-wrap:wrap}
+.at-edit-field{display:flex;flex-direction:column;gap:5px}
+.at-edit-field label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em}
+#adminUserTable{overflow-x:auto}
 .at-actions{display:flex;gap:5px;flex-wrap:wrap}
 .at-btn{background:none;border:1px solid #e8e8e8;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;color:#555}
 .at-btn:hover{background:#f0f0f0}
@@ -1950,32 +1958,62 @@ function renderAdminTable(query=""){
   const admins=getAdmins();
   const inactives=JSON.parse(localStorage.getItem("hrmotor_inactive_users")||"[]");
   if(!allUsers.length){wrap.innerHTML=`<p style="color:#aaa;font-size:13px;padding:16px 0">No hay usuarios.</p>`;return;}
-  let html=`<table class="admin-table"><thead><tr><th>Usuario</th><th>Departamento</th><th>Estado</th><th>Permisos</th><th>Acciones</th></tr></thead><tbody>`;
+  let html=`<table class="admin-table" style="min-width:820px"><thead><tr>
+    <th>Usuario</th><th>Departamento</th><th>Perfil</th><th>Delegación</th><th>Correo</th><th>Teléfono</th><th></th>
+  </tr></thead><tbody>`;
   allUsers.forEach(u=>{
     const isAdm=admins.includes(u.username), isInactive=inactives.includes(u.username);
     const saved=getProfile(u.username);
     const photo=saved.avatarUrl||null, ini=initials(u.name||u.username);
     const displayName=(saved.nombre||saved.apellidos)?[saved.nombre,saved.apellidos].filter(Boolean).join(" "):(u.name||u.username);
-    const dept=saved.dpto||u.dept||"–", isSelf=u.username===me.username;
+    const dept=saved.dpto||u.dept||"–";
+    const deleg=saved.delegacion||"–";
+    const email=saved.email||"–";
+    const tel=saved.telefono||"–";
+    const isSelf=u.username===me.username;
     const safeUser=u.username.replace(/'/g,"\\'"), safeName=escHtml(displayName).replace(/'/g,"\\'");
-    html+=`<tr>
+    const editRowId=`atr-edit-${u.username.replace(/[^a-z0-9]/gi,"_")}`;
+    html+=`<tr id="atr-${u.username.replace(/[^a-z0-9]/gi,"_")}">
       <td><div class="at-user"><div class="at-av">${photo?`<img src="${photo}" alt="${ini}">`:ini}</div>
         <div><div class="at-name">${escHtml(displayName)}</div><div class="at-un">@${u.username}</div></div></div></td>
-      <td style="color:#666">${escHtml(dept)}</td>
+      <td style="color:#666;font-size:12px">${escHtml(dept)}</td>
       <td><span class="at-badge ${isInactive?"inactive":isAdm?"admin":"user"}">${isInactive?"Inactivo":isAdm?"Admin":"Estándar"}</span></td>
-      <td>${isSelf?`<span style="font-size:12px;color:#ccc">—</span>`:`<select class="at-select" onchange="changePermiso('${safeUser}',this.value)" ${isInactive?"disabled":""}>
-        <option value="standard" ${!isAdm?"selected":""}>Estándar</option>
-        <option value="admin" ${isAdm?"selected":""}>Admin</option>
-      </select>`}</td>
-      <td>${isSelf?`<span style="font-size:12px;color:#ccc">—</span>`:`<select class="at-select" onchange="handleAccion('${safeUser}','${safeName}',this)">
-        <option value="">— Acción —</option>
-        <option value="${isInactive?"activate":"deactivate"}">${isInactive?"Activar":"Desactivar"}</option>
-        <option value="delete">Eliminar</option>
-      </select>`}</td>
-    </tr>`;
+      <td style="color:#666;font-size:12px">${escHtml(deleg)}</td>
+      <td style="color:#666;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(email)}">${escHtml(email)}</td>
+      <td style="color:#666;font-size:12px;white-space:nowrap">${escHtml(tel)}</td>
+      <td style="text-align:right">${isSelf?`<span style="font-size:12px;color:#ccc">—</span>`:`<button class="at-edit-btn" id="btn-${editRowId}" onclick="toggleAdminEdit('${safeUser}')">Editar</button>`}</td>
+    </tr>
+    <tr id="${editRowId}" style="display:none"><td colspan="7" class="at-edit-panel">
+      <div class="at-edit-inner">
+        <div class="at-edit-field"><label>Permisos</label>
+          <select class="at-select" onchange="changePermiso('${safeUser}',this.value)" ${isInactive?"disabled":""}>
+            <option value="standard" ${!isAdm?"selected":""}>Estándar</option>
+            <option value="admin" ${isAdm?"selected":""}>Admin</option>
+          </select>
+        </div>
+        <div class="at-edit-field"><label>Acciones</label>
+          <select class="at-select" onchange="handleAccion('${safeUser}','${safeName}',this)">
+            <option value="">— Acción —</option>
+            <option value="${isInactive?"activate":"deactivate"}">${isInactive?"Activar":"Desactivar"}</option>
+            <option value="delete">Eliminar</option>
+          </select>
+        </div>
+      </div>
+    </td></tr>`;
   });
   html+=`</tbody></table>`;
   wrap.innerHTML=html;
+}
+function toggleAdminEdit(username){
+  const safeId=username.replace(/[^a-z0-9]/gi,"_");
+  const row=document.getElementById(`atr-edit-${safeId}`);
+  const btn=document.getElementById(`btn-atr-edit-${safeId}`);
+  if(!row) return;
+  const isOpen=row.style.display!=="none";
+  document.querySelectorAll('[id^="atr-edit-"]').forEach(r=>{if(r!==row) r.style.display="none";});
+  document.querySelectorAll('.at-edit-btn').forEach(b=>{if(b!==btn) b.classList.remove("open");});
+  row.style.display=isOpen?"none":"";
+  if(btn) btn.classList.toggle("open",!isOpen);
 }
 
 function promoteUser(username){
