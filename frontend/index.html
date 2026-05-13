@@ -117,6 +117,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .udot{position:absolute;bottom:-3px;right:-3px;width:13px;height:13px;border-radius:50%;border:2.5px solid #10182f;background:#444;z-index:3}
 .uav.available .udot{background:#22c55e;box-shadow:0 0 0 1px rgba(34,197,94,.35)}
 .uav.busy .udot{background:#f59e0b;box-shadow:0 0 0 1px rgba(245,158,11,.35)}
+.uav.descanso .udot{background:#06b6d4;box-shadow:0 0 0 1px rgba(6,182,212,.35)}
+.uav.unavailable .udot{background:#e30613;box-shadow:0 0 0 1px rgba(227,6,19,.35)}
 .uav.is-admin{box-shadow:0 0 0 2.5px #e30613}
 .uinfo{flex:1;min-width:0}
 .uname{font-size:13px;color:rgba(255,255,255,.82);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1171,7 +1173,7 @@ function renderFavoritesList(query){
     div.className="ui"+(current===u.username?" active":"");
     div.addEventListener("click",()=>selectUser(u));
     const uSt=peerStatus[u.username]||"unavailable";
-    const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
+    const avCls=uSt==="available"?"available":uSt==="busy"?"busy":uSt==="descanso"?"descanso":"unavailable";
     const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
     const count=unread[u.username]||0;
     div.innerHTML=`<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
@@ -1297,7 +1299,7 @@ function _buildUserDiv(u){
   div.dataset.u=u.username;
   const count=unread[u.username]||0, active=current===u.username, uSt=peerStatus[u.username]||"unavailable";
   div.className="ui"+(active?" active":"");
-  const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
+  const avCls=uSt==="available"?"available":uSt==="busy"?"busy":uSt==="descanso"?"descanso":"unavailable";
   const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
   const adminCls=isAdmin(u.username)?" is-admin":"";
   div.innerHTML=`
@@ -1343,7 +1345,7 @@ function renderChatsList(query){
     div.className="ui"+(current===u.username?" active":"");
     div.addEventListener("click",()=>selectUser(u));
     const count=unread[u.username]||0, uSt=peerStatus[u.username]||"unavailable";
-    const avCls=(uSt==="available"||uSt==="busy")?uSt:"";
+    const avCls=uSt==="available"?"available":uSt==="busy"?"busy":uSt==="descanso"?"descanso":"unavailable";
     const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
     const preview=lastMsg[u.username]?escHtml(lastMsg[u.username]):"";
     div.innerHTML=`<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
