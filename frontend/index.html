@@ -752,6 +752,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
       <div class="admin-tabs">
         <div class="admin-tab active" data-atab="users" onclick="switchAdminTab('users')">Usuarios</div>
         <div class="admin-tab" data-atab="new" onclick="switchAdminTab('new')">Dar de alta</div>
+        <div class="admin-tab" data-atab="export" onclick="switchAdminTab('export')">Exportar</div>
       </div>
       <div class="admin-panel active" id="apanel-users">
         <input class="admin-search" id="adminSearch" placeholder="🔍  Buscar usuario..." oninput="renderAdminTable(this.value)">
@@ -777,6 +778,30 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           </div>
           <p class="modal-save-ok" id="newUserOk" style="text-align:left;margin-top:10px"></p>
           <p class="modal-save-err" id="newUserErr" style="text-align:left"></p>
+        </div>
+      </div>
+      <div class="admin-panel" id="apanel-export">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <p style="font-size:13px;color:#888;margin:0">Selecciona dos usuarios para visualizar y exportar su conversación.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Usuario A</label>
+              <select id="exportUserA" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Usuario B</label>
+              <select id="exportUserB" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
+            </div>
+          </div>
+          <button onclick="loadExportConversation()" style="background:#e30613;color:white;border:none;padding:10px 20px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start">Ver conversación</button>
+          <div id="exportPreview" style="display:none;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span id="exportTitle" style="font-size:13px;font-weight:700;color:#333"></span>
+              <button onclick="downloadConversation()" style="background:none;border:1px solid #e30613;color:#e30613;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ Descargar .txt</button>
+            </div>
+            <div id="exportMessages" style="background:#f7f8fc;border-radius:10px;padding:14px;max-height:320px;overflow-y:auto;font-size:13px;line-height:1.7;color:#333;white-space:pre-wrap;font-family:monospace"></div>
+          </div>
+          <p id="exportEmpty" style="display:none;color:#aaa;font-size:13px">No hay mensajes en esta conversación.</p>
         </div>
       </div>
     </div>
@@ -1794,6 +1819,63 @@ function switchAdminTab(t){
   document.querySelectorAll(".admin-panel").forEach(el=>el.classList.toggle("active",el.id==="apanel-"+t));
   if(t==="users") renderAdminTable();
   if(t==="new") populateDeptSelects();
+  if(t==="export") populateExportSelects();
+}
+function populateExportSelects(){
+  const all=getAllKnownUsers();
+  const opts=`<option value="">— Seleccionar —</option>`+all.map(u=>`<option value="${u.username}">${escHtml(u.name||u.username)} (@${u.username})</option>`).join("");
+  document.getElementById("exportUserA").innerHTML=opts;
+  document.getElementById("exportUserB").innerHTML=opts;
+  document.getElementById("exportPreview").style.display="none";
+  document.getElementById("exportEmpty").style.display="none";
+}
+let exportData=[];
+function loadExportConversation(){
+  const uA=document.getElementById("exportUserA").value;
+  const uB=document.getElementById("exportUserB").value;
+  if(!uA||!uB){alert("Selecciona los dos usuarios.");return;}
+  if(uA===uB){alert("Selecciona dos usuarios distintos.");return;}
+  fetch(`/messages/${uA}/${uB}`)
+    .then(r=>r.json())
+    .then(msgs=>{
+      exportData=msgs;
+      document.getElementById("exportPreview").style.display="none";
+      document.getElementById("exportEmpty").style.display="none";
+      if(!msgs.length){document.getElementById("exportEmpty").style.display="block";return;}
+      const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
+      const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
+      document.getElementById("exportTitle").textContent=`Conversación: ${nameA} ↔ ${nameB} (${msgs.length} mensajes)`;
+      const lines=msgs.map(m=>{
+        const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
+        const name=m.fromName||m.from;
+        const text=m.fileUrl?`[Archivo: ${m.fileName||m.fileUrl}]`:(m.text||"");
+        const edited=m.edited?" (editado)":"";
+        return `[${date}] ${name}: ${text}${edited}`;
+      }).join("\n");
+      document.getElementById("exportMessages").textContent=lines;
+      document.getElementById("exportPreview").style.display="flex";
+    })
+    .catch(()=>alert("Error al cargar la conversación."));
+}
+function downloadConversation(){
+  if(!exportData.length) return;
+  const uA=document.getElementById("exportUserA").value;
+  const uB=document.getElementById("exportUserB").value;
+  const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
+  const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
+  const header=`Conversación HRmotor Connect\nExportado: ${new Date().toLocaleString("es-ES")}\nParticipantes: ${nameA} / ${nameB}\n${"─".repeat(50)}\n\n`;
+  const lines=exportData.map(m=>{
+    const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
+    const name=m.fromName||m.from;
+    const text=m.fileUrl?`[Archivo: ${m.fileName||m.fileUrl}]`:(m.text||"");
+    const edited=m.edited?" (editado)":"";
+    return `[${date}] ${name}: ${text}${edited}`;
+  }).join("\n");
+  const blob=new Blob([header+lines],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`conversacion_${uA}_${uB}_${Date.now()}.txt`;
+  a.click(); URL.revokeObjectURL(a.href);
 }
 function openAdmin(){ if(!isAdmin(me.username)){alert("Sin permisos.");return;} switchAdminTab("users"); document.getElementById("adminSearch").value=""; document.getElementById("adminModal").classList.add("open"); }
 function closeAdmin(){ document.getElementById("adminModal").classList.remove("open"); }
