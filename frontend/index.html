@@ -599,6 +599,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <div class="tab active" data-tab="all" onclick="switchTab('all')">Equipos</div>
         <div class="tab" data-tab="chats" onclick="switchTab('chats')">Chats<span class="tab-badge" id="totalBadge"></span></div>
         <div class="tab" data-tab="groups" onclick="switchTab('groups')">Grupos<span class="tab-badge" id="groupsBadge"></span></div>
+        <div class="tab" data-tab="unread" onclick="switchTab('unread')">No leídos<span class="tab-badge" id="unreadBadge"></span></div>
         <div class="tab" data-tab="favs" onclick="switchTab('favs')">Favoritos</div>
       </div>
       <div class="search-wrap">
@@ -621,6 +622,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <div class="sec-label">Usuarios favoritos</div>
         <div id="favsList"></div>
         <p class="no-results" id="noFavs" style="display:none">No tienes favoritos aún</p>
+      </div>
+      <div class="tab-panel" id="panel-unread">
+        <div class="sec-label">Mensajes sin leer</div>
+        <div id="unreadList"></div>
+        <div id="noUnread" style="display:none;text-align:center;padding:40px 16px">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.5" style="margin-bottom:10px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <p style="color:rgba(255,255,255,.3);font-size:13px;margin:0">Todo leído</p>
+        </div>
       </div>
       <div class="tab-panel" id="panel-groups">
         <button class="create-group-btn" id="createGroupBtn" onclick="openCreateGroup()" style="display:none">
@@ -1195,6 +1204,7 @@ function switchTab(t){
   document.querySelectorAll(".tab-panel").forEach(el=>el.classList.toggle("active",el.id==="panel-"+t));
   if(t==="chats") renderChatsList();
   if(t==="favs") renderFavoritesList();
+  if(t==="unread") renderUnreadList();
   if(t==="groups"){ renderGroupsList(); const btn=document.getElementById("createGroupBtn"); if(btn) btn.style.display=isAdmin(me?.username)?"flex":"none"; }
 }
 function updateBadge(){
@@ -1206,6 +1216,9 @@ function updateBadge(){
   if(gel){ gel.textContent=gtotal>0?gtotal:""; gel.style.display=gtotal>0?"inline-block":"none"; }
   const all=total+gtotal;
   document.title=all>0?`(${all}) HRmotor Connect`:"HRmotor Connect";
+  const uel=document.getElementById("unreadBadge");
+  if(uel){ uel.textContent=all>0?all:""; uel.style.display=all>0?"inline-block":"none"; }
+  if(activeTab==="unread") renderUnreadList();
 }
 function addToOpenChats(username){
   const isNew=!openChats.has(username); openChats.add(username);
@@ -1248,6 +1261,56 @@ function renderFavoritesList(query){
     list.appendChild(div);
   });
   if(noFavs) noFavs.style.display=filtered.length===0?"block":"none";
+}
+function renderUnreadList(){
+  const list=document.getElementById("unreadList");
+  const noEl=document.getElementById("noUnread");
+  if(!list) return;
+  // Chats privados con no leídos
+  const privateItems=users.filter(u=>(unread[u.username]||0)>0)
+    .sort((a,b)=>(unread[b.username]||0)-(unread[a.username]||0));
+  // Grupos con no leídos
+  const groupItems=(typeof groups!=="undefined"?groups:[]).filter(g=>(groupUnread[g.id]||0)>0)
+    .sort((a,b)=>(groupUnread[b.id]||0)-(groupUnread[a.id]||0));
+  list.innerHTML="";
+  if(!privateItems.length&&!groupItems.length){
+    noEl.style.display="block"; return;
+  }
+  noEl.style.display="none";
+  // Sección privados
+  if(privateItems.length){
+    const lbl=document.createElement("div"); lbl.className="sec-label"; lbl.textContent="Conversaciones"; list.appendChild(lbl);
+    privateItems.forEach(u=>{
+      const div=document.createElement("div");
+      div.className="ui";
+      div.addEventListener("click",()=>{ selectUser(u); switchTab("chats"); });
+      const count=unread[u.username]||0, uSt=peerStatus[u.username]||"unavailable";
+      const avCls=uSt==="available"?"available":uSt==="busy"?"busy":uSt==="descanso"?"descanso":"unavailable";
+      const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
+      const preview=lastMsg[u.username]?escHtml(lastMsg[u.username]):"Nuevo mensaje";
+      div.innerHTML=`<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
+        <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}</div>
+        <div class="usub" style="opacity:.7">${preview}</div></div>
+        <span class="ubadge">${count}</span>`;
+      list.appendChild(div);
+    });
+  }
+  // Sección grupos
+  if(groupItems.length){
+    const lbl=document.createElement("div"); lbl.className="sec-label"; lbl.textContent="Grupos"; list.appendChild(lbl);
+    groupItems.forEach(g=>{
+      const div=document.createElement("div");
+      div.className="gi";
+      div.addEventListener("click",()=>{ selectGroup(g); switchTab("groups"); });
+      const count=groupUnread[g.id]||0;
+      const preview=lastGroupMsg[g.id]?escHtml(lastGroupMsg[g.id]):`${g.members.length} miembros`;
+      div.innerHTML=`<div class="gav" style="background:${g.color||"#e30613"}">${escHtml(g.name.slice(0,2).toUpperCase())}</div>
+        <div class="gi-info"><div class="gi-name">${escHtml(g.name)}</div>
+        <div class="gi-preview">${preview}</div></div>
+        <span class="ubadge" style="flex-shrink:0">${count}</span>`;
+      list.appendChild(div);
+    });
+  }
 }
 function closeChat(username){
   openChats.delete(username);
@@ -1420,7 +1483,7 @@ function renderChatsList(query){
   if(noMsg) noMsg.style.display=filtered.length===0?"block":"none";
 }
 function filterUsers(q){ renderAllUsers(q); if(activeTab==="chats") renderChatsList(q); if(activeTab==="favs") renderFavoritesList(q); }
-function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsList(); if(activeTab==="favs") renderFavoritesList(); updateBadge(); }
+function renderUsers(){ renderAllUsers(); if(activeTab==="chats") renderChatsList(); if(activeTab==="favs") renderFavoritesList(); if(activeTab==="unread") renderUnreadList(); updateBadge(); }
 
 /* ═══════════════════════════════════════
    SCROLL
@@ -1672,6 +1735,7 @@ function bindSocketEvents(){
       lastGroupMsg[msg.groupId]=msg.text;
       updateBadge();
       if(activeTab==="groups") renderGroupsList();
+      if(activeTab==="unread") renderUnreadList();
       if(Notification?.permission==="granted"){ const g=groups.find(g=>g.id===msg.groupId); new Notification(`${msg.fromName||msg.from} en ${g?.name||"grupo"}`,{body:msg.text,icon:""}); }
     }
   });
