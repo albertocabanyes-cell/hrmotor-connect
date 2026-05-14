@@ -803,17 +803,30 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
       </div>
       <div class="admin-panel" id="apanel-export">
         <div style="display:flex;flex-direction:column;gap:14px">
-          <p style="font-size:13px;color:#888;margin:0">Selecciona dos usuarios para visualizar y exportar su conversación.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Usuario A</label>
-              <select id="exportUserA" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Usuario B</label>
-              <select id="exportUserB" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
+          <!-- Selector tipo -->
+          <div style="display:flex;gap:8px">
+            <button id="exportTypePriv" onclick="setExportType('private')" style="flex:1;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid #e30613;background:#e30613;color:white;transition:all .15s">💬 Conversación privada</button>
+            <button id="exportTypeGrp" onclick="setExportType('group')" style="flex:1;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid #e8e8e8;background:white;color:#888;transition:all .15s">👥 Grupo</button>
+          </div>
+          <!-- Selectores privado -->
+          <div id="exportPrivateSelectors">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Usuario A</label>
+                <select id="exportUserA" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Usuario B</label>
+                <select id="exportUserB" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar —</option></select>
+              </div>
             </div>
           </div>
+          <!-- Selector grupo -->
+          <div id="exportGroupSelector" style="display:none">
+            <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Grupo</label>
+            <select id="exportGroupId" style="width:100%;padding:9px 12px;border:1.5px solid #e8e8e8;border-radius:9px;font-size:13px;font-family:inherit;outline:none"><option value="">— Seleccionar grupo —</option></select>
+          </div>
+          <!-- Filtro fechas -->
           <div style="background:#f7f8fc;border-radius:10px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
             <div>
               <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Desde</label>
@@ -823,7 +836,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
               <label style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Hasta</label>
               <input type="date" id="exportDateTo" style="padding:7px 10px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:13px;font-family:inherit;outline:none;color:#444;background:white;cursor:pointer" oninput="applyExportDateFilter()">
             </div>
-            <button onclick="clearExportDates()" style="background:none;border:1px solid #e0e0e0;color:#aaa;padding:7px 12px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;margin-bottom:1px" title="Quitar filtro de fechas">✕ Limpiar fechas</button>
+            <button onclick="clearExportDates()" style="background:none;border:1px solid #e0e0e0;color:#aaa;padding:7px 12px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;margin-bottom:1px">✕ Limpiar fechas</button>
             <span id="exportDateCount" style="font-size:12px;color:#aaa;align-self:center;margin-bottom:2px"></span>
           </div>
           <button onclick="loadExportConversation()" style="background:#e30613;color:white;border:none;padding:10px 20px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start">Ver conversación</button>
@@ -1921,14 +1934,34 @@ function switchAdminTab(t){
   if(t==="new") populateDeptSelects();
   if(t==="export") populateExportSelects();
 }
+let exportType="private";
+function setExportType(t){
+  exportType=t;
+  const isPriv=t==="private";
+  document.getElementById("exportPrivateSelectors").style.display=isPriv?"block":"none";
+  document.getElementById("exportGroupSelector").style.display=isPriv?"none":"block";
+  document.getElementById("exportTypePriv").style.background=isPriv?"#e30613":"white";
+  document.getElementById("exportTypePriv").style.color=isPriv?"white":"#888";
+  document.getElementById("exportTypePriv").style.borderColor=isPriv?"#e30613":"#e8e8e8";
+  document.getElementById("exportTypeGrp").style.background=isPriv?"white":"#e30613";
+  document.getElementById("exportTypeGrp").style.color=isPriv?"#888":"white";
+  document.getElementById("exportTypeGrp").style.borderColor=isPriv?"#e8e8e8":"#e30613";
+  document.getElementById("exportPreview").style.display="none";
+  document.getElementById("exportEmpty").style.display="none";
+  exportData=[];
+}
 function populateExportSelects(){
   const all=getAllKnownUsers();
   const opts=`<option value="">— Seleccionar —</option>`+all.map(u=>`<option value="${u.username}">${escHtml(u.name||u.username)} (@${u.username})</option>`).join("");
   document.getElementById("exportUserA").innerHTML=opts;
   document.getElementById("exportUserB").innerHTML=opts;
+  // Grupos
+  const grpSel=document.getElementById("exportGroupId");
+  grpSel.innerHTML=`<option value="">— Seleccionar grupo —</option>`+(typeof groups!=="undefined"?groups:[]).map(g=>`<option value="${g.id}">${escHtml(g.name)} (${g.members.length} miembros)</option>`).join("");
   document.getElementById("exportPreview").style.display="none";
   document.getElementById("exportEmpty").style.display="none";
   document.getElementById("exportDateCount").textContent="";
+  setExportType(exportType);
 }
 function clearExportDates(){
   document.getElementById("exportDateFrom").value="";
@@ -1955,17 +1988,13 @@ function applyExportDateFilter(){
   const to=document.getElementById("exportDateTo").value;
   if(from||to) countEl.textContent=`${filtered.length} mensaje${filtered.length!==1?"s":""}`;
   else countEl.textContent="";
-  renderExportPreview(filtered);
+  renderExportPreview(filtered, exportMeta.title||"");
 }
-function renderExportPreview(msgs){
-  const uA=document.getElementById("exportUserA").value;
-  const uB=document.getElementById("exportUserB").value;
+function renderExportPreview(msgs, title){
   document.getElementById("exportPreview").style.display="none";
   document.getElementById("exportEmpty").style.display="none";
   if(!msgs.length){document.getElementById("exportEmpty").style.display="block";return;}
-  const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
-  const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
-  document.getElementById("exportTitle").textContent=`${nameA} ↔ ${nameB} (${msgs.length} mensajes)`;
+  document.getElementById("exportTitle").textContent=`${title} (${msgs.length} mensajes)`;
   const lines=msgs.map(m=>{
     const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
     const name=m.fromName||m.from;
@@ -1976,33 +2005,41 @@ function renderExportPreview(msgs){
   document.getElementById("exportMessages").textContent=lines;
   document.getElementById("exportPreview").style.display="flex";
 }
-let exportData=[];
+let exportData=[], exportMeta={};
 function loadExportConversation(){
-  const uA=document.getElementById("exportUserA").value;
-  const uB=document.getElementById("exportUserB").value;
-  if(!uA||!uB){alert("Selecciona los dos usuarios.");return;}
-  if(uA===uB){alert("Selecciona dos usuarios distintos.");return;}
-  fetch(`/messages/${uA}/${uB}`)
-    .then(r=>r.json())
-    .then(msgs=>{
-      exportData=msgs;
-      document.getElementById("exportDateCount").textContent="";
-      renderExportPreview(getFilteredExportData());
-    })
-    .catch(()=>alert("Error al cargar la conversación."));
+  document.getElementById("exportDateCount").textContent="";
+  if(exportType==="private"){
+    const uA=document.getElementById("exportUserA").value;
+    const uB=document.getElementById("exportUserB").value;
+    if(!uA||!uB){alert("Selecciona los dos usuarios.");return;}
+    if(uA===uB){alert("Selecciona dos usuarios distintos.");return;}
+    const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
+    const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
+    exportMeta={type:"private",uA,uB,title:`${nameA} ↔ ${nameB}`};
+    fetch(`/messages/${uA}/${uB}`)
+      .then(r=>r.json())
+      .then(msgs=>{ exportData=msgs; renderExportPreview(getFilteredExportData(), exportMeta.title); })
+      .catch(()=>alert("Error al cargar la conversación."));
+  } else {
+    const gid=document.getElementById("exportGroupId").value;
+    if(!gid){alert("Selecciona un grupo.");return;}
+    const g=(typeof groups!=="undefined"?groups:[]).find(x=>x.id===gid);
+    exportMeta={type:"group",gid,title:g?.name||gid};
+    fetch(`/group-messages/${gid}`)
+      .then(r=>r.json())
+      .then(msgs=>{ exportData=msgs; renderExportPreview(getFilteredExportData(), exportMeta.title); })
+      .catch(()=>alert("Error al cargar mensajes del grupo."));
+  }
 }
 function downloadConversation(){
   if(!exportData.length) return;
-  const uA=document.getElementById("exportUserA").value;
-  const uB=document.getElementById("exportUserB").value;
-  const nameA=getAllKnownUsers().find(u=>u.username===uA)?.name||uA;
-  const nameB=getAllKnownUsers().find(u=>u.username===uB)?.name||uB;
   const filtered=getFilteredExportData();
   if(!filtered.length){alert("No hay mensajes en el rango seleccionado.");return;}
   const from=document.getElementById("exportDateFrom").value;
   const to=document.getElementById("exportDateTo").value;
   const rangeStr=(from||to)?`\nPeriodo: ${from?new Date(from).toLocaleDateString("es-ES"):"inicio"} → ${to?new Date(to).toLocaleDateString("es-ES"):"hoy"}`:"";
-  const header=`Conversación HRmotor Connect\nExportado: ${new Date().toLocaleString("es-ES")}\nParticipantes: ${nameA} / ${nameB}${rangeStr}\n${"─".repeat(50)}\n\n`;
+  const typeStr=exportMeta.type==="group"?"Grupo":"Conversación";
+  const header=`${typeStr} HRmotor Connect\nExportado: ${new Date().toLocaleString("es-ES")}\n${exportMeta.type==="group"?"Grupo":"Participantes"}: ${exportMeta.title}${rangeStr}\n${"─".repeat(50)}\n\n`;
   const lines=filtered.map(m=>{
     const date=m.date?new Date(m.date).toLocaleString("es-ES"):(m.time||"");
     const name=m.fromName||m.from;
@@ -2014,7 +2051,8 @@ function downloadConversation(){
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
   const suffix=(from||to)?`_${from||""}${to?"_"+to:""}`:"";
-  a.download=`conversacion_${uA}_${uB}${suffix}.txt`;
+  const base=exportMeta.type==="group"?`grupo_${exportMeta.gid}`:`conv_${exportMeta.uA}_${exportMeta.uB}`;
+  a.download=`${base}${suffix}.txt`;
   a.click(); URL.revokeObjectURL(a.href);
 }
 function openAdmin(){ if(!isAdmin(me.username)){alert("Sin permisos.");return;} switchAdminTab("users"); document.getElementById("adminSearch").value=""; document.getElementById("adminModal").classList.add("open"); }
