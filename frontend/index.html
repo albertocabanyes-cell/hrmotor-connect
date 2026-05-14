@@ -975,7 +975,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 const ADMIN_USERS_KEY = "hrmotor_admins";
 const DEFAULT_ADMINS  = ["alberto"];
 let socket, me = null, users = [], current = null;
-let unread = {}, peerStatus = {}, openChats = new Set(), lastMsg = {};
+let unread = {}, peerStatus = {}, openChats = new Set(), lastMsg = {}, peerLastSeen = {};
 let favorites = new Set();
 let myStatus = "available", activeTab = "all";
 let avatarDataUrl = null, editingUsername = null;
@@ -1345,6 +1345,8 @@ function loadServerProfiles(){
     .then(r=>r.json())
     .then(data=>{
       serverProfiles=data;
+      // Cargar lastSeen guardado en perfiles
+      Object.entries(data).forEach(([u,p])=>{ if(p.lastSeen&&!peerLastSeen[u]) peerLastSeen[u]=p.lastSeen; });
       renderUsers();
       restoreProfileData();
       const admin=isAdmin(me.username);
@@ -1428,7 +1430,7 @@ function _buildUserDiv(u){
     <div class="uav ${avCls}${adminCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
     <div class="uinfo">
       <div class="uname">${escHtml(u.name||u.username)}</div>
-      <div class="usub">${SL[uSt]||"No disponible"}</div>
+      <div class="usub">${SL[uSt]||"No disponible"}${uSt==="unavailable"&&peerLastSeen[u.username]?`<span style="opacity:.45;font-size:10px;margin-left:4px">· ${formatLastSeen(peerLastSeen[u.username])}</span>`:""}</div>
     </div>
     ${count>0?`<span class="ubadge">${count}</span>`:""}
     <div class="ui-actions">
@@ -1763,7 +1765,7 @@ function bindSocketEvents(){
   socket.on("user_deleted",({username})=>{ if(username!==me.username) _removeUserLocally(username); });
   socket.on("message_edited", msg=>{ applyEditedMessage(msg); });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
-  socket.on("user_status",({username,status})=>{ peerStatus[username]=status; renderUsers(); if(current===username) updateTopbarStatus(status); });
+  socket.on("user_status",({username,status,lastSeen})=>{ peerStatus[username]=status; if(lastSeen) peerLastSeen[username]=lastSeen; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
 }
 function updateTopbarStatus(status){
@@ -2434,6 +2436,20 @@ function saveGroupConfig(){
 function initials(n){ return String(n).split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
 function horaActual(){ const d=new Date(); return d.getHours().toString().padStart(2,"0")+":"+d.getMinutes().toString().padStart(2,"0"); }
 function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function formatLastSeen(iso){
+  if(!iso) return null;
+  const d=new Date(iso), now=new Date();
+  const diffH=(now-d)/3600000;
+  const t=d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+  if(diffH<24){
+    const todayStr=now.toDateString(), yest=new Date(now); yest.setDate(yest.getDate()-1);
+    if(d.toDateString()===todayStr) return `hoy ${t}`;
+    if(d.toDateString()===yest.toDateString()) return `ayer ${t}`;
+    return d.toLocaleDateString("es-ES",{day:"numeric",month:"short"})+` ${t}`;
+  }
+  const opts=diffH>365*24?{day:"numeric",month:"short",year:"numeric"}:{day:"numeric",month:"short"};
+  return d.toLocaleDateString("es-ES",opts);
+}
 
 /* ═══════════════════════════════════════
    ARCHIVOS

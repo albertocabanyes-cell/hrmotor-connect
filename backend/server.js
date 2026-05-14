@@ -49,7 +49,8 @@ const GroupSchema = new mongoose.Schema({
 const ProfileSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   nombre: String, apellidos: String, email: String,
-  telefono: String, dpto: String, delegacion: String, avatarUrl: String
+  telefono: String, dpto: String, delegacion: String, avatarUrl: String,
+  lastSeen: String, role: String
 }, { versionKey: false });
 
 const AdminSchema = new mongoose.Schema({
@@ -307,8 +308,14 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     if (socket.username) {
+      const lastSeen = new Date().toISOString();
       delete onlineUsers[socket.username];
-      socket.broadcast.emit("user_status", { username: socket.username, status: "offline" });
+      socket.broadcast.emit("user_status", { username: socket.username, status: "offline", lastSeen });
+      Profile.findOneAndUpdate(
+        { username: socket.username },
+        { $set: { lastSeen } },
+        { upsert: true }
+      ).catch(() => {});
     }
   });
 });
