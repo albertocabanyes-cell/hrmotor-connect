@@ -520,6 +520,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .nb-edit:hover{background:white}
 .nb-del{background:rgba(255,255,255,.55);border-color:#fca5a5;color:#ef4444;margin-left:auto}
 .nb-del:hover{background:white}
+.nb-complete{background:rgba(255,255,255,.55);border-color:#6ee7b7;color:#059669}
+.nb-complete:hover{background:white}
 .nb-empty-notes{text-align:center;color:rgba(255,255,255,.3);font-size:12px;padding:24px 8px;line-height:1.7}
 .nb-inline-edit{width:100%;box-sizing:border-box;border:1px solid #fbbf24;border-radius:6px;padding:5px 8px;font-family:inherit;font-size:12.5px;color:#333;outline:none;background:#fef9c3;resize:none;min-height:50px;margin:4px 0}
 .fp-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;background:#fef9c3;border-left:4px solid #fbbf24;box-shadow:0 2px 8px rgba(0,0,0,.28);margin-bottom:8px;transition:opacity .15s}
@@ -807,7 +809,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <div class="nb-head">
             <div class="nb-tabs">
               <button class="nb-tab active" data-t="active" onclick="switchNotesTab('active')">Activas</button>
-              <button class="nb-tab" data-t="history" onclick="switchNotesTab('history')">Historial</button>
+              <button class="nb-tab" data-t="completed" onclick="switchNotesTab('completed')">Completadas</button>
             </div>
             <button class="nb-add-btn" onclick="openNoteCreate()" id="nbAddBtn">+ Nota</button>
           </div>
@@ -3040,7 +3042,7 @@ function switchNotesTab(t){
   document.querySelectorAll(".nb-tab").forEach(b=>b.classList.toggle("active",b.dataset.t===t));
   const addBtn=document.getElementById("nbAddBtn");
   if(addBtn) addBtn.style.display=t==="active"?"":"none";
-  if(t==="history") cancelNoteCreate();
+  if(t==="completed") cancelNoteCreate();
   renderNotes();
 }
 
@@ -3049,7 +3051,7 @@ function renderNotes(){
   const list=document.getElementById("notesList"); if(!list) return;
   const notes=chatNotes[convId]||[];
 
-  if(notesTab==="history"){
+  if(notesTab==="completed"){
     const done=notes.filter(n=>n.completedAt).sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
     if(!done.length){
       list.innerHTML=`<div class="nb-empty-notes" style="color:rgba(255,255,255,.25)">Sin notas completadas todavía.</div>`;
@@ -3121,6 +3123,7 @@ function _buildNoteCard(note){
   let actionBtns="";
   if(isCreator){
     actionBtns+=`<button class="nb-btn nb-edit" onclick="openNoteEdit('${note.id}')" title="Editar">✎ Editar</button>`;
+    actionBtns+=`<button class="nb-btn nb-complete" onclick="completeNote('${note.id}')" title="Mover a Completadas">✓ Completar</button>`;
     actionBtns+=`<button class="nb-btn nb-del" onclick="deleteNote('${note.id}')" title="Eliminar" style="margin-left:auto">🗑</button>`;
   } else {
     actionBtns+=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':""}</button>`;
@@ -3211,6 +3214,13 @@ async function toggleNoteCheck(noteId){
 
 async function toggleNoteStrike(noteId){
   await fetch(`/notes/${noteId}/strike`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username})}).catch(()=>{});
+}
+
+async function completeNote(noteId){
+  try{
+    const r=await fetch(`/notes/${noteId}/complete`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username})});
+    if(!r.ok){ const e=await r.json(); alert(e.error||"Error al completar la nota"); }
+  }catch(e){ alert("Error de red"); }
 }
 
 function _handleNoteEvent({type,note,noteId,conversationId}){

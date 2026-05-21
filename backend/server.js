@@ -355,9 +355,6 @@ app.put("/notes/:id/check", async (req, res) => {
     const idx = note.checkedBy.indexOf(username);
     if (idx === -1) note.checkedBy.push(username);
     else note.checkedBy.splice(idx, 1);
-    const bothDone = note.checkedBy.length > 0 && note.struckBy;
-    if (bothDone && !note.completedAt) note.completedAt = new Date().toISOString();
-    else if (!bothDone) note.completedAt = null;
     await note.save();
     const out = note.toObject();
     noteEmit(io, note.conversationId, { type: "updated", note: out });
@@ -371,9 +368,20 @@ app.put("/notes/:id/strike", async (req, res) => {
     const note = await Note.findOne({ id: req.params.id });
     if (!note) return res.status(404).json({ error: "Nota no encontrada" });
     note.struckBy = note.struckBy ? null : username;
-    const bothDone2 = note.checkedBy.length > 0 && note.struckBy;
-    if (bothDone2 && !note.completedAt) note.completedAt = new Date().toISOString();
-    else if (!bothDone2) note.completedAt = null;
+    await note.save();
+    const out = note.toObject();
+    noteEmit(io, note.conversationId, { type: "updated", note: out });
+    res.json(out);
+  } catch(e) { res.status(500).json({ error: "Error" }); }
+});
+
+app.put("/notes/:id/complete", async (req, res) => {
+  try {
+    const { username } = req.body;
+    const note = await Note.findOne({ id: req.params.id });
+    if (!note) return res.status(404).json({ error: "Nota no encontrada" });
+    if (note.createdBy !== username) return res.status(403).json({ error: "Solo el creador puede completar la nota" });
+    note.completedAt = new Date().toISOString();
     await note.save();
     const out = note.toObject();
     noteEmit(io, note.conversationId, { type: "updated", note: out });
