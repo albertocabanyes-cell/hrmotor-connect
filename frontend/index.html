@@ -799,7 +799,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <div class="nb-scroll" id="notesScroll">
             <div id="noteCreateForm" style="display:none">
               <div class="nb-create-form">
-                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" onkeydown="noteKeydown(event)"></textarea>
+                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" maxlength="50" onkeydown="noteKeydown(event)" oninput="updateNoteCounter()"></textarea>
+                <div style="text-align:right;font-size:10px;color:#bbb;margin-top:2px"><span id="noteCharCount">0</span>/50</div>
                 <div class="nb-create-actions">
                   <button class="nb-create-cancel" onclick="cancelNoteCreate()">Cancelar</button>
                   <button class="nb-create-save" onclick="saveNote()">Guardar</button>
@@ -2988,7 +2989,14 @@ let chatNotes = {};
 let currentNotesConvId = null;
 let noteEditingId = null;
 
+const NOTE_MAX=4, NOTE_CHARS=50;
 function _noteConvId(){ return current ? [me.username, current].sort().join("__") : null; }
+function updateNoteCounter(){
+  const ta=document.getElementById("noteTextArea"); if(!ta) return;
+  const count=ta.value.length;
+  const el=document.getElementById("noteCharCount"); if(el) el.textContent=count;
+  if(el) el.parentElement.style.color=count>=NOTE_CHARS?"#e30613":count>=40?"#f59e0b":"#bbb";
+}
 
 function fmtNoteDate(iso){
   if(!iso) return "";
@@ -3015,6 +3023,7 @@ function renderNotes(){
   const convId=currentNotesConvId;
   const list=document.getElementById("notesList"); if(!list) return;
   const notes=chatNotes[convId]||[];
+  _updateNoteAddBtn();
   if(!notes.length){
     list.innerHTML=`<div class="nb-empty-notes">📌 Sin notas todavía.<br>Pulsa <b>+ Nota</b> para crear la primera.</div>`;
     return;
@@ -3074,6 +3083,11 @@ function _buildNoteCard(note){
 }
 
 function openNoteCreate(){
+  const convId=_noteConvId();
+  if(convId && (chatNotes[convId]||[]).length>=4){
+    alert("Máximo 4 notas por conversación. Elimina alguna para añadir más.");
+    return;
+  }
   noteEditingId=null;
   const form=document.getElementById("noteCreateForm");
   form.style.display="block";
@@ -3086,8 +3100,18 @@ function openNoteCreate(){
 function cancelNoteCreate(){
   noteEditingId=null;
   document.getElementById("noteCreateForm").style.display="none";
-  document.getElementById("nbAddBtn").textContent="+ Nota";
-  document.getElementById("nbAddBtn").onclick=openNoteCreate;
+  const el=document.getElementById("noteCharCount"); if(el) el.textContent="0";
+  _updateNoteAddBtn();
+}
+function _updateNoteAddBtn(){
+  const btn=document.getElementById("nbAddBtn"); if(!btn) return;
+  const convId=_noteConvId();
+  const count=(chatNotes[convId]||[]).length;
+  const remaining=NOTE_MAX-count;
+  btn.textContent=remaining>0?`+ Nota (${remaining} restante${remaining===1?"":"s"})`:"Límite alcanzado";
+  btn.disabled=remaining<=0;
+  btn.style.opacity=remaining<=0?"0.45":"1";
+  btn.onclick=remaining>0?openNoteCreate:null;
 }
 
 function noteKeydown(e){
@@ -3114,6 +3138,7 @@ function openNoteEdit(noteId){
   form.style.display="block";
   const ta=document.getElementById("noteTextArea");
   ta.value=note.text; ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length);
+  updateNoteCounter();
   document.getElementById("nbAddBtn").textContent="Cancelar";
   document.getElementById("nbAddBtn").onclick=cancelNoteCreate;
 }

@@ -299,6 +299,11 @@ app.post("/notes", async (req, res) => {
     const { conversationId, text, createdBy, createdByName } = req.body;
     if (!conversationId || !text?.trim() || !createdBy)
       return res.status(400).json({ error: "Faltan campos" });
+    if (text.trim().length > 50)
+      return res.status(400).json({ error: "Máximo 50 caracteres" });
+    const count = await Note.countDocuments({ conversationId });
+    if (count >= 4)
+      return res.status(400).json({ error: "Máximo 4 notas por conversación" });
     const note = await Note.create({
       id: `note_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
       conversationId, text: text.trim(), createdBy, createdByName,
@@ -317,6 +322,7 @@ app.put("/notes/:id/text", async (req, res) => {
     if (!note) return res.status(404).json({ error: "Nota no encontrada" });
     if (note.createdBy !== username) return res.status(403).json({ error: "Sin permiso" });
     if (!text?.trim()) return res.status(400).json({ error: "Texto vacío" });
+    if (text.trim().length > 50) return res.status(400).json({ error: "Máximo 50 caracteres" });
     note.editHistory.push({ text: note.text, editedAt: new Date().toISOString() });
     note.text = text.trim();
     note.edited = true;
