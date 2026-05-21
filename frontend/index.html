@@ -329,6 +329,27 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .tb-status-dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0}
 .tb-status-dot.available{background:#22c55e}.tb-status-dot.busy{background:#f59e0b}
 .tb-status-txt{color:#888}
+.tb-search-btn{width:30px;height:30px;border-radius:8px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#bbb;transition:all .15s;flex-shrink:0;margin-left:10px}
+.tb-search-btn:hover,.tb-search-btn.active{background:#f5f5f5;color:#e30613}
+.tb-search-btn svg{width:16px;height:16px}
+.chat-search-bar{display:none;align-items:center;gap:8px;padding:7px 16px;background:#fafafa;border-bottom:1px solid #ececec;flex-shrink:0;animation:csIn .18s ease}
+@keyframes csIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.cs-wrap{flex:1;display:flex;align-items:center;gap:7px;background:white;border:1px solid #e5e7eb;border-radius:8px;padding:0 10px;height:32px}
+.cs-wrap:focus-within{border-color:#e30613;box-shadow:0 0 0 2px rgba(227,6,19,.08)}
+.cs-wrap svg{width:13px;height:13px;color:#ccc;flex-shrink:0}
+.cs-input{flex:1;border:none;outline:none;font-size:12.5px;color:#333;background:none;font-family:inherit}
+.cs-input::placeholder{color:#ccc}
+.cs-counter{font-size:11px;color:#999;white-space:nowrap;min-width:36px;text-align:right;flex-shrink:0}
+.cs-counter.nomatch{color:#e30613}
+.cs-nav{display:flex;gap:2px}
+.cs-nav-btn{width:26px;height:26px;border-radius:6px;border:1px solid #e5e7eb;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#888;transition:all .12s}
+.cs-nav-btn:hover:not(:disabled){background:#f5f5f5;color:#333;border-color:#d1d5db}
+.cs-nav-btn:disabled{opacity:.35;cursor:default}
+.cs-nav-btn svg{width:12px;height:12px}
+.cs-close{width:26px;height:26px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:16px;line-height:1;transition:color .12s}
+.cs-close:hover{color:#555}
+mark.cs-hl{background:#fef08a;color:inherit;border-radius:2px;padding:0 1px}
+mark.cs-hl.current{background:#f59e0b;color:white;border-radius:2px}
 .tb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:0;row-gap:3px;margin-left:auto;padding-left:16px}
 .tb-meta-item{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#999;padding-right:10px;margin-right:10px;border-right:1px solid #e5e7eb;white-space:nowrap}
 .tb-meta-item:last-child{border-right:none;padding-right:0;margin-right:0}
@@ -773,6 +794,22 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 
       <div class="chat-col" id="chatCol" style="display:none">
         <div class="topbar" id="topbar"></div>
+        <div class="chat-search-bar" id="chatSearchBar">
+          <div class="cs-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="cs-input" id="csInput" placeholder="Buscar en el chat…" oninput="runChatSearch()" onkeydown="csSKey(event)" autocomplete="off" spellcheck="false">
+            <span class="cs-counter" id="csCounter"></span>
+          </div>
+          <div class="cs-nav">
+            <button class="cs-nav-btn" id="csPrev" onclick="navChatSearch(-1)" title="Anterior" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <button class="cs-nav-btn" id="csNext" onclick="navChatSearch(1)" title="Siguiente" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <button class="cs-close" onclick="clearChatSearch()" title="Cerrar">×</button>
+        </div>
         <div class="messages" id="messages">
           <button class="scroll-btn" id="scrollBtn" onclick="scrollToBottom(true)">
             <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
@@ -1745,6 +1782,7 @@ function selectUser(u){
     email ? `<span class="tb-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:${escHtml(email)}">${escHtml(email)}</a></span>` : ""
   ].filter(Boolean).join("");
 
+  clearChatSearch();
   document.getElementById("topbar").innerHTML=`
     <div class="tb-av">${photo?`<img src="${photo}" alt="${ini}">`:""}<span style="${photo?"display:none":""}">${ini}</span><span class="tb-dot ${dotCls}"></span></div>
     <div class="tb-info">
@@ -1752,7 +1790,9 @@ function selectUser(u){
       <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div>
     </div>
     ${metaItems?`<div class="tb-meta">${metaItems}</div>`:""}
-    `;
+    <button class="tb-search-btn" id="tbSearchBtn" onclick="toggleChatSearch()" title="Buscar en el chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>`;
 
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
@@ -2754,6 +2794,7 @@ function renderGroupsList(){
 }
 
 function renderGroupTopbar(g){
+  clearChatSearch();
   const membersNames=g.members.map(m=>{ const u=users.find(u=>u.username===m); return u?u.name||u.username:m; }).join(", ");
   const manageBtn=isGroupAdmin(g)?`<button class="grp-manage-btn" onclick="openManageGroup()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="3"/><path d="M20 21a8 8 0 1 0-16 0"/><path d="M19 8l2 2-6 6h-2v-2l6-6z"/></svg>Configuración</button>`:"";
   document.getElementById("topbar").innerHTML=`
@@ -2762,7 +2803,10 @@ function renderGroupTopbar(g){
       <div class="tb-name">${escHtml(g.name)}</div>
       <div class="tb-status"><span class="tb-status-txt" style="color:#aaa">${g.members.length} miembros · ${escHtml(membersNames)}</span></div>
     </div>
-    ${manageBtn}`;
+    ${manageBtn}
+    <button class="tb-search-btn" id="tbSearchBtn" onclick="toggleChatSearch()" title="Buscar en el chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>`;
 }
 
 function selectGroup(g){
@@ -2955,6 +2999,93 @@ function saveGroupConfig(){
 function initials(n){ return String(n).split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
 function horaActual(){ const d=new Date(); return d.getHours().toString().padStart(2,"0")+":"+d.getMinutes().toString().padStart(2,"0"); }
 function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ═══════════════════════════════════════
+   BUSCADOR EN CHAT
+═══════════════════════════════════════ */
+let _csMatches=[], _csIdx=0;
+
+function toggleChatSearch(){
+  const bar=document.getElementById("chatSearchBar");
+  const btn=document.getElementById("tbSearchBtn");
+  if(!bar) return;
+  const open=bar.style.display==="flex";
+  if(open){ clearChatSearch(); }
+  else { bar.style.display="flex"; if(btn) btn.classList.add("active"); document.getElementById("csInput").focus(); }
+}
+
+function runChatSearch(){
+  const q=document.getElementById("csInput").value.trim();
+  _csClearMarks();
+  _csMatches=[]; _csIdx=0;
+  if(!q){ _csUpdateUI(); return; }
+  const re=new RegExp(_csEscape(q),"gi");
+  document.querySelectorAll("#messages .bub-text").forEach(el=>{
+    const text=el.textContent;
+    if(!re.test(text)){ re.lastIndex=0; return; }
+    re.lastIndex=0;
+    let html="", last=0, m;
+    while((m=re.exec(text))!==null){
+      html+=escHtml(text.slice(last,m.index));
+      html+=`<mark class="cs-hl">${escHtml(m[0])}</mark>`;
+      last=m.index+m[0].length;
+      if(m[0].length===0) re.lastIndex++;
+    }
+    html+=escHtml(text.slice(last));
+    el.innerHTML=html;
+    el.querySelectorAll("mark.cs-hl").forEach(mk=>_csMatches.push(mk));
+  });
+  if(_csMatches.length){ _csIdx=0; _csMatches[0].classList.add("current"); _csMatches[0].scrollIntoView({behavior:"smooth",block:"center"}); }
+  _csUpdateUI();
+}
+
+function navChatSearch(dir){
+  if(!_csMatches.length) return;
+  _csMatches[_csIdx].classList.remove("current");
+  _csIdx=(_csIdx+dir+_csMatches.length)%_csMatches.length;
+  _csMatches[_csIdx].classList.add("current");
+  _csMatches[_csIdx].scrollIntoView({behavior:"smooth",block:"center"});
+  _csUpdateUI();
+}
+
+function clearChatSearch(){
+  _csClearMarks();
+  const bar=document.getElementById("chatSearchBar");
+  const btn=document.getElementById("tbSearchBtn");
+  if(bar) bar.style.display="none";
+  if(btn) btn.classList.remove("active");
+  const inp=document.getElementById("csInput"); if(inp) inp.value="";
+  _csUpdateUI();
+}
+
+function _csClearMarks(){
+  document.querySelectorAll("#messages mark.cs-hl").forEach(mk=>{
+    const t=document.createTextNode(mk.textContent);
+    mk.parentNode.replaceChild(t,mk);
+  });
+  document.querySelectorAll("#messages .bub-text").forEach(el=>el.normalize());
+  _csMatches=[];
+}
+
+function _csUpdateUI(){
+  const counter=document.getElementById("csCounter");
+  const prev=document.getElementById("csPrev");
+  const next=document.getElementById("csNext");
+  const has=_csMatches.length>0;
+  const inp=document.getElementById("csInput");
+  const q=inp?inp.value.trim():"";
+  if(counter) counter.textContent=has?`${_csIdx+1} / ${_csMatches.length}`:q?"Sin resultados":"";
+  if(counter) counter.className="cs-counter"+(q&&!has?" nomatch":"");
+  if(prev) prev.disabled=!has;
+  if(next) next.disabled=!has;
+}
+
+function csSKey(e){
+  if(e.key==="Escape"){ clearChatSearch(); return; }
+  if(e.key==="Enter"){ e.shiftKey?navChatSearch(-1):navChatSearch(1); }
+}
+
+function _csEscape(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
 function formatLastSeen(iso){
   if(!iso) return null;
   const d=new Date(iso), now=new Date();
