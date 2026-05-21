@@ -791,8 +791,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
       <!-- Panel de archivos -->
       <div class="files-panel" id="filesPanel" style="display:none">
         <div class="fp-head">
-          <div class="fp-title">Archivos del chat</div>
-          <div class="fp-sub">Documentos, imágenes y adjuntos<br>enviados en esta conversación.</div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="fp-title" style="margin-bottom:0">Archivos del chat</div>
+            <span class="nb-help">?<span class="nb-help-tip">Aquí se guardan automáticamente todos los archivos enviados en esta conversación.<br><br>Puedes filtrar por <b style="color:rgba(255,255,255,.9)">imágenes</b>, <b style="color:rgba(255,255,255,.9)">documentos</b> u <b style="color:rgba(255,255,255,.9)">otros</b>, y descargarlos directamente.</span></span>
+          </div>
         </div>
         <div class="fp-upload-wrap">
           <label class="fp-upload-label" for="fileUploadInput">
