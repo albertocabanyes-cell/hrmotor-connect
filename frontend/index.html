@@ -475,7 +475,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .files-panel.has-notes .fp-notes-gap{display:block}
 .notes-board{display:none;flex-direction:column;border-top:none;min-height:0;flex:1;background:#10182f}
 .files-panel.has-notes .notes-board{display:flex}
-.nb-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px 0;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08)}
+.nb-title-row{display:flex;align-items:center;gap:6px;padding:10px 12px 7px;flex-shrink:0}
+.nb-title-text{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.08em;text-transform:uppercase}
+.nb-help{position:relative;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:9px;font-weight:700;cursor:default;flex-shrink:0;border:1px solid rgba(255,255,255,.18);line-height:1}
+.nb-help:hover{background:rgba(255,255,255,.2);color:rgba(255,255,255,.8)}
+.nb-help-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e2d45;border:1px solid rgba(255,255,255,.13);border-radius:9px;padding:9px 11px;font-size:10.5px;color:rgba(255,255,255,.72);line-height:1.55;width:200px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.5);pointer-events:none;font-weight:400;letter-spacing:0;text-transform:none}
+.nb-help-tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1e2d45}
+.nb-help:hover .nb-help-tip{display:block}
+.nb-head{display:flex;align-items:center;justify-content:space-between;padding:0 12px 0;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08)}
 .nb-tabs{display:flex;gap:0;margin-bottom:-1px}
 .nb-tab{padding:6px 13px;font-size:11px;font-weight:700;color:rgba(255,255,255,.35);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;letter-spacing:.01em}
 .nb-tab:hover{color:rgba(255,255,255,.65)}
@@ -806,6 +813,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <div class="fp-notes-gap"></div>
         <!-- Tablero de notas -->
         <div class="notes-board" id="notesBoard">
+          <div class="nb-title-row">
+            <span class="nb-title-text">Blog de notas</span>
+            <span class="nb-help">?<span class="nb-help-tip">Espacio compartido para anotar tareas o recordatorios con tu compañero.<br><br>El <b style="color:rgba(255,255,255,.9)">creador</b> puede editar, completar o eliminar la nota.<br>El <b style="color:rgba(255,255,255,.9)">otro participante</b> puede marcarla como leída o tacharla.</span></span>
+          </div>
           <div class="nb-head">
             <div class="nb-tabs">
               <button class="nb-tab active" data-t="active" onclick="switchNotesTab('active')">Activas</button>
