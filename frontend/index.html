@@ -311,12 +311,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .tb-av img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:50%}
 .tb-dot{position:absolute;bottom:-1px;right:-1px;width:13px;height:13px;border-radius:50%;border:2.5px solid white;background:#888;z-index:2}
 .tb-dot.available{background:#22c55e;box-shadow:0 0 0 1px rgba(34,197,94,.35)}.tb-dot.busy{background:#f59e0b;box-shadow:0 0 0 1px rgba(245,158,11,.35)}
-.tb-info{flex:1}
+.tb-info{flex:1;min-width:0}
 .tb-name{font-size:15px;font-weight:700;color:#111}
 .tb-status{font-size:12px;margin-top:2px;display:flex;align-items:center;gap:5px}
 .tb-status-dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0}
 .tb-status-dot.available{background:#22c55e}.tb-status-dot.busy{background:#f59e0b}
 .tb-status-txt{color:#888}
+.tb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin-top:6px;row-gap:3px}
+.tb-meta-item{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#999;padding-right:10px;margin-right:10px;border-right:1px solid #e5e7eb;white-space:nowrap}
+.tb-meta-item:last-child{border-right:none;padding-right:0;margin-right:0}
+.tb-meta-item svg{flex-shrink:0;color:#bbb}
+.tb-meta-item a{color:#999;text-decoration:none;transition:color .15s}
+.tb-meta-item a:hover{color:#e30613}
 
 /* Messages */
 .messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;background:#f7f8fc;min-height:0;position:relative}
@@ -1720,10 +1726,20 @@ function selectUser(u){
   const dept=cp.dpto||u.dept||"–", delegacion=cp.delegacion||u.delegacion||"–";
   const telefono=cp.telefono||u.phone||"–", email=cp.email||u.email||"";
 
+  const metaItems=[
+    dept&&dept!=="–"  ? `<span class="tb-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>${escHtml(dept)}</span>` : "",
+    delegacion&&delegacion!=="–" ? `<span class="tb-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>${escHtml(delegacion)}</span>` : "",
+    telefono&&telefono!=="–" ? `<span class="tb-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12 19.79 19.79 0 0 1 1 3.18 2 2 0 0 1 2.96 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16h1z"/></svg><a href="tel:${escHtml(telefono)}">${escHtml(telefono)}</a></span>` : "",
+    email ? `<span class="tb-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:${escHtml(email)}">${escHtml(email)}</a></span>` : ""
+  ].filter(Boolean).join("");
+
   document.getElementById("topbar").innerHTML=`
     <div class="tb-av">${photo?`<img src="${photo}" alt="${ini}">`:""}<span style="${photo?"display:none":""}">${ini}</span><span class="tb-dot ${dotCls}"></span></div>
-    <div class="tb-info"><div class="tb-name">${escHtml(displayName)}</div>
-    <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div></div>`;
+    <div class="tb-info">
+      <div class="tb-name">${escHtml(displayName)}</div>
+      <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div>
+      ${metaItems?`<div class="tb-meta">${metaItems}</div>`:""}
+    </div>`;
 
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
