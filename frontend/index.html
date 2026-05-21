@@ -816,8 +816,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <div class="nb-scroll" id="notesScroll">
             <div id="noteCreateForm" style="display:none">
               <div class="nb-create-form">
-                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" maxlength="150" onkeydown="noteKeydown(event)" oninput="updateNoteCounter()"></textarea>
-                <div style="text-align:right;font-size:10px;color:#bbb;margin-top:2px"><span id="noteCharCount">0</span>/150</div>
+                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" maxlength="200" onkeydown="noteKeydown(event)" oninput="updateNoteCounter()"></textarea>
+                <div style="text-align:right;font-size:10px;color:#bbb;margin-top:2px"><span id="noteCharCount">0</span>/200</div>
                 <div class="nb-create-actions">
                   <button class="nb-create-cancel" onclick="cancelNoteCreate()">Cancelar</button>
                   <button class="nb-create-save" onclick="saveNote()">Guardar</button>
@@ -3007,13 +3007,13 @@ let currentNotesConvId = null;
 let noteEditingId = null;
 let notesTab = 'active';
 
-const NOTE_MAX=4, NOTE_CHARS=150;
+const NOTE_MAX=4, NOTE_CHARS=200;
 function _noteConvId(){ return current ? [me.username, current].sort().join("__") : null; }
 function updateNoteCounter(){
   const ta=document.getElementById("noteTextArea"); if(!ta) return;
   const count=ta.value.length;
   const el=document.getElementById("noteCharCount"); if(el) el.textContent=count;
-  if(el) el.parentElement.style.color=count>=NOTE_CHARS?"#e30613":count>=130?"#f59e0b":"#bbb";
+  if(el) el.parentElement.style.color=count>=NOTE_CHARS?"#e30613":count>=180?"#f59e0b":"#bbb";
 }
 
 function fmtNoteDate(iso){
