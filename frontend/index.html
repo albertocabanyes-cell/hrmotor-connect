@@ -500,7 +500,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .nb-status-row{font-size:10px;color:#78716c;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px}
 .nb-actions{display:flex;align-items:center;gap:4px;margin-top:8px;flex-wrap:wrap}
 .nb-btn{padding:3px 9px;border-radius:6px;font-size:10.5px;font-weight:700;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
-.nb-check{background:rgba(255,255,255,.55);border-color:#86efac;color:#16a34a}
+.nb-check{width:22px;height:22px;border-radius:5px;background:rgba(255,255,255,.55);border:2px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
 .nb-check:hover{background:white}
 .nb-check.on{background:#16a34a;border-color:#16a34a;color:white}
 .nb-strike{background:rgba(255,255,255,.55);border-color:#fdba74;color:#ea580c}
@@ -804,8 +804,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <div class="nb-scroll" id="notesScroll">
             <div id="noteCreateForm" style="display:none">
               <div class="nb-create-form">
-                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" maxlength="50" onkeydown="noteKeydown(event)" oninput="updateNoteCounter()"></textarea>
-                <div style="text-align:right;font-size:10px;color:#bbb;margin-top:2px"><span id="noteCharCount">0</span>/50</div>
+                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" maxlength="150" onkeydown="noteKeydown(event)" oninput="updateNoteCounter()"></textarea>
+                <div style="text-align:right;font-size:10px;color:#bbb;margin-top:2px"><span id="noteCharCount">0</span>/150</div>
                 <div class="nb-create-actions">
                   <button class="nb-create-cancel" onclick="cancelNoteCreate()">Cancelar</button>
                   <button class="nb-create-save" onclick="saveNote()">Guardar</button>
@@ -2994,13 +2994,13 @@ let chatNotes = {};
 let currentNotesConvId = null;
 let noteEditingId = null;
 
-const NOTE_MAX=4, NOTE_CHARS=50;
+const NOTE_MAX=4, NOTE_CHARS=150;
 function _noteConvId(){ return current ? [me.username, current].sort().join("__") : null; }
 function updateNoteCounter(){
   const ta=document.getElementById("noteTextArea"); if(!ta) return;
   const count=ta.value.length;
   const el=document.getElementById("noteCharCount"); if(el) el.textContent=count;
-  if(el) el.parentElement.style.color=count>=NOTE_CHARS?"#e30613":count>=40?"#f59e0b":"#bbb";
+  if(el) el.parentElement.style.color=count>=NOTE_CHARS?"#e30613":count>=130?"#f59e0b":"#bbb";
 }
 
 function fmtNoteDate(iso){
@@ -3072,8 +3072,8 @@ function _buildNoteCard(note){
     actionBtns+=`<button class="nb-btn nb-edit" onclick="openNoteEdit('${note.id}')" title="Editar">✎ Editar</button>`;
     actionBtns+=`<button class="nb-btn nb-del" onclick="deleteNote('${note.id}')" title="Eliminar" style="margin-left:auto">🗑</button>`;
   } else {
-    actionBtns+=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?"✓ Visto":"✓ Marcar"}</button>`;
-    actionBtns+=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Marcar como hecho"}">${struck?"~~Hecho":"~~ Tachar"}</button>`;
+    actionBtns+=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':""}</button>`;
+    actionBtns+=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Tachar"}">${struck?"- Hecho":"- Tachar"}</button>`;
   }
 
   return `<div class="nb-card${struck?" struck":""}" id="nc_${note.id}">
