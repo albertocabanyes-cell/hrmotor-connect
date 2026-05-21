@@ -3054,17 +3054,17 @@ function _buildNoteCard(note){
     editBadge=`<div class="nb-edited-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editado · ${fmtNoteDate(last.editedAt)}</div>`;
   }
 
-  // Status info row
-  let statusParts=[];
-  if(note.checkedBy?.length){
-    const names=note.checkedBy.map(u=>noteFirstName(u,"")).filter(Boolean);
-    statusParts.push(`<span title="Visto">✓ ${escHtml(names.join(", "))}</span>`);
+  // Status info row — "Leído por X" left · "Finalizado por X" right
+  const checkedNames=(note.checkedBy||[]).map(u=>noteFirstName(u,"")).filter(Boolean);
+  const struckName=note.struckBy?noteFirstName(note.struckBy,""):"";
+  let statusRow="";
+  if(checkedNames.length||struckName){
+    const leftPart=checkedNames.length
+      ?`<span style="color:#16a34a;font-size:10px;font-weight:600">✓ Leído por ${escHtml(checkedNames.join(", "))}</span>`:"";
+    const rightPart=struckName
+      ?`<span style="color:#ea580c;font-size:10px;font-weight:600;margin-left:auto">Finalizado por ${escHtml(struckName)}</span>`:"";
+    statusRow=`<div style="display:flex;align-items:center;margin-top:5px;gap:4px">${leftPart}${rightPart}</div>`;
   }
-  if(note.struckBy){
-    const sn=noteFirstName(note.struckBy,"");
-    statusParts.push(`<span title="Marcado como hecho">~~ ${escHtml(sn)}</span>`);
-  }
-  const statusRow=statusParts.length?`<div class="nb-status-row">${statusParts.join("")}</div>`:"";
 
   // Action buttons — creator: edit+delete only · other: check+strike only
   let actionBtns="";
@@ -3073,7 +3073,7 @@ function _buildNoteCard(note){
     actionBtns+=`<button class="nb-btn nb-del" onclick="deleteNote('${note.id}')" title="Eliminar" style="margin-left:auto">🗑</button>`;
   } else {
     actionBtns+=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':""}</button>`;
-    actionBtns+=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Tachar"}">${struck?"- Hecho":"- Tachar"}</button>`;
+    actionBtns+=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Tachar"}">${struck?"Hecho":"Tachar"}</button>`;
   }
 
   return `<div class="nb-card${struck?" struck":""}" id="nc_${note.id}">
