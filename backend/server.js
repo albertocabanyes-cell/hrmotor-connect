@@ -81,7 +81,8 @@ const NoteSchema = new mongoose.Schema({
   edited:         { type: Boolean, default: false },
   editHistory:    [{ text: String, editedAt: String }],
   checkedBy:      { type: [String], default: [] },
-  struckBy:       { type: String, default: null }
+  struckBy:       { type: String, default: null },
+  completedAt:    { type: String, default: null }
 }, { versionKey: false });
 
 const Msg       = mongoose.model("Message",   MsgSchema);
@@ -301,9 +302,9 @@ app.post("/notes", async (req, res) => {
       return res.status(400).json({ error: "Faltan campos" });
     if (text.trim().length > 150)
       return res.status(400).json({ error: "Máximo 150 caracteres" });
-    const count = await Note.countDocuments({ conversationId });
+    const count = await Note.countDocuments({ conversationId, completedAt: null });
     if (count >= 4)
-      return res.status(400).json({ error: "Máximo 4 notas por conversación" });
+      return res.status(400).json({ error: "Máximo 4 notas activas por conversación" });
     const note = await Note.create({
       id: `note_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
       conversationId, text: text.trim(), createdBy, createdByName,
@@ -354,6 +355,9 @@ app.put("/notes/:id/check", async (req, res) => {
     const idx = note.checkedBy.indexOf(username);
     if (idx === -1) note.checkedBy.push(username);
     else note.checkedBy.splice(idx, 1);
+    const bothDone = note.checkedBy.length > 0 && note.struckBy;
+    if (bothDone && !note.completedAt) note.completedAt = new Date().toISOString();
+    else if (!bothDone) note.completedAt = null;
     await note.save();
     const out = note.toObject();
     noteEmit(io, note.conversationId, { type: "updated", note: out });
@@ -367,6 +371,9 @@ app.put("/notes/:id/strike", async (req, res) => {
     const note = await Note.findOne({ id: req.params.id });
     if (!note) return res.status(404).json({ error: "Nota no encontrada" });
     note.struckBy = note.struckBy ? null : username;
+    const bothDone2 = note.checkedBy.length > 0 && note.struckBy;
+    if (bothDone2 && !note.completedAt) note.completedAt = new Date().toISOString();
+    else if (!bothDone2) note.completedAt = null;
     await note.save();
     const out = note.toObject();
     noteEmit(io, note.conversationId, { type: "updated", note: out });

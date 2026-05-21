@@ -475,10 +475,20 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .files-panel.has-notes .fp-notes-gap{display:block}
 .notes-board{display:none;flex-direction:column;border-top:none;min-height:0;flex:1;background:#10182f}
 .files-panel.has-notes .notes-board{display:flex}
-.nb-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 8px;flex-shrink:0}
-.nb-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:5px}
-.nb-add-btn{font-size:11px;padding:3px 11px;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);background:none;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:700;transition:all .15s}
+.nb-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px 0;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08)}
+.nb-tabs{display:flex;gap:0;margin-bottom:-1px}
+.nb-tab{padding:6px 13px;font-size:11px;font-weight:700;color:rgba(255,255,255,.35);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;letter-spacing:.01em}
+.nb-tab:hover{color:rgba(255,255,255,.65)}
+.nb-tab.active{color:white;border-bottom-color:#e30613}
+.nb-add-btn{font-size:11px;padding:3px 11px;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);background:none;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:700;transition:all .15s;margin-bottom:6px}
 .nb-add-btn:hover:not(:disabled){border-color:rgba(255,255,255,.7);color:white}
+/* Historial rows */
+.nb-hist-row{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.nb-hist-row:last-child{border-bottom:none}
+.nb-hist-text{font-size:12px;color:rgba(255,255,255,.5);text-decoration:line-through;line-height:1.4;margin-bottom:4px}
+.nb-hist-author{font-size:10px;color:rgba(255,255,255,.3);margin-bottom:3px}
+.nb-hist-dates{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);margin-bottom:3px;flex-wrap:wrap;gap:2px}
+.nb-hist-status{display:flex;justify-content:space-between;font-size:10px;flex-wrap:wrap;gap:4px}
 .nb-scroll{flex:1;overflow-y:auto;padding:0 10px 10px;min-height:0}
 .nb-scroll::-webkit-scrollbar{width:3px}.nb-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
 .nb-create-form{background:#fefce8;border:1.5px dashed #fbbf24;border-radius:10px;padding:10px;margin-bottom:8px}
@@ -795,9 +805,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         <!-- Tablero de notas -->
         <div class="notes-board" id="notesBoard">
           <div class="nb-head">
-            <div class="nb-title">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Tablero de notas
+            <div class="nb-tabs">
+              <button class="nb-tab active" data-t="active" onclick="switchNotesTab('active')">Activas</button>
+              <button class="nb-tab" data-t="history" onclick="switchNotesTab('history')">Historial</button>
             </div>
             <button class="nb-add-btn" onclick="openNoteCreate()" id="nbAddBtn">+ Nota</button>
           </div>
@@ -2993,6 +3003,7 @@ function renderFilesPanel(){
 let chatNotes = {};
 let currentNotesConvId = null;
 let noteEditingId = null;
+let notesTab = 'active';
 
 const NOTE_MAX=4, NOTE_CHARS=150;
 function _noteConvId(){ return current ? [me.username, current].sort().join("__") : null; }
@@ -3024,16 +3035,56 @@ function loadNotes(convId){
     .catch(()=>{ chatNotes[convId]=[]; renderNotes(); });
 }
 
+function switchNotesTab(t){
+  notesTab=t;
+  document.querySelectorAll(".nb-tab").forEach(b=>b.classList.toggle("active",b.dataset.t===t));
+  const addBtn=document.getElementById("nbAddBtn");
+  if(addBtn) addBtn.style.display=t==="active"?"":"none";
+  if(t==="history") cancelNoteCreate();
+  renderNotes();
+}
+
 function renderNotes(){
   const convId=currentNotesConvId;
   const list=document.getElementById("notesList"); if(!list) return;
   const notes=chatNotes[convId]||[];
-  _updateNoteAddBtn();
-  if(!notes.length){
-    list.innerHTML=`<div class="nb-empty-notes">📌 Sin notas todavía.<br>Pulsa <b>+ Nota</b> para crear la primera.</div>`;
+
+  if(notesTab==="history"){
+    const done=notes.filter(n=>n.completedAt).sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
+    if(!done.length){
+      list.innerHTML=`<div class="nb-empty-notes" style="color:rgba(255,255,255,.25)">Sin notas completadas todavía.</div>`;
+      return;
+    }
+    list.innerHTML=done.map(n=>_buildHistoryRow(n)).join("");
     return;
   }
-  list.innerHTML=notes.map(note=>_buildNoteCard(note)).join("");
+
+  // Activas
+  _updateNoteAddBtn();
+  const active=notes.filter(n=>!n.completedAt);
+  if(!active.length){
+    list.innerHTML=`<div class="nb-empty-notes">📌 Sin notas activas.<br>Pulsa <b>+ Nota</b> para crear la primera.</div>`;
+    return;
+  }
+  list.innerHTML=active.map(note=>_buildNoteCard(note)).join("");
+}
+
+function _buildHistoryRow(note){
+  const dn=noteFirstName(note.createdBy, note.createdByName);
+  const checkedNames=(note.checkedBy||[]).map(u=>noteFirstName(u,"")).filter(Boolean);
+  const struckName=note.struckBy?noteFirstName(note.struckBy,""):"";
+  return `<div class="nb-hist-row">
+    <div class="nb-hist-text">${escHtml(note.text)}</div>
+    <div class="nb-hist-author">Por ${escHtml(dn)}</div>
+    <div class="nb-hist-dates">
+      <span>📅 Creado: ${fmtNoteDate(note.createdAt)}</span>
+      <span>✓ Completado: ${fmtNoteDate(note.completedAt)}</span>
+    </div>
+    <div class="nb-hist-status">
+      ${checkedNames.length?`<span style="color:rgba(74,222,128,.75)">Leído por ${escHtml(checkedNames.join(", "))}</span>`:""}
+      ${struckName?`<span style="color:rgba(251,146,60,.75)">Finalizado por ${escHtml(struckName)}</span>`:""}
+    </div>
+  </div>`;
 }
 
 function _buildNoteCard(note){
@@ -3089,8 +3140,8 @@ function _buildNoteCard(note){
 
 function openNoteCreate(){
   const convId=_noteConvId();
-  if(convId && (chatNotes[convId]||[]).length>=4){
-    alert("Máximo 4 notas por conversación. Elimina alguna para añadir más.");
+  if(convId && (chatNotes[convId]||[]).filter(n=>!n.completedAt).length>=4){
+    alert("Máximo 4 notas activas por conversación. Completa o elimina alguna para añadir más.");
     return;
   }
   noteEditingId=null;
@@ -3110,7 +3161,7 @@ function cancelNoteCreate(){
 function _updateNoteAddBtn(){
   const btn=document.getElementById("nbAddBtn"); if(!btn) return;
   const convId=_noteConvId();
-  const count=(chatNotes[convId]||[]).length;
+  const count=(chatNotes[convId]||[]).filter(n=>!n.completedAt).length;
   const remaining=NOTE_MAX-count;
   if(remaining>0){
     btn.innerHTML=`+ Nota <span style="color:#bbb;font-weight:400;font-size:10px">${remaining} rest.</span>`;
