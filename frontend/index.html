@@ -256,6 +256,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .stats-table th{text-align:left;padding:7px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#bbb;font-weight:700;border-bottom:1px solid #f0f0f0;white-space:nowrap}
 .stats-table td{padding:9px 10px;border-bottom:1px solid #f8f8f8;vertical-align:middle}
 .stats-table tr:last-child td{border-bottom:none}
+.stats-user-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;background:white;border:1.5px solid #e5e7eb;cursor:pointer;font-size:11.5px;color:#555;transition:all .15s;user-select:none;white-space:nowrap}
+.stats-user-chip:hover{border-color:#ccc;background:#f9f9f9}
+.stats-user-chip.active{border-color:#e30613;background:#fff5f5;color:#c0000e;font-weight:600}
+.stats-sep-btn{width:1px;height:20px;background:#e0e0e0;margin:0 2px;display:inline-block;vertical-align:middle}
+.stats-total-row td{background:#f8fafc;font-weight:700}
+.stats-total-row td:first-child{border-radius:8px 0 0 8px}
+.stats-total-row td:last-child{border-radius:0 8px 8px 0}
 .stats-table tr:hover td{background:#fafafa}
 .sbar-wrap{display:flex;gap:3px;height:8px;border-radius:4px;overflow:hidden;width:120px;background:#f0f0f0}
 .sbar{height:100%;transition:width .4s}
@@ -868,12 +875,27 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         </div>
       </div>
       <div class="admin-panel" id="apanel-stats">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:13px;color:#555;font-weight:600">Actividad de usuarios</div>
-          <div style="display:flex;gap:6px">
-            <button onclick="loadStats(7)"  class="stats-period-btn" data-d="7">7 días</button>
-            <button onclick="loadStats(30)" class="stats-period-btn active" data-d="30">30 días</button>
-            <button onclick="loadStats(90)" class="stats-period-btn" data-d="90">90 días</button>
+        <!-- Período -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <span style="font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">Período</span>
+          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+            <button onclick="loadStatsH(1)"  class="stats-period-btn" data-sp="1h">1h</button>
+            <button onclick="loadStatsH(8)"  class="stats-period-btn" data-sp="8h">8h</button>
+            <button onclick="loadStatsH(24)" class="stats-period-btn" data-sp="24h">24h</button>
+            <span class="stats-sep-btn"></span>
+            <button onclick="loadStatsD(7)"  class="stats-period-btn" data-sp="7d">7 días</button>
+            <button onclick="loadStatsD(30)" class="stats-period-btn active" data-sp="30d">30 días</button>
+            <button onclick="loadStatsD(90)" class="stats-period-btn" data-sp="90d">90 días</button>
+          </div>
+        </div>
+        <!-- Filtro de usuarios -->
+        <div style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Usuarios</span>
+            <button id="statsToggleAll" onclick="toggleAllStatsUsers()" style="font-size:11px;padding:2px 10px;border:1px solid #e0e0e0;border-radius:6px;background:white;cursor:pointer;color:#666;font-family:inherit;transition:all .15s">Deseleccionar todos</button>
+          </div>
+          <div id="statsUserFilter" style="display:flex;flex-wrap:wrap;gap:5px;max-height:90px;overflow-y:auto;padding:8px 6px;background:#f8fafc;border-radius:8px;border:1px solid #eef0f3">
+            <span style="color:#ccc;font-size:12px;padding:4px">Cargando usuarios…</span>
           </div>
         </div>
         <div id="statsLoading" style="display:none;color:#aaa;font-size:13px;text-align:center;padding:20px">Cargando estadísticas…</div>
@@ -1962,115 +1984,256 @@ function switchAdminTab(t){
   if(t==="users") renderAdminTable();
   if(t==="new") populateDeptSelects();
   if(t==="export") populateExportSelects();
-  if(t==="stats") loadStats(30);
+  if(t==="stats"){ selectedStatUsers=new Set(); statsRawData=null; loadStatsD(30); }
 }
 /* ── Estadísticas ── */
-function loadStats(days){
-  document.querySelectorAll(".stats-period-btn").forEach(b=>b.classList.toggle("active",+b.dataset.d===days));
+let statsRawData=null;
+let selectedStatUsers=new Set();
+const STATS_STATUS_ORDER=["available","busy","descanso","unavailable"];
+const STATS_STATUS_LABEL={available:"Disponible",busy:"Ocupado",descanso:"Descanso",unavailable:"No disponible"};
+const STATS_STATUS_COLOR={available:"#22c55e",busy:"#f59e0b",descanso:"#06b6d4",unavailable:"#94a3b8"};
+
+function statsDN(un){
+  const p=serverProfiles[un];
+  if(p&&(p.nombre||p.apellidos)) return `${p.nombre||""} ${p.apellidos||""}`.trim();
+  return allUsers.find(u=>u.username===un)?.name||un;
+}
+function fmtStatTime(s){
+  if(!s||s<60) return s?`${s}s`:"—";
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
+  if(h>0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function loadStats(days){ loadStatsD(days); }
+function loadStatsH(h){
+  document.querySelectorAll(".stats-period-btn").forEach(b=>b.classList.toggle("active",b.dataset.sp===h+"h"));
+  _fetchStats(`/stats/users?hours=${h}`);
+}
+function loadStatsD(d){
+  document.querySelectorAll(".stats-period-btn").forEach(b=>b.classList.toggle("active",b.dataset.sp===d+"d"));
+  _fetchStats(`/stats/users?days=${d}`);
+}
+
+function _fetchStats(url){
   const loading=document.getElementById("statsLoading");
   const tbl=document.getElementById("statsTable");
-  loading.style.display="block";
-  tbl.innerHTML="";
-  fetch(`/stats/users?days=${days}`)
-    .then(r=>r.json())
-    .then(data=>{ loading.style.display="none"; renderStatsTable(data); })
-    .catch(()=>{ loading.style.display="none"; tbl.innerHTML='<p style="color:#aaa;text-align:center;padding:20px">Error al cargar estadísticas.</p>'; });
+  loading.style.display="block"; tbl.innerHTML="";
+  fetch(url)
+    .then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(data=>{
+      loading.style.display="none";
+      statsRawData=data;
+      _buildStatsUserFilter(data);
+      renderStatsTable(data);
+    })
+    .catch(()=>{
+      loading.style.display="none";
+      tbl.innerHTML='<p style="color:#aaa;text-align:center;padding:24px">Sin datos para este período o error de conexión.</p>';
+    });
+}
+
+function _buildStatsUserFilter(data){
+  const {stateLogs=[],msgCounts=[]}=data;
+  const userSet=new Set();
+  stateLogs.forEach(({_id:{username}})=>userSet.add(username));
+  msgCounts.forEach(({_id:u})=>userSet.add(u));
+
+  // First load: select all; subsequent: keep existing selection
+  if(selectedStatUsers.size===0) userSet.forEach(u=>selectedStatUsers.add(u));
+
+  const container=document.getElementById("statsUserFilter");
+  if(!container) return;
+
+  const sorted=[...userSet].sort((a,b)=>statsDN(a).localeCompare(statsDN(b)));
+  container.innerHTML=sorted.map(u=>{
+    const dn=statsDN(u);
+    const ini=dn.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    const active=selectedStatUsers.has(u);
+    return `<div class="stats-user-chip${active?" active":""}" data-su="${u}" onclick="toggleStatUser('${u}')">
+      <div style="width:18px;height:18px;border-radius:50%;background:${active?"#e30613":"#ddd"};color:white;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s">${ini}</div>
+      ${escHtml(dn)}
+    </div>`;
+  }).join("")||'<span style="color:#ccc;font-size:12px;padding:4px">Sin datos en este período</span>';
+
+  _updateStatsToggleBtn();
+}
+
+function toggleStatUser(u){
+  if(selectedStatUsers.has(u)) selectedStatUsers.delete(u);
+  else selectedStatUsers.add(u);
+  const chip=document.querySelector(`.stats-user-chip[data-su="${u}"]`);
+  if(chip){
+    chip.classList.toggle("active",selectedStatUsers.has(u));
+    const dot=chip.querySelector("div");
+    if(dot) dot.style.background=selectedStatUsers.has(u)?"#e30613":"#ddd";
+  }
+  _updateStatsToggleBtn();
+  if(statsRawData) renderStatsTable(statsRawData);
+}
+
+function toggleAllStatsUsers(){
+  const chips=[...document.querySelectorAll(".stats-user-chip")];
+  const allActive=chips.every(c=>c.classList.contains("active"));
+  chips.forEach(c=>{
+    const u=c.dataset.su;
+    const dot=c.querySelector("div");
+    if(allActive){ selectedStatUsers.delete(u); c.classList.remove("active"); if(dot) dot.style.background="#ddd"; }
+    else          { selectedStatUsers.add(u);    c.classList.add("active");    if(dot) dot.style.background="#e30613"; }
+  });
+  _updateStatsToggleBtn();
+  if(statsRawData) renderStatsTable(statsRawData);
+}
+
+function _updateStatsToggleBtn(){
+  const chips=[...document.querySelectorAll(".stats-user-chip")];
+  const allActive=chips.length>0&&chips.every(c=>c.classList.contains("active"));
+  const btn=document.getElementById("statsToggleAll");
+  if(btn) btn.textContent=allActive?"Deseleccionar todos":"Seleccionar todos";
 }
 
 function renderStatsTable(data){
-  const { stateLogs=[], msgCounts=[] } = data;
-  // Build per-user aggregation
-  const userMap={};
-  const STATUS_ORDER=["available","busy","unavailable"];
-  const STATUS_LABEL={"available":"Disponible","busy":"Ocupado","unavailable":"No disponible"};
-  const STATUS_COLOR={"available":"#22c55e","busy":"#f59e0b","unavailable":"#94a3b8"};
+  const {stateLogs=[],msgCounts=[]}=data;
 
+  // Build full user map
+  const fullMap={};
   stateLogs.forEach(({_id:{username,status},totalSeconds})=>{
-    if(!userMap[username]) userMap[username]={states:{},msgs:0};
-    userMap[username].states[status]=(userMap[username].states[status]||0)+totalSeconds;
+    if(!fullMap[username]) fullMap[username]={states:{},msgs:0};
+    fullMap[username].states[status]=(fullMap[username].states[status]||0)+totalSeconds;
   });
   msgCounts.forEach(({_id:username,count})=>{
-    if(!userMap[username]) userMap[username]={states:{},msgs:0};
-    userMap[username].msgs=count;
+    if(!fullMap[username]) fullMap[username]={states:{},msgs:0};
+    fullMap[username].msgs=count;
   });
 
-  if(!Object.keys(userMap).length){
-    document.getElementById("statsTable").innerHTML='<p style="color:#aaa;text-align:center;padding:20px">Sin datos para el período seleccionado.</p>';
+  // Filter by selected users
+  const entries=Object.entries(fullMap).filter(([u])=>selectedStatUsers.has(u));
+
+  const tbl=document.getElementById("statsTable");
+  if(!entries.length){
+    tbl.innerHTML='<p style="color:#aaa;text-align:center;padding:24px">No hay datos para los usuarios seleccionados.</p>';
     return;
   }
 
-  // Sort by messages desc, then by available time desc
-  const rows=Object.entries(userMap).sort((a,b)=>{
+  // Sort: msgs desc, then available time desc
+  entries.sort((a,b)=>{
     if(b[1].msgs!==a[1].msgs) return b[1].msgs-a[1].msgs;
     return (b[1].states.available||0)-(a[1].states.available||0);
   });
 
-  const maxMsgs=Math.max(...rows.map(r=>r[1].msgs),1);
+  const maxMsgs=Math.max(...entries.map(r=>r[1].msgs),1);
 
-  function fmtTime(s){
-    if(!s) return "—";
-    const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
-    if(h>0) return `${h}h ${m}m`;
-    return `${m}m`;
+  function makeStateBar(states){
+    const total=STATS_STATUS_ORDER.reduce((a,s)=>a+(states[s]||0),0);
+    if(!total) return "";
+    return STATS_STATUS_ORDER.map(s=>{
+      const pct=((states[s]||0)/total*100).toFixed(1);
+      return +pct>0
+        ? `<div title="${STATS_STATUS_LABEL[s]}: ${fmtStatTime(states[s])}" style="width:${pct}%;background:${STATS_STATUS_COLOR[s]};height:100%;display:inline-block;vertical-align:top"></div>`
+        : "";
+    }).join("");
   }
 
-  function displayName(un){
-    const p=serverProfiles[un];
-    if(p&&(p.nombre||p.apellidos)) return `${p.nombre||""} ${p.apellidos||""}`.trim();
-    return allUsers.find(u=>u.username===un)?.name||un;
+  function makeStateCells(states){
+    return STATS_STATUS_ORDER.map(s=>{
+      const secs=states[s]||0;
+      const col=STATS_STATUS_COLOR[s];
+      return `<td style="padding:8px 10px;text-align:center;white-space:nowrap">
+        ${secs>0
+          ? `<div style="font-weight:700;color:${col};font-size:13px">${fmtStatTime(secs)}</div>`
+          : `<span style="color:#ddd;font-size:12px">—</span>`}
+      </td>`;
+    }).join("");
   }
 
-  let html=`<table class="stats-table" style="width:100%;border-collapse:collapse;font-size:12.5px">
-    <thead><tr style="border-bottom:2px solid #e5e7eb">
-      <th style="text-align:left;padding:8px 10px;color:#666;font-weight:600;white-space:nowrap">Usuario</th>
-      <th style="text-align:left;padding:8px 10px;color:#666;font-weight:600;min-width:180px">Tiempo por estado</th>
-      <th style="text-align:right;padding:8px 10px;color:#666;font-weight:600;white-space:nowrap">Mensajes</th>
-      <th style="text-align:left;padding:8px 10px;color:#666;font-weight:600;min-width:120px">Actividad</th>
-    </tr></thead><tbody>`;
-
-  rows.forEach(([username,{states,msgs}])=>{
-    const totalSecs=STATUS_ORDER.reduce((a,s)=>a+(states[s]||0),0);
-    // State breakdown bar
-    let stateBar="";
-    if(totalSecs>0){
-      STATUS_ORDER.forEach(s=>{
-        const pct=((states[s]||0)/totalSecs*100).toFixed(1);
-        if(+pct>0) stateBar+=`<div title="${STATUS_LABEL[s]}: ${fmtTime(states[s])}" style="width:${pct}%;background:${STATUS_COLOR[s]};height:100%;display:inline-block;vertical-align:top"></div>`;
-      });
-    }
-    // State legend text
-    let stateText=STATUS_ORDER.filter(s=>states[s]>0).map(s=>`<span style="color:${STATUS_COLOR[s]};font-size:11px">${STATUS_LABEL[s]}: ${fmtTime(states[s])}</span>`).join("<span style='color:#ddd'> · </span>");
-
-    // Messages bar
+  function makeRow(username, states, msgs, isTotal){
+    const totalSecs=STATS_STATUS_ORDER.reduce((a,s)=>a+(states[s]||0),0);
+    const stateBar=makeStateBar(states);
     const msgPct=msgs?Math.round(msgs/maxMsgs*100):0;
-    const msgBar=`<div style="background:#f1f5f9;border-radius:4px;height:8px;width:100%;overflow:hidden"><div style="width:${msgPct}%;background:#e30613;height:100%;border-radius:4px;transition:width .3s"></div></div>`;
+    const msgBar=`<div style="background:#f1f5f9;border-radius:4px;height:8px;width:80px;overflow:hidden;display:inline-block"><div style="width:${msgPct}%;background:#e30613;height:100%;border-radius:4px"></div></div>`;
 
-    const dn=displayName(username);
-    const initials=dn.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    if(isTotal){
+      const dn=`${entries.length} usuario${entries.length>1?"s":""}`;
+      return `<tr class="stats-total-row">
+        <td style="padding:10px 10px;white-space:nowrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:30px;height:30px;border-radius:50%;background:#10182f;color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">∑</div>
+            <div>
+              <div style="font-weight:700;color:#10182f;font-size:13px">Resumen total</div>
+              <div style="color:#94a3b8;font-size:11px">${dn} seleccionados</div>
+            </div>
+          </div>
+        </td>
+        ${makeStateCells(states)}
+        <td style="padding:8px 10px;text-align:center">
+          <div style="font-weight:700;color:${msgs>0?"#e30613":"#ccc"};font-size:15px">${msgs||"—"}</div>
+        </td>
+        <td style="padding:8px 10px">
+          ${totalSecs>0?`<div style="height:10px;border-radius:5px;overflow:hidden;background:#e8eef5;display:flex;width:120px">${stateBar}</div>`:""}
+          ${msgs>0?`<div style="margin-top:4px">${msgBar}</div>`:""}
+        </td>
+      </tr>`;
+    }
+
+    const dn=statsDN(username);
+    const ini=dn.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
     const avatarUrl=serverProfiles[username]?.avatarUrl;
     const avatar=avatarUrl
-      ? `<img src="${avatarUrl}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:8px;flex-shrink:0">`
-      : `<div style="width:28px;height:28px;border-radius:50%;background:#e30613;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0">${initials}</div>`;
+      ? `<img src="${avatarUrl}" style="width:30px;height:30px;border-radius:50%;object-fit:cover">`
+      : `<div style="width:30px;height:30px;border-radius:50%;background:#e30613;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">${ini}</div>`;
 
-    html+=`<tr style="border-bottom:1px solid #f1f5f9">
+    return `<tr style="border-bottom:1px solid #f5f5f5">
       <td style="padding:10px 10px;white-space:nowrap">
-        <div style="display:flex;align-items:center">${avatar}<div>
-          <div style="font-weight:600;color:#1e293b;font-size:13px">${dn}</div>
-          <div style="color:#94a3b8;font-size:11px">@${username}</div>
-        </div></div>
+        <div style="display:flex;align-items:center;gap:8px">${avatar}
+          <div>
+            <div style="font-weight:600;color:#1e293b;font-size:13px">${escHtml(dn)}</div>
+            <div style="color:#94a3b8;font-size:11px">@${username}</div>
+          </div>
+        </div>
       </td>
-      <td style="padding:10px 10px">
-        ${totalSecs>0
-          ? `<div style="height:10px;border-radius:5px;overflow:hidden;background:#f1f5f9;display:flex;margin-bottom:4px">${stateBar}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${stateText}</div>`
-          : `<span style="color:#ccc;font-size:11px">Sin datos</span>`}
+      ${makeStateCells(states)}
+      <td style="padding:8px 10px;text-align:center">
+        <div style="font-weight:700;color:${msgs>0?"#e30613":"#ccc"};font-size:14px">${msgs||"—"}</div>
       </td>
-      <td style="padding:10px 10px;text-align:right;font-weight:700;color:${msgs>0?"#e30613":"#ccc"};font-size:14px">${msgs||"—"}</td>
-      <td style="padding:10px 10px">${msgs>0?msgBar:`<span style="color:#ccc;font-size:11px">—</span>`}</td>
+      <td style="padding:8px 10px">
+        ${totalSecs>0?`<div style="height:8px;border-radius:4px;overflow:hidden;background:#f1f5f9;display:flex;width:100px;margin-bottom:3px">${stateBar}</div>`:""}
+        ${msgs>0?`<div>${msgBar}</div>`:`<span style="color:#ddd;font-size:11px">—</span>`}
+      </td>
     </tr>`;
-  });
+  }
+
+  // Legend dots for header
+  const headerDots=STATS_STATUS_ORDER.map(s=>`<th style="text-align:center;padding:8px 8px;white-space:nowrap">
+    <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${STATS_STATUS_COLOR[s]};flex-shrink:0"></div>
+      <span style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">${STATS_STATUS_LABEL[s]}</span>
+    </div>
+  </th>`).join("");
+
+  let html=`<table class="stats-table" style="width:100%;border-collapse:collapse">
+    <thead><tr style="border-bottom:2px solid #eef0f3">
+      <th style="text-align:left;padding:8px 10px;color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap">Usuario</th>
+      ${headerDots}
+      <th style="text-align:center;padding:8px 8px;color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap">Mensajes</th>
+      <th style="padding:8px 10px;color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap">Actividad</th>
+    </tr></thead><tbody>`;
+
+  // Aggregate/total row if more than 1 user
+  if(entries.length>1){
+    const totalStates={};
+    let totalMsgs=0;
+    entries.forEach(([,{states,msgs}])=>{
+      STATS_STATUS_ORDER.forEach(s=>{ totalStates[s]=(totalStates[s]||0)+(states[s]||0); });
+      totalMsgs+=msgs;
+    });
+    html+=makeRow("__total__",totalStates,totalMsgs,true);
+    html+=`<tr><td colspan="7" style="padding:4px 0"></td></tr>`;
+  }
+
+  entries.forEach(([username,{states,msgs}])=>{ html+=makeRow(username,states,msgs,false); });
 
   html+="</tbody></table>";
-  document.getElementById("statsTable").innerHTML=html;
+  tbl.innerHTML=html;
 }
 
 let exportType="private";

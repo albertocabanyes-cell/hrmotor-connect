@@ -63,11 +63,20 @@ const ExtraUserSchema = new mongoose.Schema({
   password: String, name: String
 }, { versionKey: false });
 
+const StateLogSchema = new mongoose.Schema({
+  username: String,
+  status: String,
+  startedAt: Date,
+  endedAt: Date,
+  durationSeconds: Number
+}, { versionKey: false });
+
 const Msg       = mongoose.model("Message",   MsgSchema);
 const Group     = mongoose.model("Group",     GroupSchema);
 const Profile   = mongoose.model("Profile",   ProfileSchema);
 const AdminDoc  = mongoose.model("Admin",     AdminSchema);
 const ExtraUser = mongoose.model("ExtraUser", ExtraUserSchema);
+const StateLog  = mongoose.model("StateLog",  StateLogSchema);
 
 /* ── Usuarios base ── */
 const USERS = {
@@ -257,19 +266,58 @@ app.put("/groups/:id/members", async (req, res) => {
   res.json(updated);
 });
 
+/* ── Stats endpoint ── */
+app.get("/stats/users", async (req, res) => {
+  try {
+    const hours = parseInt(req.query.hours);
+    const days  = parseInt(req.query.days) || 30;
+    const since = hours
+      ? new Date(Date.now() - hours * 3600 * 1000)
+      : new Date(Date.now() - days  * 24 * 60 * 60 * 1000);
+    const [stateLogs, msgCounts] = await Promise.all([
+      StateLog.aggregate([
+        { $match: { startedAt: { $gte: since }, durationSeconds: { $gt: 5 } } },
+        { $group: { _id: { username: "$username", status: "$status" }, totalSeconds: { $sum: "$durationSeconds" } } }
+      ]),
+      Msg.aggregate([
+        { $match: { date: { $gte: since.toISOString() }, from: { $exists: true } } },
+        { $group: { _id: "$from", count: { $sum: 1 } } }
+      ])
+    ]);
+    res.json({ stateLogs, msgCounts, hours: hours||null, days: hours?null:days });
+  } catch(err) {
+    console.error("Stats error:", err);
+    res.status(500).json({ error: "Error interno", stateLogs: [], msgCounts: [] });
+  }
+});
+
 /* ── Socket.IO ── */
 const onlineUsers = {};
+const stateStartTimes = {}; // { username: { status, startedAt } }
+
+function flushStateLog(username) {
+  const entry = stateStartTimes[username];
+  if (!entry) return;
+  const dur = Math.round((Date.now() - entry.startedAt) / 1000);
+  if (dur > 5) {
+    StateLog.create({ username, status: entry.status, startedAt: new Date(entry.startedAt), endedAt: new Date(), durationSeconds: dur }).catch(() => {});
+  }
+  delete stateStartTimes[username];
+}
 
 io.on("connection", (socket) => {
   socket.on("register", (username) => {
     socket.join(username);
     socket.username = username;
     onlineUsers[username] = "available";
+    stateStartTimes[username] = { status: "available", startedAt: Date.now() };
     socket.broadcast.emit("user_status", { username, status: "available" });
     socket.emit("online_users", Object.entries(onlineUsers).map(([u, s]) => ({ username: u, status: s })));
   });
 
   socket.on("set_status", ({ username, status }) => {
+    flushStateLog(username);
+    stateStartTimes[username] = { status, startedAt: Date.now() };
     onlineUsers[username] = status;
     socket.broadcast.emit("user_status", { username, status });
   });
@@ -308,6 +356,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     if (socket.username) {
+      flushStateLog(socket.username);
       const lastSeen = new Date().toISOString();
       delete onlineUsers[socket.username];
       socket.broadcast.emit("user_status", { username: socket.username, status: "offline", lastSeen });
