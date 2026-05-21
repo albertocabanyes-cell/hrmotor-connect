@@ -317,7 +317,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .tb-status-dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0}
 .tb-status-dot.available{background:#22c55e}.tb-status-dot.busy{background:#f59e0b}
 .tb-status-txt{color:#888}
-.tb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin-top:6px;row-gap:3px}
+.tb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:0;row-gap:3px;margin-left:auto;padding-left:16px}
 .tb-meta-item{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#999;padding-right:10px;margin-right:10px;border-right:1px solid #e5e7eb;white-space:nowrap}
 .tb-meta-item:last-child{border-right:none;padding-right:0;margin-right:0}
 .tb-meta-item svg{flex-shrink:0;color:#bbb}
@@ -1738,8 +1738,9 @@ function selectUser(u){
     <div class="tb-info">
       <div class="tb-name">${escHtml(displayName)}</div>
       <div class="tb-status"><span class="tb-status-dot ${dotCls}"></span><span class="tb-status-txt">${label}</span></div>
-      ${metaItems?`<div class="tb-meta">${metaItems}</div>`:""}
-    </div>`;
+    </div>
+    ${metaItems?`<div class="tb-meta">${metaItems}</div>`:""}
+    `;
 
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
