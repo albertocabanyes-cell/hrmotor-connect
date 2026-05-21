@@ -3052,11 +3052,15 @@ function _buildNoteCard(note){
   }
   const statusRow=statusParts.length?`<div class="nb-status-row">${statusParts.join("")}</div>`:"";
 
-  // Action buttons
-  const checkBtn=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?"✓ Visto":"✓ Marcar"}</button>`;
-  const strikeBtn=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Marcar como hecho"}">${struck?"~~Hecho":"~~ Tachar"}</button>`;
-  const editBtn=isCreator?`<button class="nb-btn nb-edit" onclick="openNoteEdit('${note.id}')" title="Editar">✎ Editar</button>`:"";
-  const delBtn=isCreator?`<button class="nb-btn nb-del" onclick="deleteNote('${note.id}')" title="Eliminar">🗑</button>`:"";
+  // Action buttons — creator: edit+delete only · other: check+strike only
+  let actionBtns="";
+  if(isCreator){
+    actionBtns+=`<button class="nb-btn nb-edit" onclick="openNoteEdit('${note.id}')" title="Editar">✎ Editar</button>`;
+    actionBtns+=`<button class="nb-btn nb-del" onclick="deleteNote('${note.id}')" title="Eliminar" style="margin-left:auto">🗑</button>`;
+  } else {
+    actionBtns+=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?"✓ Visto":"✓ Marcar"}</button>`;
+    actionBtns+=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Marcar como hecho"}">${struck?"~~Hecho":"~~ Tachar"}</button>`;
+  }
 
   return `<div class="nb-card${struck?" struck":""}" id="nc_${note.id}">
     <div class="nb-card-hdr">
@@ -3065,7 +3069,7 @@ function _buildNoteCard(note){
     </div>
     <div class="nb-text" id="nct_${note.id}">${escHtml(note.text)}</div>
     ${editBadge}${statusRow}
-    <div class="nb-actions">${checkBtn}${strikeBtn}${editBtn}${delBtn}</div>
+    <div class="nb-actions">${actionBtns}</div>
   </div>`;
 }
 
