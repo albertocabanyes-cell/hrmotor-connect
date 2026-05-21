@@ -3093,8 +3093,7 @@ function openNoteCreate(){
   form.style.display="block";
   const ta=document.getElementById("noteTextArea");
   ta.value=""; ta.focus();
-  document.getElementById("nbAddBtn").textContent="Cancelar";
-  document.getElementById("nbAddBtn").onclick=cancelNoteCreate;
+  const ab=document.getElementById("nbAddBtn"); ab.innerHTML="Cancelar"; ab.disabled=false; ab.style.opacity="1"; ab.onclick=cancelNoteCreate;
 }
 
 function cancelNoteCreate(){
@@ -3108,10 +3107,13 @@ function _updateNoteAddBtn(){
   const convId=_noteConvId();
   const count=(chatNotes[convId]||[]).length;
   const remaining=NOTE_MAX-count;
-  btn.textContent=remaining>0?`+ Nota (${remaining} restante${remaining===1?"":"s"})`:"Límite alcanzado";
-  btn.disabled=remaining<=0;
-  btn.style.opacity=remaining<=0?"0.45":"1";
-  btn.onclick=remaining>0?openNoteCreate:null;
+  if(remaining>0){
+    btn.innerHTML=`+ Nota <span style="color:#bbb;font-weight:400;font-size:10px">${remaining} rest.</span>`;
+    btn.disabled=false; btn.style.opacity="1"; btn.onclick=openNoteCreate;
+  } else {
+    btn.innerHTML=`+ Nota <span style="color:#bbb;font-weight:400;font-size:10px">0 rest.</span>`;
+    btn.disabled=true; btn.style.opacity="0.45"; btn.onclick=null;
+  }
 }
 
 function noteKeydown(e){
@@ -3139,8 +3141,7 @@ function openNoteEdit(noteId){
   const ta=document.getElementById("noteTextArea");
   ta.value=note.text; ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length);
   updateNoteCounter();
-  document.getElementById("nbAddBtn").textContent="Cancelar";
-  document.getElementById("nbAddBtn").onclick=cancelNoteCreate;
+  const ab2=document.getElementById("nbAddBtn"); ab2.innerHTML="Cancelar"; ab2.disabled=false; ab2.style.opacity="1"; ab2.onclick=cancelNoteCreate;
 }
 
 async function deleteNote(noteId){
