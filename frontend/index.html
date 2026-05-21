@@ -467,6 +467,48 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .fp-list::-webkit-scrollbar{width:3px}.fp-list::-webkit-scrollbar-thumb{background:#eee;border-radius:3px}
 .fp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 12px;color:#ddd;text-align:center}
 .fp-empty-txt{font-size:12px;color:#ccc;line-height:1.5}
+/* ── Cuando hay tablero de notas, limitar altura de archivos ── */
+.files-panel.has-notes .fp-list{flex:none;max-height:200px}
+/* ══ TABLERO DE NOTAS ══════════════════ */
+.notes-board{display:none;flex-direction:column;border-top:2px solid #f0f0f0;min-height:0;flex:1}
+.files-panel.has-notes .notes-board{display:flex}
+.nb-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 6px;flex-shrink:0}
+.nb-title{font-size:12px;font-weight:700;color:#333;display:flex;align-items:center;gap:5px}
+.nb-add-btn{font-size:11px;padding:3px 11px;border:1.5px solid #e30613;color:#e30613;background:none;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:700;transition:all .15s}
+.nb-add-btn:hover{background:#e30613;color:white}
+.nb-scroll{flex:1;overflow-y:auto;padding:0 10px 10px;min-height:0}
+.nb-scroll::-webkit-scrollbar{width:3px}.nb-scroll::-webkit-scrollbar-thumb{background:#eee;border-radius:3px}
+.nb-create-form{background:#fffde7;border:1.5px dashed #fbbf24;border-radius:10px;padding:10px;margin-bottom:8px}
+.nb-create-ta{width:100%;box-sizing:border-box;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:#333;resize:none;outline:none;line-height:1.5;min-height:60px}
+.nb-create-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}
+.nb-create-cancel{font-size:11px;padding:3px 10px;border:1px solid #e0e0e0;background:white;border-radius:6px;cursor:pointer;font-family:inherit;color:#666}
+.nb-create-save{font-size:11px;padding:3px 12px;border:none;background:#e30613;color:white;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:700}
+.nb-card{background:#fffde7;border:1px solid #fef3c7;border-radius:10px;padding:10px 11px;margin-bottom:8px;border-left:3px solid #fbbf24;transition:border-left-color .2s}
+.nb-card.struck{background:#f8fafc;border-left-color:#94a3b8}
+.nb-card.struck .nb-text{text-decoration:line-through;color:#aaa}
+.nb-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.nb-creator{display:flex;align-items:center;gap:5px}
+.nb-creator-ini{width:17px;height:17px;border-radius:50%;background:#e30613;color:white;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nb-creator-ini.peer{background:#6366f1}
+.nb-creator-name{font-size:11px;font-weight:700;color:#555}
+.nb-date{font-size:10px;color:#ccc}
+.nb-text{font-size:12.5px;color:#1e293b;line-height:1.55;word-break:break-word}
+.nb-edited-badge{font-size:10px;color:#bbb;margin-top:3px;display:flex;align-items:center;gap:3px}
+.nb-status-row{font-size:10px;color:#aaa;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px}
+.nb-actions{display:flex;align-items:center;gap:4px;margin-top:8px;flex-wrap:wrap}
+.nb-btn{padding:3px 9px;border-radius:6px;font-size:10.5px;font-weight:700;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.nb-check{background:#f0fdf4;border-color:#bbf7d0;color:#16a34a}
+.nb-check:hover{background:#dcfce7}
+.nb-check.on{background:#16a34a;border-color:#16a34a;color:white}
+.nb-strike{background:#fff7ed;border-color:#fed7aa;color:#ea580c}
+.nb-strike:hover{background:#ffedd5}
+.nb-strike.on{background:#ea580c;border-color:#ea580c;color:white}
+.nb-edit{background:#f1f5f9;border-color:#e2e8f0;color:#64748b}
+.nb-edit:hover{background:#e2e8f0}
+.nb-del{background:#fff5f5;border-color:#fecaca;color:#ef4444;margin-left:auto}
+.nb-del:hover{background:#fee2e2}
+.nb-empty-notes{text-align:center;color:#ccc;font-size:12px;padding:18px 8px;line-height:1.6}
+.nb-inline-edit{width:100%;box-sizing:border-box;border:1px solid #fbbf24;border-radius:6px;padding:5px 8px;font-family:inherit;font-size:12.5px;color:#333;outline:none;background:#fffde7;resize:none;min-height:50px;margin:4px 0}
 .fp-item{display:flex;align-items:center;gap:9px;padding:8px 6px;border-radius:9px;transition:background .12s}
 .fp-item:hover{background:#f7f8fc}
 .fp-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;letter-spacing:.03em;text-transform:uppercase;overflow:hidden}
@@ -745,6 +787,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
           <button class="fp-tab" onclick="filterFpFiles('other',this)">Otros</button>
         </div>
         <div class="fp-list" id="fpList"></div>
+        <!-- Tablero de notas -->
+        <div class="notes-board" id="notesBoard">
+          <div class="nb-head">
+            <div class="nb-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Tablero de notas
+            </div>
+            <button class="nb-add-btn" onclick="openNoteCreate()" id="nbAddBtn">+ Nota</button>
+          </div>
+          <div class="nb-scroll" id="notesScroll">
+            <div id="noteCreateForm" style="display:none">
+              <div class="nb-create-form">
+                <textarea class="nb-create-ta" id="noteTextArea" placeholder="Escribe la nota o tarea pendiente…" onkeydown="noteKeydown(event)"></textarea>
+                <div class="nb-create-actions">
+                  <button class="nb-create-cancel" onclick="cancelNoteCreate()">Cancelar</button>
+                  <button class="nb-create-save" onclick="saveNote()">Guardar</button>
+                </div>
+              </div>
+            </div>
+            <div id="notesList"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1632,12 +1696,15 @@ function selectUser(u){
 
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
-  document.getElementById("filesPanel").style.display="flex";
+  const fp=document.getElementById("filesPanel");
+  fp.style.display="flex"; fp.classList.add("has-notes");
   document.getElementById("messageInput").disabled=false;
   document.getElementById("sendBtn").disabled=false;
   document.getElementById("messageInput").focus();
   hideTyping(); newMsgCount=0;
   document.getElementById("scrollBtn").style.display="none";
+  cancelNoteCreate();
+  loadNotes([me.username,u.username].sort().join("__"));
 
   const box=document.getElementById("messages");
   const scrollBtn=document.getElementById("scrollBtn");
@@ -1849,6 +1916,7 @@ function bindSocketEvents(){
   socket.on("user_created",u=>{ if(!users.find(x=>x.username===u.username)){ users.push({username:u.username,name:u.name}); renderUsers(); } });
   socket.on("user_deleted",({username})=>{ if(username!==me.username) _removeUserLocally(username); });
   socket.on("message_edited", msg=>{ applyEditedMessage(msg); });
+  socket.on("note_event", payload=>{ _handleNoteEvent(payload); });
   socket.on("typing",({from,typing})=>{ if(from===current){ if(typing){ const u=users.find(u=>u.username===from); showTyping(u?.name||from); } else hideTyping(); } });
   socket.on("user_status",({username,status,lastSeen})=>{ peerStatus[username]=status; if(lastSeen) peerLastSeen[username]=lastSeen; renderUsers(); if(current===username) updateTopbarStatus(status); });
   socket.on("online_users",list=>{ if(Array.isArray(list)) list.forEach(i=>{ if(typeof i==="string") peerStatus[i]="available"; else peerStatus[i.username]=i.status||"available"; }); renderUsers(); });
@@ -2644,7 +2712,8 @@ function selectGroup(g){
   renderGroupTopbar(g);
   document.getElementById("emptyState").style.display="none";
   document.getElementById("chatCol").style.display="flex";
-  document.getElementById("filesPanel").style.display="flex";
+  const fpg=document.getElementById("filesPanel");
+  fpg.style.display="flex"; fpg.classList.remove("has-notes");
   document.getElementById("messageInput").disabled=false;
   document.getElementById("sendBtn").disabled=false;
   document.getElementById("messageInput").placeholder="Escribe en el grupo...";
@@ -2912,6 +2981,167 @@ function renderFilesPanel(){
     list.appendChild(item);
   });
 }
+/* ═══════════════════════════════════════
+   TABLERO DE NOTAS
+═══════════════════════════════════════ */
+let chatNotes = {};
+let currentNotesConvId = null;
+let noteEditingId = null;
+
+function _noteConvId(){ return current ? [me.username, current].sort().join("__") : null; }
+
+function fmtNoteDate(iso){
+  if(!iso) return "";
+  const d=new Date(iso);
+  const dd=String(d.getDate()).padStart(2,"0"), mm=String(d.getMonth()+1).padStart(2,"0");
+  const hh=String(d.getHours()).padStart(2,"0"), min=String(d.getMinutes()).padStart(2,"0");
+  return `${dd}/${mm} · ${hh}:${min}`;
+}
+
+function noteFirstName(username, fallbackName){
+  const p=serverProfiles[username];
+  if(p?.nombre) return p.nombre;
+  return (fallbackName||username).split(" ")[0];
+}
+
+function loadNotes(convId){
+  currentNotesConvId=convId;
+  fetch(`/notes/${encodeURIComponent(convId)}`)
+    .then(r=>r.json()).then(data=>{ chatNotes[convId]=data; renderNotes(); })
+    .catch(()=>{ chatNotes[convId]=[]; renderNotes(); });
+}
+
+function renderNotes(){
+  const convId=currentNotesConvId;
+  const list=document.getElementById("notesList"); if(!list) return;
+  const notes=chatNotes[convId]||[];
+  if(!notes.length){
+    list.innerHTML=`<div class="nb-empty-notes">📌 Sin notas todavía.<br>Pulsa <b>+ Nota</b> para crear la primera.</div>`;
+    return;
+  }
+  list.innerHTML=notes.map(note=>_buildNoteCard(note)).join("");
+}
+
+function _buildNoteCard(note){
+  const isCreator=note.createdBy===me.username;
+  const struck=!!note.struckBy;
+  const checked=(note.checkedBy||[]).includes(me.username);
+  const dn=noteFirstName(note.createdBy, note.createdByName);
+  const ini=dn.slice(0,2).toUpperCase();
+  const av=serverProfiles[note.createdBy]?.avatarUrl;
+  const avatarHtml=av
+    ?`<img src="${av}" style="width:17px;height:17px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+    :`<div class="nb-creator-ini${isCreator?"":" peer"}">${ini}</div>`;
+
+  // Edit badge
+  let editBadge="";
+  if(note.edited && note.editHistory?.length){
+    const last=note.editHistory[note.editHistory.length-1];
+    editBadge=`<div class="nb-edited-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editado · ${fmtNoteDate(last.editedAt)}</div>`;
+  }
+
+  // Status info row
+  let statusParts=[];
+  if(note.checkedBy?.length){
+    const names=note.checkedBy.map(u=>noteFirstName(u,"")).filter(Boolean);
+    statusParts.push(`<span title="Visto">✓ ${escHtml(names.join(", "))}</span>`);
+  }
+  if(note.struckBy){
+    const sn=noteFirstName(note.struckBy,"");
+    statusParts.push(`<span title="Marcado como hecho">~~ ${escHtml(sn)}</span>`);
+  }
+  const statusRow=statusParts.length?`<div class="nb-status-row">${statusParts.join("")}</div>`:"";
+
+  // Action buttons
+  const checkBtn=`<button class="nb-btn nb-check${checked?" on":""}" onclick="toggleNoteCheck('${note.id}')" title="${checked?"Quitar visto":"Marcar como visto"}">${checked?"✓ Visto":"✓ Marcar"}</button>`;
+  const strikeBtn=`<button class="nb-btn nb-strike${struck?" on":""}" onclick="toggleNoteStrike('${note.id}')" title="${struck?"Desmarcar":"Marcar como hecho"}">${struck?"~~Hecho":"~~ Tachar"}</button>`;
+  const editBtn=isCreator?`<button class="nb-btn nb-edit" onclick="openNoteEdit('${note.id}')" title="Editar">✎ Editar</button>`:"";
+  const delBtn=isCreator?`<button class="nb-btn nb-del" onclick="deleteNote('${note.id}')" title="Eliminar">🗑</button>`:"";
+
+  return `<div class="nb-card${struck?" struck":""}" id="nc_${note.id}">
+    <div class="nb-card-hdr">
+      <div class="nb-creator">${avatarHtml}<span class="nb-creator-name">${escHtml(dn)}</span></div>
+      <span class="nb-date">${fmtNoteDate(note.createdAt)}</span>
+    </div>
+    <div class="nb-text" id="nct_${note.id}">${escHtml(note.text)}</div>
+    ${editBadge}${statusRow}
+    <div class="nb-actions">${checkBtn}${strikeBtn}${editBtn}${delBtn}</div>
+  </div>`;
+}
+
+function openNoteCreate(){
+  noteEditingId=null;
+  const form=document.getElementById("noteCreateForm");
+  form.style.display="block";
+  const ta=document.getElementById("noteTextArea");
+  ta.value=""; ta.focus();
+  document.getElementById("nbAddBtn").textContent="Cancelar";
+  document.getElementById("nbAddBtn").onclick=cancelNoteCreate;
+}
+
+function cancelNoteCreate(){
+  noteEditingId=null;
+  document.getElementById("noteCreateForm").style.display="none";
+  document.getElementById("nbAddBtn").textContent="+ Nota";
+  document.getElementById("nbAddBtn").onclick=openNoteCreate;
+}
+
+function noteKeydown(e){
+  if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); saveNote(); }
+  if(e.key==="Escape") cancelNoteCreate();
+}
+
+async function saveNote(){
+  const text=(document.getElementById("noteTextArea")?.value||"").trim();
+  if(!text) return;
+  if(noteEditingId){
+    await fetch(`/notes/${noteEditingId}/text`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username,text})}).catch(()=>{});
+  } else {
+    const convId=_noteConvId(); if(!convId) return;
+    await fetch("/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({conversationId:convId,text,createdBy:me.username,createdByName:me.name||me.username})}).catch(()=>{});
+  }
+  cancelNoteCreate();
+}
+
+function openNoteEdit(noteId){
+  const note=(chatNotes[currentNotesConvId]||[]).find(n=>n.id===noteId); if(!note) return;
+  noteEditingId=noteId;
+  const form=document.getElementById("noteCreateForm");
+  form.style.display="block";
+  const ta=document.getElementById("noteTextArea");
+  ta.value=note.text; ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length);
+  document.getElementById("nbAddBtn").textContent="Cancelar";
+  document.getElementById("nbAddBtn").onclick=cancelNoteCreate;
+}
+
+async function deleteNote(noteId){
+  if(!confirm("¿Eliminar esta nota? Esta acción no se puede deshacer.")) return;
+  await fetch(`/notes/${noteId}?username=${me.username}`,{method:"DELETE"}).catch(()=>{});
+}
+
+async function toggleNoteCheck(noteId){
+  await fetch(`/notes/${noteId}/check`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username})}).catch(()=>{});
+}
+
+async function toggleNoteStrike(noteId){
+  await fetch(`/notes/${noteId}/strike`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username})}).catch(()=>{});
+}
+
+function _handleNoteEvent({type,note,noteId,conversationId}){
+  const convId=note?.conversationId||conversationId;
+  if(!convId) return;
+  if(!chatNotes[convId]) chatNotes[convId]=[];
+  if(type==="created"){
+    chatNotes[convId].push(note);
+  } else if(type==="updated"){
+    const idx=chatNotes[convId].findIndex(n=>n.id===note.id);
+    if(idx>=0) chatNotes[convId][idx]=note; else chatNotes[convId].push(note);
+  } else if(type==="deleted"){
+    chatNotes[convId]=chatNotes[convId].filter(n=>n.id!==noteId);
+  }
+  if(convId===currentNotesConvId) renderNotes();
+}
+
 function uploadAndSendFile(e){
   const file=e.target.files[0]; if(!file) return;
   if(file.size>5*1024*1024){alert('El archivo no puede superar 5 MB.');e.target.value='';return;}

@@ -71,12 +71,26 @@ const StateLogSchema = new mongoose.Schema({
   durationSeconds: Number
 }, { versionKey: false });
 
+const NoteSchema = new mongoose.Schema({
+  id:             { type: String, unique: true },
+  conversationId: String,
+  text:           String,
+  createdBy:      String,
+  createdByName:  String,
+  createdAt:      String,
+  edited:         { type: Boolean, default: false },
+  editHistory:    [{ text: String, editedAt: String }],
+  checkedBy:      { type: [String], default: [] },
+  struckBy:       { type: String, default: null }
+}, { versionKey: false });
+
 const Msg       = mongoose.model("Message",   MsgSchema);
 const Group     = mongoose.model("Group",     GroupSchema);
 const Profile   = mongoose.model("Profile",   ProfileSchema);
 const AdminDoc  = mongoose.model("Admin",     AdminSchema);
 const ExtraUser = mongoose.model("ExtraUser", ExtraUserSchema);
 const StateLog  = mongoose.model("StateLog",  StateLogSchema);
+const Note      = mongoose.model("Note",      NoteSchema);
 
 /* ── Usuarios base ── */
 const USERS = {
@@ -264,6 +278,94 @@ app.put("/groups/:id/members", async (req, res) => {
   const updated = group.toObject();
   [...new Set([...oldMembers, ...members])].forEach(m => io.to(m).emit("group_updated", updated));
   res.json(updated);
+});
+
+/* ── Notes endpoints ── */
+function noteEmit(io, conversationId, payload) {
+  const [uA, uB] = conversationId.split("__");
+  io.to(uA).emit("note_event", payload);
+  io.to(uB).emit("note_event", payload);
+}
+
+app.get("/notes/:convId", async (req, res) => {
+  try {
+    const notes = await Note.find({ conversationId: req.params.convId }).sort({ createdAt: 1 }).lean();
+    res.json(notes);
+  } catch(e) { res.status(500).json({ error: "Error" }); }
+});
+
+app.post("/notes", async (req, res) => {
+  try {
+    const { conversationId, text, createdBy, createdByName } = req.body;
+    if (!conversationId || !text?.trim() || !createdBy)
+      return res.status(400).json({ error: "Faltan campos" });
+    const note = await Note.create({
+      id: `note_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+      conversationId, text: text.trim(), createdBy, createdByName,
+      createdAt: new Date().toISOString()
+    });
+    const out = note.toObject();
+    noteEmit(io, conversationId, { type: "created", note: out });
+    res.json(out);
+  } catch(e) { res.status(500).json({ error: "Error" }); }
+});
+
+app.put("/notes/:id/text", async (req, res) => {
+  try {
+    const { username, text } = req.body;
+    const note = await Note.findOne({ id: req.params.id });
+    if (!note) return res.status(404).json({ error: "Nota no encontrada" });
+    if (note.createdBy !== username) return res.status(403).json({ error: "Sin permiso" });
+    if (!text?.trim()) return res.status(400).json({ error: "Texto vacío" });
+    note.editHistory.push({ text: note.text, editedAt: new Date().toISOString() });
+    note.text = text.trim();
+    note.edited = true;
+    await note.save();
+    const out = note.toObject();
+    noteEmit(io, note.conversationId, { type: "updated", note: out });
+    res.json(out);
+  } catch(e) { res.status(500).json({ error: "Error" }); }
+});
+
+app.delete("/notes/:id", async (req, res) => {
+  try {
+    const { username } = req.query;
+    const note = await Note.findOne({ id: req.params.id });
+    if (!note) return res.status(404).json({ error: "Nota no encontrada" });
+    if (note.createdBy !== username) return res.status(403).json({ error: "Sin permiso" });
+    const convId = note.conversationId;
+    await Note.deleteOne({ id: req.params.id });
+    noteEmit(io, convId, { type: "deleted", noteId: req.params.id, conversationId: convId });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: "Error" }); }
+});
+
+app.put("/notes/:id/check", async (req, res) => {
+  try {
+    const { username } = req.body;
+    const note = await Note.findOne({ id: req.params.id });
+    if (!note) return res.status(404).json({ error: "Nota no encontrada" });
+    const idx = note.checkedBy.indexOf(username);
+    if (idx === -1) note.checkedBy.push(username);
+    else note.checkedBy.splice(idx, 1);
+    await note.save();
+    const out = note.toObject();
+    noteEmit(io, note.conversationId, { type: "updated", note: out });
+    res.json(out);
+  } catch(e) { res.status(500).json({ error: "Error" }); }
+});
+
+app.put("/notes/:id/strike", async (req, res) => {
+  try {
+    const { username } = req.body;
+    const note = await Note.findOne({ id: req.params.id });
+    if (!note) return res.status(404).json({ error: "Nota no encontrada" });
+    note.struckBy = note.struckBy ? null : username;
+    await note.save();
+    const out = note.toObject();
+    noteEmit(io, note.conversationId, { type: "updated", note: out });
+    res.json(out);
+  } catch(e) { res.status(500).json({ error: "Error" }); }
 });
 
 /* ── Stats endpoint ── */
