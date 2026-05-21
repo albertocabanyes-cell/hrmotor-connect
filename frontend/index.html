@@ -3196,13 +3196,17 @@ function noteKeydown(e){
 async function saveNote(){
   const text=(document.getElementById("noteTextArea")?.value||"").trim();
   if(!text) return;
-  if(noteEditingId){
-    await fetch(`/notes/${noteEditingId}/text`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username,text})}).catch(()=>{});
-  } else {
-    const convId=_noteConvId(); if(!convId) return;
-    await fetch("/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({conversationId:convId,text,createdBy:me.username,createdByName:me.name||me.username})}).catch(()=>{});
-  }
-  cancelNoteCreate();
+  try {
+    let r;
+    if(noteEditingId){
+      r=await fetch(`/notes/${noteEditingId}/text`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:me.username,text})});
+    } else {
+      const convId=_noteConvId(); if(!convId) return;
+      r=await fetch("/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({conversationId:convId,text,createdBy:me.username,createdByName:me.name||me.username})});
+    }
+    if(!r.ok){ const e=await r.json(); alert(e.error||"Error al guardar la nota"); return; }
+    cancelNoteCreate();
+  } catch(e){ alert("Error de red al guardar la nota"); }
 }
 
 function openNoteEdit(noteId){
