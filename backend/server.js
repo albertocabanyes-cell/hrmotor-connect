@@ -389,6 +389,23 @@ app.put("/notes/:id/complete", async (req, res) => {
   } catch(e) { res.status(500).json({ error: "Error" }); }
 });
 
+app.get("/notes/pending/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const notes = await Note.find({
+      createdBy: { $ne: username },
+      checkedBy: { $nin: [username] },
+      completedAt: null
+    }).lean();
+    const counts = {};
+    notes.forEach(n => {
+      const peer = n.conversationId.split("__").find(u => u !== username);
+      if (peer) counts[peer] = (counts[peer] || 0) + 1;
+    });
+    res.json(counts);
+  } catch(e) { res.status(500).json({}); }
+});
+
 /* ── Stats endpoint ── */
 app.get("/stats/users", async (req, res) => {
   try {

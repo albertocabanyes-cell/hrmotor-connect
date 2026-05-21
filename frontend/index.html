@@ -125,6 +125,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .ui.active .uname{color:white;font-weight:700}
 .usub{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ubadge{background:#e30613;color:white;border-radius:999px;padding:2px 6px;font-size:10px;font-weight:700;min-width:18px;text-align:center;flex-shrink:0;animation:pop .2s ease}
+.ubadge.note-badge{background:#f59e0b;font-size:9px;padding:2px 5px}
+#noteToastWrap{position:fixed;bottom:24px;right:28px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end}
+.note-toast{background:white;border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.18);border-left:4px solid #e30613;max-width:300px;pointer-events:all;animation:ntIn .25s ease}
+@keyframes ntIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.note-toast.out{animation:ntOut .25s ease forwards}@keyframes ntOut{to{opacity:0;transform:translateY(8px)}}
+.nt-ico{font-size:18px;flex-shrink:0}
+.nt-body{flex:1;min-width:0}
+.nt-title{font-size:11.5px;font-weight:700;color:#111;margin-bottom:2px}
+.nt-preview{font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nt-view{font-size:11px;font-weight:700;color:#e30613;background:none;border:1.5px solid #e30613;border-radius:6px;padding:2px 8px;cursor:pointer;flex-shrink:0;font-family:inherit}
+.nt-view:hover{background:#fff5f5}
+.nt-close{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}.nt-close:hover{color:#999}
 @keyframes pop{from{transform:scale(.4)}to{transform:scale(1)}}
 .no-results{padding:18px 12px;text-align:center;font-size:13px;color:rgba(255,255,255,.2)}
 
@@ -1361,6 +1373,7 @@ function mostrarApp(){
   loadGroups();
   loadServerProfiles();
   loadServerAdmins();
+  fetch(`/notes/pending/${me.username}`).then(r=>r.json()).then(d=>{pendingNotes=d||{};renderUsers();}).catch(()=>{});
 }
 function logout(){ localStorage.removeItem("hrmotor_user"); localStorage.removeItem("hrmotor_policy_accepted"); if(socket) socket.disconnect(); location.reload(); }
 
@@ -1608,6 +1621,7 @@ function _buildUserDiv(u){
   const div=document.createElement("div");
   div.dataset.u=u.username;
   const count=unread[u.username]||0, active=current===u.username, uSt=peerStatus[u.username]||"unavailable";
+  const noteCount=pendingNotes[u.username]||0;
   div.className="ui"+(active?" active":"");
   const avCls=uSt==="available"?"available":uSt==="busy"?"busy":uSt==="descanso"?"descanso":"unavailable";
   const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
@@ -1618,7 +1632,7 @@ function _buildUserDiv(u){
       <div class="uname">${escHtml(u.name||u.username)}</div>
       <div class="usub">${SL[uSt]||"No disponible"}${uSt==="unavailable"&&peerLastSeen[u.username]?`<span style="opacity:.45;font-size:10px;margin-left:4px">· ${formatLastSeen(peerLastSeen[u.username])}</span>`:""}</div>
     </div>
-    ${count>0?`<span class="ubadge">${count}</span>`:""}
+    ${count>0?`<span class="ubadge">${count}</span>`:""}${noteCount>0?`<span class="ubadge note-badge">📌 ${noteCount}</span>`:""}
     <div class="ui-actions">
       <button class="ui-action-btn chat" title="Abrir chat">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -1655,13 +1669,14 @@ function renderChatsList(query){
     div.className="ui"+(current===u.username?" active":"");
     div.addEventListener("click",()=>selectUser(u));
     const count=unread[u.username]||0, uSt=peerStatus[u.username]||"unavailable";
+    const noteCount=pendingNotes[u.username]||0;
     const avCls=uSt==="available"?"available":uSt==="busy"?"busy":uSt==="descanso"?"descanso":"unavailable";
     const ini=initials(u.name||u.username), photo=getUserAvatar(u.username);
     const preview=lastMsg[u.username]?escHtml(lastMsg[u.username]):"";
     div.innerHTML=`<div class="uav ${avCls}">${photo?`<img src="${photo}" alt="${ini}">`:ini}<span class="udot"></span></div>
       <div class="uinfo"><div class="uname">${escHtml(u.name||u.username)}</div>
       ${preview?`<div class="usub">${preview}</div>`:`<div class="usub">${SL[uSt]||"No disponible"}</div>`}</div>
-      ${count>0?`<span class="ubadge">${count}</span>`:""}
+      ${count>0?`<span class="ubadge">${count}</span>`:""}${noteCount>0?`<span class="ubadge note-badge">📌 ${noteCount}</span>`:""}
       <div class="ui-actions"><button class="ui-action-btn view" title="Ver perfil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></button><button class="ui-action-btn fav-btn ${favorites.has(u.username)?'fav-active':''}" title="${favorites.has(u.username)?'Quitar de favoritos':'Añadir a favoritos'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="${favorites.has(u.username)?'#f59e0b':'none'}" stroke="${favorites.has(u.username)?'#f59e0b':'currentColor'}" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button><button class="ui-action-btn close-chat" title="Cerrar conversación">✕</button></div>`;
     div.querySelector(".ui-action-btn.view").addEventListener("click", e=>{ e.stopPropagation(); openViewProfile(u); });
     div.querySelector(".ui-action-btn.fav-btn").addEventListener("click", e=>{ e.stopPropagation(); toggleFavorite(u.username); });
@@ -3034,6 +3049,7 @@ function renderFilesPanel(){
 ═══════════════════════════════════════ */
 let chatNotes = {};
 let currentNotesConvId = null;
+let pendingNotes = {}; // { peerUsername: count } notas sin check del peer
 let noteEditingId = null;
 let notesTab = 'active';
 
@@ -3063,7 +3079,7 @@ function noteFirstName(username, fallbackName){
 function loadNotes(convId){
   currentNotesConvId=convId;
   fetch(`/notes/${encodeURIComponent(convId)}`)
-    .then(r=>r.json()).then(data=>{ chatNotes[convId]=data; renderNotes(); })
+    .then(r=>r.json()).then(data=>{ chatNotes[convId]=data; _recomputePendingNotes(convId); renderNotes(); })
     .catch(()=>{ chatNotes[convId]=[]; renderNotes(); });
 }
 
@@ -3263,13 +3279,58 @@ function _handleNoteEvent({type,note,noteId,conversationId}){
   if(!chatNotes[convId]) chatNotes[convId]=[];
   if(type==="created"){
     chatNotes[convId].push(note);
+    if(note.createdBy!==me.username) _showNoteToast(note,convId);
   } else if(type==="updated"){
     const idx=chatNotes[convId].findIndex(n=>n.id===note.id);
     if(idx>=0) chatNotes[convId][idx]=note; else chatNotes[convId].push(note);
   } else if(type==="deleted"){
     chatNotes[convId]=chatNotes[convId].filter(n=>n.id!==noteId);
   }
+  _recomputePendingNotes(convId);
   if(convId===currentNotesConvId) renderNotes();
+}
+
+function _recomputePendingNotes(convId){
+  const peer=convId.split("__").find(u=>u!==me.username);
+  if(!peer) return;
+  const count=(chatNotes[convId]||[]).filter(n=>
+    n.createdBy!==me.username &&
+    !(n.checkedBy||[]).includes(me.username) &&
+    !n.completedAt
+  ).length;
+  if(count>0) pendingNotes[peer]=count; else delete pendingNotes[peer];
+  renderUsers();
+}
+
+function _showNoteToast(note,convId){
+  const peer=convId.split("__").find(u=>u!==me.username);
+  const peerUser=users.find(u=>u.username===peer);
+  const firstName=((peerUser?.name||peerUser?.username||peer)+"").split(" ")[0];
+  let wrap=document.getElementById("noteToastWrap");
+  if(!wrap){ wrap=document.createElement("div"); wrap.id="noteToastWrap"; document.body.appendChild(wrap); }
+  const id="nt_"+Date.now();
+  const el=document.createElement("div"); el.className="note-toast"; el.id=id;
+  el.innerHTML=`<span class="nt-ico">📌</span>
+    <div class="nt-body">
+      <div class="nt-title">${escHtml(firstName)} ha añadido una nota</div>
+      <div class="nt-preview">${escHtml((note.text||"").slice(0,65))}${(note.text||"").length>65?"…":""}</div>
+    </div>
+    <button class="nt-view" onclick="_toastGo('${peer}','${id}')">Ver</button>
+    <button class="nt-close" onclick="_toastDismiss('${id}')">×</button>`;
+  wrap.appendChild(el);
+  setTimeout(()=>_toastDismiss(id),5000);
+}
+
+function _toastDismiss(id){
+  const el=document.getElementById(id); if(!el) return;
+  el.classList.add("out");
+  setTimeout(()=>el.remove(),280);
+}
+
+function _toastGo(peer,id){
+  _toastDismiss(id);
+  const u=users.find(x=>x.username===peer);
+  if(u){ selectUser(u); switchTab("chats"); }
 }
 
 function uploadAndSendFile(e){
