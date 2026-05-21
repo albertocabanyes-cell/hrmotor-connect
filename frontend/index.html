@@ -456,13 +456,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
 .fp-head{padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
 .fp-title{font-size:14px;font-weight:700;color:white;margin-bottom:3px}
 .fp-sub{font-size:11px;color:rgba(255,255,255,.4);line-height:1.5}
-.fp-upload-wrap{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
-.fp-upload-label{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:1.5px dashed rgba(227,6,19,.5);border-radius:10px;color:#e30613;font-size:13px;font-weight:700;cursor:pointer;background:rgba(227,6,19,.05);transition:all .15s;user-select:none}
-.fp-upload-label:hover{background:rgba(227,6,19,.12);border-color:#e30613}
-.fp-limit-txt{font-size:11px;color:rgba(255,255,255,.3);text-align:center;margin-top:5px}
-.fp-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;padding:0 10px}
-.fp-tab{flex:1;padding:8px 2px;font-size:11px;font-weight:600;color:rgba(255,255,255,.35);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .18s;font-family:inherit}
-.fp-tab.active{color:#e30613;border-bottom-color:#e30613}
+.fp-upload-wrap{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fp-upload-label{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:7px;color:rgba(255,255,255,.7);font-size:11px;font-weight:700;cursor:pointer;background:none;transition:all .15s;user-select:none;white-space:nowrap}
+.fp-upload-label:hover{border-color:white;color:white}
+.fp-limit-txt{font-size:10px;color:rgba(255,255,255,.25);white-space:nowrap}
+.fp-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.fp-tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.35);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;letter-spacing:.01em;user-select:none}
+.fp-tab:hover{color:rgba(255,255,255,.65);background:rgba(255,255,255,.03)}
+.fp-tab.active{color:white;border-bottom-color:#e30613;background:rgba(227,6,19,.06)}
 .fp-list{flex:1;overflow-y:auto;padding:6px 8px;min-height:0}
 .fp-list::-webkit-scrollbar{width:3px}.fp-list::-webkit-scrollbar-thumb{background:#eee;border-radius:3px}
 .fp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 12px;color:rgba(255,255,255,.2);text-align:center}
@@ -774,11 +775,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;height:100vh;dis
         </div>
         <div class="fp-upload-wrap">
           <label class="fp-upload-label" for="fileUploadInput">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             + Subir archivo
           </label>
           <input type="file" id="fileUploadInput" style="display:none" onchange="uploadAndSendFile(event)">
-          <div class="fp-limit-txt">Máx. 5 MB por archivo</div>
+          <div class="fp-limit-txt">Máx. 5 MB</div>
         </div>
         <div class="fp-tabs">
           <button class="fp-tab active" onclick="filterFpFiles('all',this)">Todos</button>
